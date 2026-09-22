@@ -18,7 +18,7 @@
 
   <header class="app-header">
     <div class="brand"><img src="icons/icon-72.png" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p>Mapa de revisitas</p></div></div>
-    <div id="saveStatus" class="status-chip" role="status" aria-live="polite">Guardado localmente</div>
+    <button id="saveStatus" class="status-chip status-button" type="button" aria-live="polite" aria-label="Guardar ahora">Guardado</button>
   </header>
 
   <main id="main" class="app-main">
@@ -36,12 +36,15 @@
 
     <section id="view-map" class="view" data-view="map" aria-labelledby="mapTitle" hidden>
       <div class="view-heading map-heading"><div><h2 id="mapTitle">Mapa</h2><p>Visualiza tus revisitas y confirma cada ubicación antes de guardarla.</p></div></div>
-      <div class="filter-row map-mode-row" role="group" aria-label="Modo del mapa">
-        <button class="filter-chip" type="button" data-map-mode="today">Hoy</button>
-        <button class="filter-chip is-active" type="button" data-map-mode="active">Activas</button>
-        <button class="filter-chip" type="button" data-map-mode="upcoming">Próximas</button>
-        <button class="filter-chip" type="button" data-map-mode="all">Todas</button>
-        <button class="filter-chip" type="button" data-map-mode="nearby">Cerca de mí</button>
+      <div class="horizontal-options">
+        <div id="mapModeRow" class="filter-row map-mode-row" role="group" aria-label="Modo del mapa">
+          <button class="filter-chip" type="button" data-map-mode="today">Hoy</button>
+          <button class="filter-chip is-active" type="button" data-map-mode="active">Activas</button>
+          <button class="filter-chip" type="button" data-map-mode="upcoming">Próximas</button>
+          <button class="filter-chip" type="button" data-map-mode="all">Todas</button>
+          <button class="filter-chip" type="button" data-map-mode="nearby">Cerca de mí</button>
+        </div>
+        <button id="mapScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más opciones">Desliza para ver más <span aria-hidden="true">→</span></button>
       </div>
       <p id="mapModeSummary" class="map-mode-summary muted"></p>
 
@@ -68,13 +71,16 @@
     <section id="view-list" class="view" data-view="list" aria-labelledby="listTitle" hidden>
       <div class="view-heading"><div><h2 id="listTitle">Revisitas</h2><p id="listSummary">0 guardadas</p></div><button id="addFromListBtn" class="btn btn-primary btn-small" type="button">Nueva</button></div>
       <label class="search-box"><span class="sr-only">Buscar revisitas</span><input id="searchInput" type="search" placeholder="Buscar por nombre, dirección o nota" autocomplete="off"></label>
-      <div class="filter-row" role="group" aria-label="Filtrar revisitas">
-        <button class="filter-chip is-active" type="button" data-filter="active">Activas</button>
-        <button class="filter-chip" type="button" data-filter="today">Hoy</button>
-        <button class="filter-chip" type="button" data-filter="upcoming">Próximas</button>
-        <button class="filter-chip" type="button" data-filter="undated">Sin fecha</button>
-        <button class="filter-chip" type="button" data-filter="completed">Historial</button>
-        <button class="filter-chip" type="button" data-filter="all">Todas</button>
+      <div class="horizontal-options">
+        <div id="listFilterRow" class="filter-row" role="group" aria-label="Filtrar revisitas">
+          <button class="filter-chip is-active" type="button" data-filter="active">Activas</button>
+          <button class="filter-chip" type="button" data-filter="today">Hoy</button>
+          <button class="filter-chip" type="button" data-filter="upcoming">Próximas</button>
+          <button class="filter-chip" type="button" data-filter="undated">Sin fecha</button>
+          <button class="filter-chip" type="button" data-filter="completed">Historial</button>
+          <button class="filter-chip" type="button" data-filter="all">Todas</button>
+        </div>
+        <button id="listScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más filtros">Desliza para ver más <span aria-hidden="true">→</span></button>
       </div>
       <div id="visitList" class="visit-list"></div>
       <div id="emptyList" class="empty-state card" hidden><div class="empty-icon" aria-hidden="true">⌖</div><h3>No hay revisitas aquí</h3><p>Guarda una ubicación desde el mapa para verla en esta lista.</p><button id="emptyMapBtn" class="btn btn-primary" type="button">Ir al mapa</button></div>
