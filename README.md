@@ -1,62 +1,54 @@
 # Revisita
 
-PWA móvil en español para guardar la ubicación de una revisita, ponerle un nombre o referencia, añadir notas y programar una fecha para volver.
+PWA móvil en español para organizar revisitas por **ubicación, fecha, hora y estado**.
 
-## Qué hace
+## Flujo principal
 
-- **GPS con un toque:** `Usar mi ubicación` toma la ubicación actual y abre el formulario.
-- **Pin manual:** tocar cualquier punto del mapa crea una revisita en esa ubicación.
-- **Mapa:** mosaicos de OpenStreetMap, con zoom y desplazamiento; las zonas vistas se guardan en caché para reutilizarlas sin conexión.
-- **Revisitas:** nombre/referencia, dirección aproximada, notas y fecha para volver.
-- **Lista:** búsqueda, filtros Hoy / Próximas / Sin fecha y distancia desde la última ubicación obtenida.
-- **Acciones:** ver en mapa, abrir navegación del teléfono y compartir una ubicación.
-- **Datos locales:** las revisitas se guardan en el dispositivo mediante `localStorage`.
-- **Copia de seguridad:** exportación/importación JSON con vista previa, política de conflictos y snapshot de recuperación.
-- **PWA:** instalable en Android y funcional para capturar/consultar revisitas aun cuando no haya red. El GPS puede seguir funcionando sin datos; los mosaicos nuevos y la búsqueda de dirección sí requieren conexión.
+1. La app abre en **Hoy** y muestra primero las revisitas atrasadas y las programadas para el día.
+2. En **Mapa**, toca un punto o usa **Usar mi ubicación**.
+3. El pin queda **provisional**. Nada se guarda todavía.
+4. Revisa dirección aproximada, coordenadas y precisión GPS (si aplica), mueve el pin si hace falta y pulsa **Confirmar ubicación**.
+5. Añade nombre/referencia, notas, **fecha** y **hora opcional**.
+6. Pulsa **Guardar revisita**.
 
-## Decisiones KHub
+## Funciones
 
-- **Modo:** Vanilla.
-- **Arquetipo:** Task tracker / management.
-- **Layout:** Standard (`--max-width: 960px`).
-- **Idioma:** Español.
-- **Zoom:** bloqueado en la interfaz instalada (`user-scalable=no`, `maximum-scale=1.0`) porque es una app móvil de uso rápido en campo; todos los campos mantienen 16px o más.
-- **Tema:** oscuro por defecto, claro opcional.
-- **Navegación:** 3 destinos: Mapa, Revisitas, Más.
-- **Acción primaria del mapa:** Usar mi ubicación.
+- **Hoy:** atrasadas + revisitas del día, ordenadas por hora.
+- **Hora opcional:** permite programar una hora concreta o dejar solo la fecha.
+- **Hecha / Reprogramar:** marca una revisita completada o cambia su próxima fecha/hora.
+- **Historial:** conserva las visitas completadas.
+- **Mapa por modo:** Hoy, Activas, Próximas, Todas y Cerca de mí.
+- **Cerca de mí:** muestra las revisitas activas dentro de 5 km cuando el GPS está disponible.
+- **Confirmación de ubicación:** un toque en el mapa nunca guarda por sí solo.
+- **Vista previa:** al abrir una revisita guardada se muestra un mapa centrado en el punto.
+- **Google Maps:** botón explícito para abrir navegación hacia la revisita.
+- **Buscar/filtrar:** por nombre, dirección, nota, estado y programación.
+- **Datos locales:** las revisitas se guardan en el dispositivo con `localStorage`.
+- **Copia de seguridad:** exportación/importación JSON con vista previa, conflictos y snapshot de recuperación.
+- **PWA/offline:** el shell, las revisitas y los mosaicos ya vistos siguen disponibles sin conexión.
+
+## Compatibilidad
+
+La versión 1.1.0 migra automáticamente los datos creados con la versión 1.0.0. Las revisitas antiguas quedan **Activas**, sin hora, y conservan su fecha, notas y ubicación.
 
 ## Privacidad
 
-Las revisitas, nombres y notas no se suben a un servidor propio. Permanecen en el dispositivo. Mientras hay conexión, el mapa solicita mosaicos a OpenStreetMap y la función de dirección aproximada consulta Nominatim/OpenStreetMap; esas solicitudes contienen la zona o coordenada consultada.
+Los nombres, notas y revisitas permanecen en el dispositivo. Cuando hay conexión, OpenStreetMap entrega los mosaicos y Nominatim puede resolver una dirección aproximada a partir de las coordenadas.
 
-## Publicar con GitHub Pages
+## Publicación
 
-El código ya está en `davidfontenelle80-cloud/Revisita`.
-
-1. En el repositorio abre **Settings → Pages**.
-2. En **Build and deployment**, selecciona **Deploy from a branch**.
-3. Selecciona **main** y **/(root)**.
-4. Pulsa **Save**.
-5. Espera a que GitHub Pages termine el despliegue.
-
-URL prevista:
+GitHub Pages publica la rama `main`:
 
 `https://davidfontenelle80-cloud.github.io/Revisita/`
-
-El GPS del navegador requiere HTTPS; GitHub Pages lo proporciona.
 
 ## Verificación
 
 ```bash
-npm test
-npm run check:encoding
-npm run ship-check
-# o todo junto:
 npm run check
 ```
 
-El workflow `Check` de GitHub Actions ejecuta estas verificaciones en cada push.
+Incluye encoding, sintaxis JavaScript, pruebas unitarias y KHub ship check.
 
 ## Dependencias de red
 
-No hay librerías JavaScript de terceros en tiempo de ejecución. El motor de mapa es vanilla y propio. Solo se consumen servicios web públicos para mosaicos/direcciones, documentados en `docs/DEPENDENCY-INVENTORY.md`.
+No hay frameworks JavaScript ni fuentes externas. El motor del mapa es vanilla. Los servicios de mapa/dirección se documentan en `docs/DEPENDENCY-INVENTORY.md`.
