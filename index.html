@@ -101,42 +101,42 @@
   </main>
 
   <nav class="bottom-nav" aria-label="Navegación principal">
-    <button class="nav-item is-active" type="button" data-destination="today" aria-current="page"><span class="nav-icon" aria-hidden="true">◷</span><span>Hoy</span><span id="todayBadge" class="nav-badge" hidden>0</span></button>
-    <button class="nav-item" type="button" data-destination="map"><span class="nav-icon" aria-hidden="true">⌖</span><span>Mapa</span></button>
-    <button class="nav-item" type="button" data-destination="list"><span class="nav-icon" aria-hidden="true">☷</span><span>Revisitas</span></button>
-    <button class="nav-item" type="button" data-destination="more"><span class="nav-icon" aria-hidden="true">•••</span><span>Más</span></button>
+    <button class="nav-item is-active" type="button" data-destination="today" aria-current="page"><span class="nav-icon" aria-hidden="true">◷</span><span data-i18n="navToday">Hoy</span><span id="todayBadge" class="nav-badge" hidden>0</span></button>
+    <button class="nav-item" type="button" data-destination="map"><span class="nav-icon" aria-hidden="true">⌖</span><span data-i18n="navMap">Mapa</span></button>
+    <button class="nav-item" type="button" data-destination="list"><span class="nav-icon" aria-hidden="true">☷</span><span data-i18n="navVisits">Revisitas</span></button>
+    <button class="nav-item" type="button" data-destination="more"><span class="nav-icon" aria-hidden="true">•••</span><span data-i18n="navMore">Más</span></button>
   </nav>
 
   <dialog id="visitDialog" class="sheet-dialog">
     <form id="visitForm" class="sheet" method="dialog">
       <div class="sheet-handle" aria-hidden="true"></div>
-      <div class="sheet-header"><div><h2 id="dialogTitle">Nueva revisita</h2><p id="dialogCoords" class="coord-line num"></p></div><button id="closeDialogBtn" class="icon-btn" type="button" aria-label="Cerrar">×</button></div>
+      <div class="sheet-header"><div><h2 id="dialogTitle" data-i18n="newVisitTitle">Nueva revisita</h2><p id="dialogCoords" class="coord-line num"></p></div><button id="closeDialogBtn" class="icon-btn" type="button" aria-label="Cerrar">×</button></div>
       <input id="visitId" type="hidden"><input id="visitLat" type="hidden"><input id="visitLng" type="hidden"><input id="visitStatus" type="hidden" value="active">
       <section id="detailMapSection" class="detail-map-section" hidden>
-        <div id="detailMap" class="detail-map" aria-label="Vista previa de la ubicación"></div>
-        <button id="googleMapsTopBtn" class="btn btn-primary map-open-btn" type="button">Abrir en Google Maps</button>
+        <div id="detailMap" class="detail-map" aria-label="Vista previa de la ubicación" data-i18n-aria="locationPreview"></div>
+        <button id="googleMapsTopBtn" class="btn btn-primary map-open-btn" type="button" data-i18n="openGoogleMaps">Abrir en Google Maps</button>
       </section>
-      <label class="field"><span>Nombre o referencia <b aria-hidden="true">*</b></span><input id="visitName" type="text" maxlength="120" required placeholder="Ej.: Casa azul, familia Pérez"></label>
-      <label class="field"><span>Dirección aproximada</span><div class="field-action-row"><input id="visitAddress" type="text" maxlength="220" placeholder="Se puede completar automáticamente"><button id="lookupAddressBtn" class="btn btn-secondary btn-compact" type="button">Buscar</button></div></label>
-      <label class="field"><span>Notas</span><textarea id="visitNotes" rows="4" maxlength="1200" placeholder="Qué hablaron, qué recordar, mejor horario…"></textarea></label>
+      <label class="field"><span><span data-i18n="nameReference">Nombre o referencia</span> <b aria-hidden="true">*</b></span><input id="visitName" type="text" maxlength="120" required data-i18n-placeholder="namePlaceholder" placeholder="Ej.: Casa azul, familia Pérez"></label>
+      <label class="field"><span data-i18n="approximateAddress">Dirección aproximada</span><div class="field-action-row"><input id="visitAddress" type="text" maxlength="220" data-i18n-placeholder="addressPlaceholder" placeholder="Se puede completar automáticamente"><button id="lookupAddressBtn" class="btn btn-secondary btn-compact" type="button" data-i18n="search">Buscar</button></div></label>
+      <label class="field"><span data-i18n="notes">Notas</span><textarea id="visitNotes" rows="4" maxlength="1200" data-i18n-placeholder="notesPlaceholder" placeholder="Qué hablaron, qué recordar, mejor horario…"></textarea></label>
       <div class="schedule-grid">
-        <label class="field"><span>Volver el</span><input id="visitDueDate" type="date"></label>
-        <label class="field"><span>Hora de volver</span><input id="visitDueTime" type="time" step="900"></label>
+        <label class="field"><span data-i18n="returnDate">Volver el</span><input id="visitDueDate" type="date"></label>
+        <label class="field"><span data-i18n="returnTime">Hora de volver</span><input id="visitDueTime" type="time" step="900"></label>
       </div>
-      <section id="historyPanel" class="history-panel card" hidden><strong>Historial</strong><div id="historyList"></div></section>
+      <section id="historyPanel" class="history-panel card" hidden><strong data-i18n="history">Historial</strong><div id="historyList"></div></section>
       <div id="existingActions" class="existing-actions" hidden>
-        <button id="markDoneBtn" class="btn btn-secondary" type="button">Marcar como hecha</button>
-        <button id="rescheduleBtn" class="btn btn-secondary" type="button">Reprogramar</button>
-        <button id="showOnMapBtn" class="btn btn-secondary" type="button">Ver en mapa</button>
-        <button id="googleMapsBtn" class="btn btn-secondary" type="button">Google Maps</button>
-        <button id="shareBtn" class="btn btn-secondary" type="button">Compartir</button>
+        <button id="markDoneBtn" class="btn btn-secondary" type="button" data-i18n="markDone">Marcar como hecha</button>
+        <button id="rescheduleBtn" class="btn btn-secondary" type="button" data-i18n="reschedule">Reprogramar</button>
+        <button id="showOnMapBtn" class="btn btn-secondary" type="button" data-i18n="viewMap">Ver en mapa</button>
+        <button id="googleMapsBtn" class="btn btn-secondary" type="button" data-i18n="googleMaps">Google Maps</button>
+        <button id="shareBtn" class="btn btn-secondary" type="button" data-i18n="share">Compartir</button>
       </div>
-      <div class="sheet-footer"><button id="deleteVisitBtn" class="btn btn-danger btn-delete" type="button" hidden>Eliminar revisita</button><button class="btn btn-primary" type="submit">Guardar revisita</button></div>
+      <div class="sheet-footer"><button id="deleteVisitBtn" class="btn btn-danger btn-delete" type="button" hidden data-i18n="deleteVisit">Eliminar revisita</button><button class="btn btn-primary" type="submit" data-i18n="saveVisit">Guardar revisita</button></div>
     </form>
   </dialog>
 
   <dialog id="importDialog" class="sheet-dialog">
-    <div class="sheet"><div class="sheet-handle" aria-hidden="true"></div><div class="sheet-header"><div><h2>Revisar importación</h2><p>Confirma antes de cambiar tus datos.</p></div><button id="closeImportBtn" class="icon-btn" type="button" aria-label="Cerrar">×</button></div><div id="importPreview" class="import-preview"></div><div class="alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong>Política:</strong> se combinan registros por ID. Si un ID ya existe, la copia importada lo reemplaza. Antes de aplicar, se crea una copia local de recuperación.</span></div><div class="sheet-footer"><button id="cancelImportBtn" class="btn btn-secondary" type="button">Cancelar</button><button id="confirmImportBtn" class="btn btn-primary" type="button">Importar revisitas</button></div></div>
+    <div class="sheet"><div class="sheet-handle" aria-hidden="true"></div><div class="sheet-header"><div><h2 data-i18n="importReview">Revisar importación</h2><p data-i18n="importReviewText">Confirma antes de cambiar tus datos.</p></div><button id="closeImportBtn" class="icon-btn" type="button" aria-label="Cerrar">×</button></div><div id="importPreview" class="import-preview"></div><div class="alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong data-i18n="importPolicyTitle">Política:</strong> <span data-i18n="importPolicy">se combinan registros por ID. Si un ID ya existe, la copia importada lo reemplaza. Antes de aplicar, se crea una copia local de recuperación.</span></span></div><div class="sheet-footer"><button id="cancelImportBtn" class="btn btn-secondary" type="button" data-i18n="cancel">Cancelar</button><button id="confirmImportBtn" class="btn btn-primary" type="button" data-i18n="importVisits">Importar revisitas</button></div></div>
   </dialog>
 
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
