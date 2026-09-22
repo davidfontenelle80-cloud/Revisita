@@ -12,89 +12,90 @@
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-  <a class="skip-link" href="#main">Ir al contenido</a>
+  <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
   <div id="errorBoundary" class="error-boundary" hidden role="alert"></div>
-  <div id="updateNotice" class="update-notice" hidden><span>Hay una actualización disponible.</span><button id="reloadAppBtn" type="button">Actualizar</button></div>
+  <div id="updateNotice" class="update-notice" hidden><span data-i18n="updateAvailable">Hay una actualización disponible.</span><button id="reloadAppBtn" type="button" data-i18n="update">Actualizar</button></div>
 
   <header class="app-header">
-    <div class="brand"><img src="icons/icon-72.png" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p>Mapa de revisitas</p></div></div>
-    <button id="saveStatus" class="status-chip status-button" type="button" aria-live="polite" aria-label="Guardar ahora">Guardar</button>
+    <div class="brand"><img src="icons/icon-72.png" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
+    <button id="saveStatus" class="status-chip status-button" type="button" aria-live="polite" aria-label="Guardar ahora" data-i18n-aria="save"><span data-i18n="save">Guardar</span></button>
   </header>
 
   <main id="main" class="app-main">
     <section id="view-today" class="view is-active" data-view="today" aria-labelledby="todayTitle">
-      <div class="view-heading"><div><h2 id="todayTitle">Hoy</h2><p id="todayDate"></p></div><button id="todayNewBtn" class="btn btn-primary btn-small" type="button">Nueva</button></div>
+      <div class="view-heading"><div><h2 id="todayTitle" data-i18n="today">Hoy</h2><p id="todayDate"></p></div><button id="todayNewBtn" class="btn btn-primary btn-small" type="button" data-i18n="newVisit">Nueva</button></div>
       <div class="summary-grid">
-        <div class="summary-card card"><span>Atrasadas</span><strong id="overdueCount" class="num">0</strong></div>
-        <div class="summary-card card"><span>Para hoy</span><strong id="todayCount" class="num">0</strong></div>
-        <div class="summary-card card"><span>Hechas hoy</span><strong id="doneTodayCount" class="num">0</strong></div>
+        <div class="summary-card card"><span data-i18n="overdue">Atrasadas</span><strong id="overdueCount" class="num">0</strong></div>
+        <div class="summary-card card"><span data-i18n="forToday">Para hoy</span><strong id="todayCount" class="num">0</strong></div>
+        <div class="summary-card card"><span data-i18n="doneToday">Hechas hoy</span><strong id="doneTodayCount" class="num">0</strong></div>
       </div>
-      <section id="overdueSection" class="agenda-section" hidden><div class="section-title"><h3>Atrasadas</h3><span class="mini-chip due">Atención</span></div><div id="overdueList" class="agenda-list"></div></section>
-      <section id="todaySection" class="agenda-section"><div class="section-title"><h3>Para hoy</h3><span class="muted">Ordenadas por hora</span></div><div id="todayList" class="agenda-list"></div></section>
-      <div id="todayEmpty" class="empty-state card" hidden><div class="empty-icon" aria-hidden="true">✓</div><h3>Todo al día</h3><p>No tienes revisitas atrasadas ni programadas para hoy.</p><button id="todayMapBtn" class="btn btn-secondary" type="button">Ver mapa de activas</button></div>
+      <section id="overdueSection" class="agenda-section" hidden><div class="section-title"><h3 data-i18n="overdue">Atrasadas</h3><span class="mini-chip due" data-i18n="attention">Atención</span></div><div id="overdueList" class="agenda-list"></div></section>
+      <section id="todaySection" class="agenda-section"><div class="section-title"><h3 data-i18n="forToday">Para hoy</h3><span class="muted" data-i18n="orderedByTime">Ordenadas por hora</span></div><div id="todayList" class="agenda-list"></div></section>
+      <div id="todayEmpty" class="empty-state card" hidden><div class="empty-icon" aria-hidden="true">✓</div><h3 data-i18n="allCaughtUp">Todo al día</h3><p data-i18n="noTodayTasks">No tienes revisitas atrasadas ni programadas para hoy.</p><button id="todayMapBtn" class="btn btn-secondary" type="button" data-i18n="viewActiveMap">Ver mapa de activas</button></div>
     </section>
 
     <section id="view-map" class="view" data-view="map" aria-labelledby="mapTitle" hidden>
-      <div class="view-heading map-heading"><div><h2 id="mapTitle">Mapa</h2><p>Visualiza tus revisitas y confirma cada ubicación antes de guardarla.</p></div></div>
+      <div class="view-heading map-heading"><div><h2 id="mapTitle" data-i18n="map">Mapa</h2><p data-i18n="mapSubtitle">Visualiza tus revisitas y confirma cada ubicación antes de guardarla.</p></div></div>
       <div class="horizontal-options">
         <div id="mapModeRow" class="filter-row map-mode-row" role="group" aria-label="Modo del mapa">
-          <button class="filter-chip" type="button" data-map-mode="today">Hoy</button>
-          <button class="filter-chip is-active" type="button" data-map-mode="active">Activas</button>
-          <button class="filter-chip" type="button" data-map-mode="upcoming">Próximas</button>
-          <button class="filter-chip" type="button" data-map-mode="all">Todas</button>
-          <button class="filter-chip" type="button" data-map-mode="nearby">Cerca de mí</button>
+          <button class="filter-chip" type="button" data-map-mode="today" data-i18n="today">Hoy</button>
+          <button class="filter-chip is-active" type="button" data-map-mode="active" data-i18n="active">Activas</button>
+          <button class="filter-chip" type="button" data-map-mode="upcoming" data-i18n="upcoming">Próximas</button>
+          <button class="filter-chip" type="button" data-map-mode="all" data-i18n="all">Todas</button>
+          <button class="filter-chip" type="button" data-map-mode="nearby" data-i18n="nearby">Cerca de mí</button>
         </div>
-        <button id="mapScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más opciones">Desliza para ver más <span aria-hidden="true">→</span></button>
+        <button id="mapScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más opciones"><span data-i18n="swipeMore">Desliza para ver más</span> <span aria-hidden="true">→</span></button>
       </div>
       <p id="mapModeSummary" class="map-mode-summary muted"></p>
 
       <div class="map-shell card" id="mapShell">
-        <div id="map" class="map" role="application" aria-label="Mapa de revisitas"><div class="map-placeholder"><span>Mapa</span><small>Los mosaicos aparecen cuando hay conexión.</small></div></div>
+        <div id="map" class="map" role="application" aria-label="Mapa de revisitas"><div class="map-placeholder"><span>Mapa</span><small data-i18n="mapTiles">Los mosaicos aparecen cuando hay conexión.</small></div></div>
         <div class="map-controls" aria-label="Controles del mapa"><button id="zoomInBtn" class="map-control" type="button" aria-label="Acercar">+</button><button id="zoomOutBtn" class="map-control" type="button" aria-label="Alejar">−</button></div>
-        <button id="locateBtn" class="locate-btn" type="button"><span aria-hidden="true">◎</span>Usar mi ubicación</button>
+        <button id="locateBtn" class="locate-btn" type="button"><span aria-hidden="true">◎</span><span data-i18n="useLocation">Usar mi ubicación</span></button>
         <div id="locationConfirmPanel" class="location-confirm card" hidden>
-          <strong>¿Es esta la ubicación correcta?</strong>
-          <p id="pendingAddress">Buscando dirección aproximada…</p>
+          <strong data-i18n="confirmLocationTitle">¿Es esta la ubicación correcta?</strong>
+          <p id="pendingAddress" data-i18n="searchingAddress">Buscando dirección aproximada…</p>
           <p id="pendingCoords" class="coord-line num"></p>
           <p id="pendingAccuracy" class="accuracy-line" hidden></p>
           <div class="confirm-actions">
-            <button id="cancelLocationBtn" class="btn btn-secondary" type="button">Cancelar</button>
-            <button id="adjustLocationBtn" class="btn btn-secondary" type="button">Ajustar ubicación</button>
-            <button id="confirmLocationBtn" class="btn btn-primary" type="button">Confirmar ubicación</button>
+            <button id="cancelLocationBtn" class="btn btn-secondary" type="button" data-i18n="cancel">Cancelar</button>
+            <button id="adjustLocationBtn" class="btn btn-secondary" type="button" data-i18n="adjustLocation">Ajustar ubicación</button>
+            <button id="confirmLocationBtn" class="btn btn-primary" type="button" data-i18n="confirmLocation">Confirmar ubicación</button>
           </div>
         </div>
         <div class="map-attribution">© OpenStreetMap contributors</div>
       </div>
-      <div class="map-tip alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong>Primero confirma:</strong> al tocar el mapa aparece un pin provisional. Puedes tocar otro punto antes de confirmarlo.</span></div>
+      <div class="map-tip alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong data-i18n="confirmTipTitle">Primero confirma:</strong> <span data-i18n="confirmTip">al tocar el mapa aparece un pin provisional. Puedes tocar otro punto antes de confirmarlo.</span></span></div>
     </section>
 
     <section id="view-list" class="view" data-view="list" aria-labelledby="listTitle" hidden>
-      <div class="view-heading"><div><h2 id="listTitle">Revisitas</h2><p id="listSummary">0 guardadas</p></div><button id="addFromListBtn" class="btn btn-primary btn-small" type="button">Nueva</button></div>
-      <label class="search-box"><span class="sr-only">Buscar revisitas</span><input id="searchInput" type="search" placeholder="Buscar por nombre, dirección o nota" autocomplete="off"></label>
+      <div class="view-heading"><div><h2 id="listTitle" data-i18n="visits">Revisitas</h2><p id="listSummary">0 guardadas</p></div><button id="addFromListBtn" class="btn btn-primary btn-small" type="button" data-i18n="newVisit">Nueva</button></div>
+      <label class="search-box"><span class="sr-only">Buscar revisitas</span><input id="searchInput" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="Buscar por nombre, dirección o nota" autocomplete="off"></label>
       <div class="horizontal-options">
         <div id="listFilterRow" class="filter-row" role="group" aria-label="Filtrar revisitas">
-          <button class="filter-chip is-active" type="button" data-filter="active">Activas</button>
-          <button class="filter-chip" type="button" data-filter="today">Hoy</button>
-          <button class="filter-chip" type="button" data-filter="upcoming">Próximas</button>
-          <button class="filter-chip" type="button" data-filter="undated">Sin fecha</button>
-          <button class="filter-chip" type="button" data-filter="completed">Historial</button>
-          <button class="filter-chip" type="button" data-filter="all">Todas</button>
+          <button class="filter-chip is-active" type="button" data-filter="active" data-i18n="active">Activas</button>
+          <button class="filter-chip" type="button" data-filter="today" data-i18n="today">Hoy</button>
+          <button class="filter-chip" type="button" data-filter="upcoming" data-i18n="upcoming">Próximas</button>
+          <button class="filter-chip" type="button" data-filter="undated" data-i18n="undated">Sin fecha</button>
+          <button class="filter-chip" type="button" data-filter="completed" data-i18n="history">Historial</button>
+          <button class="filter-chip" type="button" data-filter="all" data-i18n="all">Todas</button>
         </div>
         <button id="listScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más filtros">Desliza para ver más <span aria-hidden="true">→</span></button>
       </div>
       <div id="visitList" class="visit-list"></div>
-      <div id="emptyList" class="empty-state card" hidden><div class="empty-icon" aria-hidden="true">⌖</div><h3>No hay revisitas aquí</h3><p>Guarda una ubicación desde el mapa para verla en esta lista.</p><button id="emptyMapBtn" class="btn btn-primary" type="button">Ir al mapa</button></div>
+      <div id="emptyList" class="empty-state card" hidden><div class="empty-icon" aria-hidden="true">⌖</div><h3 data-i18n="noVisits">No hay revisitas aquí</h3><p data-i18n="noVisitsText">Guarda una ubicación desde el mapa para verla en esta lista.</p><button id="emptyMapBtn" class="btn btn-primary" type="button" data-i18n="goMap">Ir al mapa</button></div>
     </section>
 
     <section id="view-more" class="view" data-view="more" aria-labelledby="moreTitle" hidden>
-      <div class="view-heading"><div><h2 id="moreTitle">Más</h2><p>Instalación, apariencia y copias de seguridad.</p></div></div>
+      <div class="view-heading"><div><h2 id="moreTitle" data-i18n="more">Más</h2><p data-i18n="moreSubtitle">Instalación, apariencia, idioma y copias de seguridad.</p></div></div>
       <div class="settings-stack">
-        <section class="card settings-card"><h3>Instalar la app</h3><p>Úsala como una app normal desde la pantalla de inicio de Android.</p><button id="installBtn" class="btn btn-primary" type="button" disabled>Instalar Revisita</button><p id="installHint" class="muted">Si ya está instalada, este botón puede no aparecer disponible.</p></section>
-        <section class="card settings-card"><h3>Apariencia</h3><div class="setting-row"><div><strong>Tema</strong><p class="muted">Oscuro o claro.</p></div><button id="themeToggleBtn" class="btn btn-secondary" type="button">Cambiar tema</button></div></section>
-        <section class="card settings-card"><h3>Copia de seguridad</h3><p>Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden>Restaurar copia anterior</button></div></section>
-        <section class="card settings-card privacy-card"><h3>Privacidad</h3><p>Las revisitas y notas se guardan solamente en este dispositivo. El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted">Guarda únicamente la información necesaria para la revisita.</p></section>
-        <section class="card settings-card danger-zone"><h3>Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.1.1</p>
+        <section class="card settings-card"><h3 data-i18n="installApp">Instalar la app</h3><p data-i18n="installText">Úsala como una app normal desde la pantalla de inicio.</p><button id="installBtn" class="btn btn-primary" type="button" disabled data-i18n="installRevisita">Instalar Revisita</button><p id="installHint" class="muted" data-i18n="installHint">Si ya está instalada, este botón puede no aparecer disponible.</p></section>
+        <section class="card settings-card"><h3 data-i18n="appearance">Apariencia</h3><div><strong data-i18n="theme">Tema</strong><p class="muted" data-i18n="themeHelp">Elige cómo quieres ver Revisita.</p></div><div class="segmented-control" role="group" aria-label="Tema"><button class="segment-btn" type="button" data-theme-choice="dark" data-i18n="dark">Oscuro</button><button class="segment-btn" type="button" data-theme-choice="light" data-i18n="light">Claro</button></div></section>
+        <section class="card settings-card"><h3 data-i18n="language">Idioma</h3><p data-i18n="languageHelp">Puedes cambiar el idioma en cualquier momento.</p><div class="segmented-control" role="group" aria-label="Idioma"><button class="segment-btn" type="button" data-lang-choice="es" data-i18n="spanish">Español</button><button class="segment-btn" type="button" data-lang-choice="en" data-i18n="english">English</button></div></section>
+        <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
+        <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p data-i18n="privacyText">Las revisitas y notas se guardan solamente en este dispositivo. El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
+        <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
+        <p class="app-version">Revisita v1.2.0</p>
       </div>
     </section>
   </main>
