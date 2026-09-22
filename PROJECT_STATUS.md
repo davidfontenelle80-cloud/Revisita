@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.1.0 implementada — READY FOR REVIEW.**
+**v1.1.1 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -44,3 +44,13 @@ Prueba breve en Android real:
 6. Marcar Hecha y Reprogramar.
 7. Abrir una revisita y comprobar mapa previo + Google Maps.
 8. Probar Cerca de mí e instalación PWA.
+
+
+## Ajustes móviles v1.1.1
+
+- Encabezado compacto para evitar texto cortado en pantallas estrechas.
+- El control verde ahora dice **Guardar** y es accionable.
+- Se corrigieron límites de ancho/overflow en vistas, tarjetas y ajustes.
+- Las filas horizontales de filtros muestran **“Desliza para ver más →”** cuando hay opciones fuera de pantalla.
+- Tocar esa pista desplaza la fila; desaparece al llegar al final.
+- Cache PWA actualizado a v3 para entregar los cambios de interfaz.
