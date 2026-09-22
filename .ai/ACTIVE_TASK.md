@@ -8,8 +8,8 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
-- **% complete:** 100% — ajuste móvil implementado y verificado
+- **Status:** READY FOR REVIEW
+- **% complete:** 100% — responsive + tema + bilingüe implementado y verificado
 - **Confidence:** 95%
 
 ## Objective completed
@@ -112,3 +112,36 @@ Plan:
 - Replace the generic theme toggle with an explicit two-option theme selector.
 - Persist theme choice in existing local settings.
 - Bump PWA cache/version and run full checks.
+
+
+## Responsive + language/theme result
+
+- Revisita ahora sigue el patrón responsive de KHub para teléfono, tablet, landscape, laptop y desktop.
+- Layout se mantiene centrado en modo **Standard 960**.
+- Manifest permite orientación **any**.
+- Mapa, diálogos, listas, tarjetas, settings y navegación reflow según ancho/alto disponible.
+- Tema explícito **Oscuro / Claro** con preferencia persistente.
+- Idioma explícito **Español / English** con preferencia persistente en `revisita.lang`.
+- Textos estáticos, mensajes dinámicos, fechas, horas, alertas, filtros y acciones cambian con el idioma.
+- `Alt+L` cambia idioma y `Alt+D` cambia tema con teclado físico.
+- `js/i18n.js` forma parte del precache offline.
+- App version: **1.2.0**.
+- Service worker cache: **v4**.
+- GitHub Actions final: **PASS**.
+- Encoding: **26 archivos limpios**.
+- Syntax check: **PASS**.
+- Unit tests: **13/13 PASS**.
+- KHub ship check: **PASS**.
+
+## Remaining supervisor acceptance test
+
+Prueba visual rápida en:
+- teléfono pequeño/grande,
+- tablet portrait/landscape,
+- tema claro/oscuro,
+- español/English,
+- flujo de ubicación provisional → confirmar → guardar → abrir → Google Maps.
+
+## Next step
+
+David revisa la versión publicada. Cualquier observación pasa a un nuevo ajuste; solo el supervisor marca COMPLETE.
