@@ -2,32 +2,45 @@
 
 ## Estado
 
-Versión 1.0.0 implementada en `davidfontenelle80-cloud/Revisita` y **READY FOR REVIEW**.
+**v1.1.0 implementada — READY FOR REVIEW.**
 
-## Flujo principal
+## Flujo actual
 
-1. Abrir **Mapa**.
-2. Tocar **Usar mi ubicación** o tocar el mapa.
-3. Escribir nombre/referencia y, si se desea, dirección, notas y fecha.
-4. Guardar.
-5. Consultar en **Revisitas**, buscar/filtrar, abrir el registro, navegar, compartir o editar.
+- La aplicación abre en **Hoy**.
+- Hoy muestra **Atrasadas** y **Para hoy**, ordenadas por hora.
+- El mapa ofrece **Hoy · Activas · Próximas · Todas · Cerca de mí**.
+- Tocar el mapa o usar GPS crea un **pin provisional**.
+- La ubicación requiere **Confirmar ubicación** antes de abrir el formulario.
+- El formulario admite fecha + **hora opcional**.
+- Las revisitas se pueden marcar **Hecha** o **Reprogramar**.
+- Las visitas completadas pasan al **Historial**.
+- Al abrir una revisita se muestra una **vista previa del mapa**.
+- **Abrir en Google Maps** inicia navegación hacia las coordenadas.
 
 ## Datos
 
-- Persistencia: `localStorage`, clave `revisita.state.v1`.
-- Snapshot preimportación: `revisita.preimport.v1`.
+- Persistencia: `localStorage`, clave histórica `revisita.state.v1` para conservar compatibilidad.
+- Esquema lógico actual: versión 2.
+- Nuevos campos: `dueTime`, `status`, `completedAt`, `history`.
+- Migración automática desde v1.
 - Sin backend ni cuenta.
-- OpenStreetMap/Nominatim solo se usan para mosaicos y dirección aproximada cuando hay conexión.
 
-## Verificación
+## Verificación automatizada
 
-- GitHub Actions `Check`: PASS.
-- Tests: 6/6.
-- Encoding: PASS.
-- KHub ship check: PASS.
-- Archivos e iconos PWA presentes en `main`.
+- Encoding check.
+- JavaScript syntax check.
+- Tests de mapas, distancias, agenda, importación y migración.
+- KHub ship check.
+- GitHub Pages despliega desde `main`.
 
-## Pendiente
+## Pendiente de supervisor
 
-- Activar GitHub Pages desde **Settings → Pages → Deploy from a branch → main / root**.
-- Probar en Android real: GPS, instalación PWA, guardar/editar/eliminar, mapa, copia de seguridad y **Cómo llegar**.
+Prueba breve en Android real:
+1. Abrir Hoy.
+2. Crear pin por toque y verificar que **no se guarda** antes de confirmar/guardar.
+3. Crear pin por GPS y revisar precisión.
+4. Guardar con fecha + hora.
+5. Verlo en Hoy y en Mapa.
+6. Marcar Hecha y Reprogramar.
+7. Abrir una revisita y comprobar mapa previo + Google Maps.
+8. Probar Cerca de mí e instalación PWA.
