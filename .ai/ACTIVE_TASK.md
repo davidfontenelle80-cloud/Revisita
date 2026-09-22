@@ -8,8 +8,8 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
-- **% complete:** 85% — ajuste móvil de espaciado, guardado manual y pistas de desplazamiento
+- **Status:** READY FOR REVIEW
+- **% complete:** 100% — ajuste móvil implementado y verificado
 - **Confidence:** 95%
 
 ## Objective completed
@@ -84,3 +84,15 @@ Cambio solicitado:
 - Compactar y hacer accionable el control de guardado.
 - Evitar overflow horizontal.
 - Añadir pista “Desliza para ver más →” cuando una fila realmente tiene contenido fuera de pantalla.
+
+
+## Follow-up result
+
+- Botón de encabezado: **Guardar**; al tocarlo fuerza guardado local y confirma con toast.
+- Si hay un pin provisional, el botón advierte que primero debe confirmarse la ubicación.
+- Header y pantallas estrechas protegidos contra overflow horizontal.
+- Pistas dinámicas **Desliza para ver más →** añadidas a modos de mapa y filtros de Revisitas.
+- La pista también funciona como botón para avanzar la fila.
+- Versión: **1.1.1**.
+- Service worker cache: **v3**.
+- Automated checks: PASS en el código de este cambio antes del cierre de tarea.
