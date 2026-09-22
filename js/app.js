@@ -15,7 +15,7 @@ const els={
 const map=new SimpleMap(els.mapEl,state.map);
 const detailMap=new SimpleMap($('detailMap'),{...state.map,interactive:false,zoom:17});
 map.onTap=ll=>beginLocationConfirmation({...ll,source:'map'});
-map.onMarkerTap=id=>openEditor(id);
+map.onMarkerTap=id=>{clearPendingLocation();openEditor(id);};
 map.onViewChange=({lat,lng,zoom})=>{state.map={lat,lng,zoom};persist(false);};
 
 init();
@@ -39,6 +39,7 @@ function bindNav(){
  $('addFromListBtn').addEventListener('click',()=>{showView('map');toast('Toca el mapa o usa tu ubicación actual.');});
 }
 function showView(name){
+ if(name!=='map'&&pendingLocation)clearPendingLocation();
  document.querySelectorAll('.view').forEach(v=>{const on=v.dataset.view===name;v.hidden=!on;v.classList.toggle('is-active',on);});
  document.querySelectorAll('[data-destination]').forEach(b=>{const on=b.dataset.destination===name;b.classList.toggle('is-active',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
  if(name==='map')requestAnimationFrame(()=>{map.render();renderMapMode(false);});
