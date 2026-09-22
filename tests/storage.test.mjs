@@ -35,3 +35,18 @@ test('import validation accepts Revisita payload and counts conflicts', () => {
 test('import validation rejects foreign payloads', () => {
   assert.throws(() => validateImportPayload({ app: 'Otra app', visits: [] }), /Revisita/);
 });
+
+
+test('legacy v1 visits migrate to active visits with optional time fields', () => {
+  const state = normalizeState({ version: 1, visits: [{ id: 'old', name: 'Casa', lat: 18.5, lng: -69.9, dueDate: '2026-09-22' }] });
+  assert.equal(state.version, 2);
+  assert.equal(state.visits[0].status, 'active');
+  assert.equal(state.visits[0].dueTime, '');
+  assert.deepEqual(state.visits[0].history, []);
+});
+
+test('completed history survives normalization', () => {
+  const state = normalizeState({ visits: [{ id: 'done', name: 'Familia', lat: 18.5, lng: -69.9, status: 'completed', completedAt: '2026-09-22T15:00:00Z', history: [{ completedAt: '2026-09-22T15:00:00Z', dueDate: '2026-09-22', dueTime: '14:30' }] }] });
+  assert.equal(state.visits[0].status, 'completed');
+  assert.equal(state.visits[0].history[0].dueTime, '14:30');
+});
