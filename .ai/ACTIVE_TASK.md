@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
+- **Status:** IN PROGRESS
 - **% complete:** 100% — ajuste móvil implementado y verificado
 - **Confidence:** 95%
 
@@ -96,3 +96,19 @@ Cambio solicitado:
 - Versión: **1.1.1**.
 - Service worker cache: **v3**.
 - Automated checks: PASS en el código de este cambio antes del cierre de tarea.
+
+
+## Responsive + theme follow-up — 2026-09-22
+
+Requested:
+- Make Revisita resize cleanly from small phones through tablets and larger browser windows.
+- Keep controls/cards readable without clipped text or unnecessary horizontal overflow.
+- Provide a clear, explicit **Claro / Oscuro** theme choice without complicating the app.
+
+Plan:
+- Use a standard scalable viewport.
+- Add fluid width constraints and tablet/desktop breakpoints.
+- Improve tablet card grids, map sizing, dialogs and navigation width.
+- Replace the generic theme toggle with an explicit two-option theme selector.
+- Persist theme choice in existing local settings.
+- Bump PWA cache/version and run full checks.
