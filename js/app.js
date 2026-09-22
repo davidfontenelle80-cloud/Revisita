@@ -11,7 +11,7 @@ const els={
  dialog:$('visitDialog'),form:$('visitForm'),id:$('visitId'),lat:$('visitLat'),lng:$('visitLng'),visitStatus:$('visitStatus'),name:$('visitName'),address:$('visitAddress'),notes:$('visitNotes'),due:$('visitDueDate'),dueTime:$('visitDueTime'),title:$('dialogTitle'),coords:$('dialogCoords'),existing:$('existingActions'),deleteVisit:$('deleteVisitBtn'),detailMapSection:$('detailMapSection'),historyPanel:$('historyPanel'),historyList:$('historyList'),markDone:$('markDoneBtn'),reschedule:$('rescheduleBtn'),
  list:$('visitList'),empty:$('emptyList'),summary:$('listSummary'),search:$('searchInput'),
  todayDate:$('todayDate'),overdueCount:$('overdueCount'),todayCount:$('todayCount'),doneTodayCount:$('doneTodayCount'),overdueSection:$('overdueSection'),todaySection:$('todaySection'),overdueList:$('overdueList'),todayList:$('todayList'),todayEmpty:$('todayEmpty'),todayBadge:$('todayBadge'),
- importDialog:$('importDialog'),importPreview:$('importPreview'),importFile:$('importFileInput'),restore:$('restoreSnapshotBtn'),install:$('installBtn'),installHint:$('installHint'),update:$('updateNotice'),toast:$('toastRegion')
+ importDialog:$('importDialog'),importPreview:$('importPreview'),importFile:$('importFileInput'),restore:$('restoreSnapshotBtn'),install:$('installBtn'),installHint:$('installHint'),iosInstallDialog:$('iosInstallDialog'),update:$('updateNotice'),toast:$('toastRegion')
 };
 const map=new SimpleMap(els.mapEl,state.map);
 const detailMap=new SimpleMap($('detailMap'),{...state.map,interactive:false,zoom:17});
@@ -26,11 +26,11 @@ function init(){
  applyTheme(state.settings.theme||'dark');
  applyTranslations(document);
  bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindAgenda();bindList();bindMore();bindKeyboardShortcuts();
- renderAll();registerSW();updateOnline();
+ renderAll();registerSW();updateOnline();updateInstallUI();
  addEventListener('online',updateOnline);addEventListener('offline',updateOnline);
- addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();updateOnline();});
- addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;els.install.disabled=false;els.installHint.textContent=t('installReady');});
- addEventListener('appinstalled',()=>{installPrompt=null;els.install.disabled=true;els.installHint.textContent=t('installed');toast(t('appInstalled'));});
+ addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();updateOnline();updateInstallUI();});
+ addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;updateInstallUI();});
+ addEventListener('appinstalled',()=>{installPrompt=null;updateInstallUI();toast(t('appInstalled'));});
  addEventListener('error',e=>showError(t('errorApp'),e.message||t('unknownError')));
  addEventListener('unhandledrejection',e=>showError(t('errorApp'),e.reason?.message||String(e.reason||t('unknownError'))));
 }
@@ -214,10 +214,65 @@ function bindKeyboardShortcuts(){
  });
 }
 
+
+function isIOSDevice(){
+ const ua=navigator.userAgent||'';
+ return /iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+}
+function isStandalone(){
+ return window.matchMedia?.('(display-mode: standalone)').matches===true||navigator.standalone===true;
+}
+function updateInstallUI(){
+ if(!els.install||!els.installHint)return;
+ if(isStandalone()){
+   els.install.disabled=true;
+   els.install.textContent=t('installed');
+   els.installHint.textContent=t('installed');
+   return;
+ }
+ if(isIOSDevice()){
+   els.install.disabled=false;
+   els.install.textContent=t('installIOS');
+   els.installHint.textContent=t('installIOSHint');
+   return;
+ }
+ if(installPrompt){
+   els.install.disabled=false;
+   els.install.textContent=t('installRevisita');
+   els.installHint.textContent=t('installReady');
+   return;
+ }
+ els.install.disabled=false;
+ els.install.textContent=t('installRevisita');
+ els.installHint.textContent=t('installHint');
+}
+function openIOSInstallGuide(){
+ if(!els.iosInstallDialog)return;
+ if(!els.iosInstallDialog.open)els.iosInstallDialog.showModal();
+}
+function closeIOSInstallGuide(){
+ if(els.iosInstallDialog?.open)els.iosInstallDialog.close();
+}
+
 function bindMore(){
  document.querySelectorAll('[data-theme-choice]').forEach(b=>b.addEventListener('click',()=>{state.settings.theme=b.dataset.themeChoice==='light'?'light':'dark';applyTheme(state.settings.theme);persist();}));
  document.querySelectorAll('[data-lang-choice]').forEach(b=>b.addEventListener('click',()=>{setLanguage(b.dataset.langChoice);toast(t('languageChanged'));}));
- els.install.addEventListener('click',async()=>{if(!installPrompt)return;await installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;els.install.disabled=true;});
+ els.install.addEventListener('click',async()=>{
+   if(isStandalone()){toast(t('installed'));return;}
+   if(isIOSDevice()){openIOSInstallGuide();return;}
+   if(installPrompt){
+     await installPrompt.prompt();
+     await installPrompt.userChoice;
+     installPrompt=null;
+     updateInstallUI();
+     return;
+   }
+   toast(t('installUnavailable'));
+ });
+ $('closeIOSInstallBtn')?.addEventListener('click',closeIOSInstallGuide);
+ $('iosInstallDoneBtn')?.addEventListener('click',closeIOSInstallGuide);
+ els.iosInstallDialog?.addEventListener('cancel',e=>{e.preventDefault();closeIOSInstallGuide();});
+ els.iosInstallDialog?.addEventListener('click',e=>{if(e.target===els.iosInstallDialog)closeIOSInstallGuide();});
  $('exportBtn').addEventListener('click',exportBackup);$('importBtn').addEventListener('click',()=>els.importFile.click());els.importFile.addEventListener('change',importFile);$('closeImportBtn').addEventListener('click',closeImport);$('cancelImportBtn').addEventListener('click',closeImport);$('confirmImportBtn').addEventListener('click',confirmImport);els.restore.addEventListener('click',restoreSnapshot);$('deleteAllBtn').addEventListener('click',deleteAll);$('reloadAppBtn').addEventListener('click',()=>{swRegistration?.waiting?.postMessage({type:'SKIP_WAITING'});location.reload();});
 }
 function applyTheme(theme){document.documentElement.dataset.theme=theme==='light'?'light':'dark';document.querySelector('meta[name="theme-color"]').content=theme==='light'?'#eaf0f5':'#102d49';syncThemeButtons();}
