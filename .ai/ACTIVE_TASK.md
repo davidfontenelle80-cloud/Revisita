@@ -8,8 +8,8 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
-- **% complete:** 100% implementation and automated verification
+- **Status:** IN PROGRESS
+- **% complete:** 85% — ajuste móvil de espaciado, guardado manual y pistas de desplazamiento
 - **Confidence:** 95%
 
 ## Objective completed
@@ -70,3 +70,17 @@ David revisa el flujo real. Cualquier observación pasa a una nueva tarea; solo 
 - **Reviewed by:**
 - **Reviewed at:**
 - **Observations / required changes:**
+
+
+## Follow-up UX — 2026-09-22
+
+Observaciones del supervisor desde iPhone:
+- El chip de estado del encabezado se corta en pantallas estrechas.
+- Algunas vistas permiten contenido demasiado ancho y el texto puede quedar recortado.
+- El estado “Guardado localmente” parece un botón pero no hace nada.
+- Las filas horizontales de filtros no indican que hay más opciones fuera de pantalla.
+
+Cambio solicitado:
+- Compactar y hacer accionable el control de guardado.
+- Evitar overflow horizontal.
+- Añadir pista “Desliza para ver más →” cuando una fila realmente tiene contenido fuera de pantalla.
