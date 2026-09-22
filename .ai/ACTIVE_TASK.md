@@ -8,55 +8,56 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
-- **% complete:** 100% de la implementación del repositorio
+- **Status:** IN PROGRESS
+- **% complete:** 10%
 - **Confidence:** 95%
 
 ## Objective
 
-Crear la primera versión de **Revisita**, una PWA en español para Android que permita guardar una ubicación por GPS o tocando el mapa, nombrarla, añadir notas y volver a consultarla después.
+Actualizar Revisita a una versión de seguimiento diario y mapa operativo, manteniendo el flujo simple en Android.
 
 ## Scope approved by supervisor
 
-- Nombre: Revisita.
-- Español.
-- PWA instalable.
-- GPS de un toque y pin manual.
-- Nombre/referencia, notas y fecha para volver.
-- Lista de revisitas y mapa.
-- Usar el icono aportado por David.
-- Transiciones y flujo de captura lo más directo posible.
+- Añadir **hora opcional** además de fecha para volver.
+- Abrir la app en una vista **Hoy** que muestre atrasadas y las revisitas del día, ordenadas por hora.
+- Añadir acciones rápidas **Hecha** y **Reprogramar**, conservando historial de visitas completadas.
+- Cambiar la navegación a **Hoy · Mapa · Revisitas · Más**.
+- Añadir modos del mapa: **Hoy · Activas · Próximas · Todas**, con opción **Cerca de mí**.
+- Un toque en el mapa o GPS crea solo una **ubicación pendiente**: nunca guarda automáticamente.
+- Antes de abrir el formulario, mostrar **¿Es esta la ubicación correcta?**, dirección aproximada, coordenadas y precisión GPS cuando exista.
+- Permitir mover el pin tocando otro punto antes de confirmar.
+- Al abrir una revisita guardada, mostrar un **mapa de vista previa** centrado en su ubicación.
+- Añadir botón explícito **Abrir en Google Maps** para navegación.
+- Mantener compatibilidad con datos existentes de v1.
+- Mantener PWA/offline, import/export y KHub standards.
 
-## Resultado de esta sesión
+## Files expected to change
 
-- Repositorio publicado en `davidfontenelle80-cloud/Revisita`.
-- App completa en `main`: HTML, CSS, JavaScript, service worker, manifest, documentación, pruebas e iconos.
-- Iconos derivados del arte suministrado por David incluidos en tamaños PWA 72/192/512 y variantes maskable.
-- GitHub Actions ejecutó `npm run check` correctamente en el commit con los iconos.
-- El repositorio está listo para activar GitHub Pages.
+- `index.html`
+- `css/main.css`
+- `js/app.js`
+- `js/map.js`
+- `js/storage.js`
+- `js/schedule-utils.js` (nuevo)
+- `tests/**`
+- `sw.js`
+- `manifest.json`
+- `README.md`
+- `PROJECT_STATUS.md`
+- `.ai/ACTIVE_TASK.md`
 
-## Verification completed
+## Verification plan
 
-- GitHub Actions / Check: **PASS**.
-- Encoding check: **PASS**.
-- Node tests: **PASS (6/6)**.
-- KHub ship check: **PASS**.
-- Archivos requeridos e iconos verificados remotamente.
-- Falta una prueba de aceptación en un Android real: permiso GPS, instalación PWA, mapa y URI `geo:`.
+- GitHub Actions: `npm run check`.
+- Tests de migración v1 → nuevo esquema, orden de Hoy y clasificación activa/completada.
+- Verificar que no se guarde una revisita hasta `Guardar revisita`.
+- Verificar que el pin pendiente requiera `Confirmar ubicación`.
+- Verificar mapa de detalle y URL de Google Maps.
+- Prueba final en Android real por el supervisor.
 
-## Remaining supervisor action
+## Next step if interrupted
 
-GitHub Pages requiere una configuración de repositorio que este conector no puede cambiar:
-
-**Settings → Pages → Deploy from a branch → main → /(root) → Save**
-
-Después de activarlo, la URL prevista es:
-
-`https://davidfontenelle80-cloud.github.io/Revisita/`
-
-## Next step
-
-David revisa la app, activa GitHub Pages y hace la prueba corta en Android. Corregir cualquier observación antes de marcar la tarea COMPLETE.
+Implementar el nuevo modelo de datos y UI, actualizar cache version, ejecutar GitHub Actions y dejar en `READY FOR REVIEW`.
 
 ## Supervisor Review
 
