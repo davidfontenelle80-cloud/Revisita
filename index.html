@@ -37,20 +37,20 @@
     <section id="view-map" class="view" data-view="map" aria-labelledby="mapTitle" hidden>
       <div class="view-heading map-heading"><div><h2 id="mapTitle" data-i18n="map">Mapa</h2><p data-i18n="mapSubtitle">Visualiza tus revisitas y confirma cada ubicación antes de guardarla.</p></div></div>
       <div class="horizontal-options">
-        <div id="mapModeRow" class="filter-row map-mode-row" role="group" aria-label="Modo del mapa">
+        <div id="mapModeRow" class="filter-row map-mode-row" role="group" aria-label="Modo del mapa" data-i18n-aria="mapModes">
           <button class="filter-chip" type="button" data-map-mode="today" data-i18n="today">Hoy</button>
           <button class="filter-chip is-active" type="button" data-map-mode="active" data-i18n="active">Activas</button>
           <button class="filter-chip" type="button" data-map-mode="upcoming" data-i18n="upcoming">Próximas</button>
           <button class="filter-chip" type="button" data-map-mode="all" data-i18n="all">Todas</button>
           <button class="filter-chip" type="button" data-map-mode="nearby" data-i18n="nearby">Cerca de mí</button>
         </div>
-        <button id="mapScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más opciones"><span data-i18n="swipeMore">Desliza para ver más</span> <span aria-hidden="true">→</span></button>
+        <button id="mapScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más opciones" data-i18n-aria="swipeMoreOptions"><span data-i18n="swipeMore">Desliza para ver más</span> <span aria-hidden="true">→</span></button>
       </div>
       <p id="mapModeSummary" class="map-mode-summary muted"></p>
 
       <div class="map-shell card" id="mapShell">
         <div id="map" class="map" role="application" aria-label="Mapa de revisitas"><div class="map-placeholder"><span>Mapa</span><small data-i18n="mapTiles">Los mosaicos aparecen cuando hay conexión.</small></div></div>
-        <div class="map-controls" aria-label="Controles del mapa"><button id="zoomInBtn" class="map-control" type="button" aria-label="Acercar">+</button><button id="zoomOutBtn" class="map-control" type="button" aria-label="Alejar">−</button></div>
+        <div class="map-controls" aria-label="Controles del mapa"><button id="zoomInBtn" class="map-control" type="button" aria-label="Acercar" data-i18n-aria="zoomIn">+</button><button id="zoomOutBtn" class="map-control" type="button" aria-label="Alejar" data-i18n-aria="zoomOut">−</button></div>
         <button id="locateBtn" class="locate-btn" type="button"><span aria-hidden="true">◎</span><span data-i18n="useLocation">Usar mi ubicación</span></button>
         <div id="locationConfirmPanel" class="location-confirm card" hidden>
           <strong data-i18n="confirmLocationTitle">¿Es esta la ubicación correcta?</strong>
@@ -72,7 +72,7 @@
       <div class="view-heading"><div><h2 id="listTitle" data-i18n="visits">Revisitas</h2><p id="listSummary">0 guardadas</p></div><button id="addFromListBtn" class="btn btn-primary btn-small" type="button" data-i18n="newVisit">Nueva</button></div>
       <label class="search-box"><span class="sr-only">Buscar revisitas</span><input id="searchInput" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="Buscar por nombre, dirección o nota" autocomplete="off"></label>
       <div class="horizontal-options">
-        <div id="listFilterRow" class="filter-row" role="group" aria-label="Filtrar revisitas">
+        <div id="listFilterRow" class="filter-row" role="group" aria-label="Filtrar revisitas" data-i18n-aria="filterVisits">
           <button class="filter-chip is-active" type="button" data-filter="active" data-i18n="active">Activas</button>
           <button class="filter-chip" type="button" data-filter="today" data-i18n="today">Hoy</button>
           <button class="filter-chip" type="button" data-filter="upcoming" data-i18n="upcoming">Próximas</button>
@@ -80,7 +80,7 @@
           <button class="filter-chip" type="button" data-filter="completed" data-i18n="history">Historial</button>
           <button class="filter-chip" type="button" data-filter="all" data-i18n="all">Todas</button>
         </div>
-        <button id="listScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más filtros">Desliza para ver más <span aria-hidden="true">→</span></button>
+        <button id="listScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más filtros" data-i18n-aria="swipeMoreFilters"><span data-i18n="swipeMore">Desliza para ver más</span> <span aria-hidden="true">→</span></button>
       </div>
       <div id="visitList" class="visit-list"></div>
       <div id="emptyList" class="empty-state card" hidden><div class="empty-icon" aria-hidden="true">⌖</div><h3 data-i18n="noVisits">No hay revisitas aquí</h3><p data-i18n="noVisitsText">Guarda una ubicación desde el mapa para verla en esta lista.</p><button id="emptyMapBtn" class="btn btn-primary" type="button" data-i18n="goMap">Ir al mapa</button></div>
@@ -100,7 +100,7 @@
     </section>
   </main>
 
-  <nav class="bottom-nav" aria-label="Navegación principal">
+  <nav class="bottom-nav" aria-label="Navegación principal" data-i18n-aria="mainNav">
     <button class="nav-item is-active" type="button" data-destination="today" aria-current="page"><span class="nav-icon" aria-hidden="true">◷</span><span data-i18n="navToday">Hoy</span><span id="todayBadge" class="nav-badge" hidden>0</span></button>
     <button class="nav-item" type="button" data-destination="map"><span class="nav-icon" aria-hidden="true">⌖</span><span data-i18n="navMap">Mapa</span></button>
     <button class="nav-item" type="button" data-destination="list"><span class="nav-icon" aria-hidden="true">☷</span><span data-i18n="navVisits">Revisitas</span></button>
@@ -110,7 +110,7 @@
   <dialog id="visitDialog" class="sheet-dialog">
     <form id="visitForm" class="sheet" method="dialog">
       <div class="sheet-handle" aria-hidden="true"></div>
-      <div class="sheet-header"><div><h2 id="dialogTitle" data-i18n="newVisitTitle">Nueva revisita</h2><p id="dialogCoords" class="coord-line num"></p></div><button id="closeDialogBtn" class="icon-btn" type="button" aria-label="Cerrar">×</button></div>
+      <div class="sheet-header"><div><h2 id="dialogTitle" data-i18n="newVisitTitle">Nueva revisita</h2><p id="dialogCoords" class="coord-line num"></p></div><button id="closeDialogBtn" class="icon-btn" type="button" aria-label="Cerrar" data-i18n-aria="close">×</button></div>
       <input id="visitId" type="hidden"><input id="visitLat" type="hidden"><input id="visitLng" type="hidden"><input id="visitStatus" type="hidden" value="active">
       <section id="detailMapSection" class="detail-map-section" hidden>
         <div id="detailMap" class="detail-map" aria-label="Vista previa de la ubicación" data-i18n-aria="locationPreview"></div>
@@ -136,7 +136,7 @@
   </dialog>
 
   <dialog id="importDialog" class="sheet-dialog">
-    <div class="sheet"><div class="sheet-handle" aria-hidden="true"></div><div class="sheet-header"><div><h2 data-i18n="importReview">Revisar importación</h2><p data-i18n="importReviewText">Confirma antes de cambiar tus datos.</p></div><button id="closeImportBtn" class="icon-btn" type="button" aria-label="Cerrar">×</button></div><div id="importPreview" class="import-preview"></div><div class="alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong data-i18n="importPolicyTitle">Política:</strong> <span data-i18n="importPolicy">se combinan registros por ID. Si un ID ya existe, la copia importada lo reemplaza. Antes de aplicar, se crea una copia local de recuperación.</span></span></div><div class="sheet-footer"><button id="cancelImportBtn" class="btn btn-secondary" type="button" data-i18n="cancel">Cancelar</button><button id="confirmImportBtn" class="btn btn-primary" type="button" data-i18n="importVisits">Importar revisitas</button></div></div>
+    <div class="sheet"><div class="sheet-handle" aria-hidden="true"></div><div class="sheet-header"><div><h2 data-i18n="importReview">Revisar importación</h2><p data-i18n="importReviewText">Confirma antes de cambiar tus datos.</p></div><button id="closeImportBtn" class="icon-btn" type="button" aria-label="Cerrar" data-i18n-aria="close">×</button></div><div id="importPreview" class="import-preview"></div><div class="alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong data-i18n="importPolicyTitle">Política:</strong> <span data-i18n="importPolicy">se combinan registros por ID. Si un ID ya existe, la copia importada lo reemplaza. Antes de aplicar, se crea una copia local de recuperación.</span></span></div><div class="sheet-footer"><button id="cancelImportBtn" class="btn btn-secondary" type="button" data-i18n="cancel">Cancelar</button><button id="confirmImportBtn" class="btn btn-primary" type="button" data-i18n="importVisits">Importar revisitas</button></div></div>
   </dialog>
 
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
