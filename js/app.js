@@ -25,7 +25,7 @@ function init(){
  initLanguage();
  applyTheme(state.settings.theme||'dark');
  applyTranslations(document);
- bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindAgenda();bindList();bindMore();
+ bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindAgenda();bindList();bindMore();bindKeyboardShortcuts();
  renderAll();registerSW();updateOnline();
  addEventListener('online',updateOnline);addEventListener('offline',updateOnline);
  addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();updateOnline();});
@@ -70,9 +70,9 @@ function bindHorizontalHints(){
 function bindNav(){
  document.querySelectorAll('[data-destination]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.destination)));
  $('emptyMapBtn').addEventListener('click',()=>showView('map'));
- $('todayNewBtn').addEventListener('click',()=>{showView('map');toast(getLanguage()==='es'?'Toca el mapa o usa tu ubicación actual.':'Tap the map or use your current location.');});
+ $('todayNewBtn').addEventListener('click',()=>{showView('map');toast(t('tapMapOrLocation'));});
  $('todayMapBtn').addEventListener('click',()=>{mapMode='active';showView('map');syncMapModeButtons();renderMapMode(true);});
- $('addFromListBtn').addEventListener('click',()=>{showView('map');toast(getLanguage()==='es'?'Toca el mapa o usa tu ubicación actual.':'Tap the map or use your current location.');});
+ $('addFromListBtn').addEventListener('click',()=>{showView('map');toast(t('tapMapOrLocation'));});
 }
 function showView(name){
  if(name!=='map'&&pendingLocation)clearPendingLocation();
@@ -205,9 +205,18 @@ function visitCard(v){
 function chip(text,extra=''){const s=document.createElement('span');s.className=`mini-chip ${extra}`.trim();s.textContent=text;return s;}
 function shortDate(k){if(!k)return'';const[y,m,d]=k.split('-').map(Number);return new Intl.DateTimeFormat(locale(),{day:'numeric',month:'short'}).format(new Date(y,m-1,d));}
 
+function bindKeyboardShortcuts(){
+ document.addEventListener('keydown',e=>{
+   if(!e.altKey)return;
+   const key=e.key.toLowerCase();
+   if(key==='l'){e.preventDefault();setLanguage(getLanguage()==='es'?'en':'es');toast(t('languageChanged'));}
+   if(key==='d'){e.preventDefault();state.settings.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';applyTheme(state.settings.theme);persist();}
+ });
+}
+
 function bindMore(){
  document.querySelectorAll('[data-theme-choice]').forEach(b=>b.addEventListener('click',()=>{state.settings.theme=b.dataset.themeChoice==='light'?'light':'dark';applyTheme(state.settings.theme);persist();}));
- document.querySelectorAll('[data-lang-choice]').forEach(b=>b.addEventListener('click',()=>{setLanguage(b.dataset.langChoice);toast(b.dataset.langChoice==='es'?'Idioma cambiado a español.':'Language changed to English.');}));
+ document.querySelectorAll('[data-lang-choice]').forEach(b=>b.addEventListener('click',()=>{setLanguage(b.dataset.langChoice);toast(t('languageChanged'));}));
  els.install.addEventListener('click',async()=>{if(!installPrompt)return;await installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;els.install.disabled=true;});
  $('exportBtn').addEventListener('click',exportBackup);$('importBtn').addEventListener('click',()=>els.importFile.click());els.importFile.addEventListener('change',importFile);$('closeImportBtn').addEventListener('click',closeImport);$('cancelImportBtn').addEventListener('click',closeImport);$('confirmImportBtn').addEventListener('click',confirmImport);els.restore.addEventListener('click',restoreSnapshot);$('deleteAllBtn').addEventListener('click',deleteAll);$('reloadAppBtn').addEventListener('click',()=>{swRegistration?.waiting?.postMessage({type:'SKIP_WAITING'});location.reload();});
 }
