@@ -2,7 +2,7 @@ const STORAGE_KEY = 'revisita.lang';
 
 const STRINGS = {
   es: {
-    skip:'Ir al contenido', updateAvailable:'Hay una actualización disponible.', update:'Actualizar',
+    skip:'Ir al contenido', updateAvailable:'Hay una actualización disponible.', update:'Actualizar', close:'Cerrar', mainNav:'Navegación principal', mapModes:'Modos del mapa', filterVisits:'Filtrar revisitas', swipeMoreOptions:'Desliza o toca para ver más opciones', swipeMoreFilters:'Desliza o toca para ver más filtros', zoomIn:'Acercar', zoomOut:'Alejar',
     brandSubtitle:'Mapa de revisitas', save:'Guardar', savedLocally:'Guardado localmente', offline:'Sin conexión', searchingLocation:'Buscando ubicación…',
     today:'Hoy', newVisit:'Nueva', overdue:'Atrasadas', forToday:'Para hoy', doneToday:'Hechas hoy', attention:'Atención',
     orderedByTime:'Ordenadas por hora', allCaughtUp:'Todo al día', noTodayTasks:'No tienes revisitas atrasadas ni programadas para hoy.', viewActiveMap:'Ver mapa de activas',
@@ -46,7 +46,7 @@ const STRINGS = {
     completedVisit:'Visita completada', scheduled:'Programada: {value}', open:'Abrir'
   },
   en: {
-    skip:'Skip to content', updateAvailable:'An update is available.', update:'Update',
+    skip:'Skip to content', updateAvailable:'An update is available.', update:'Update', close:'Close', mainNav:'Main navigation', mapModes:'Map modes', filterVisits:'Filter return visits', swipeMoreOptions:'Swipe or tap to see more options', swipeMoreFilters:'Swipe or tap to see more filters', zoomIn:'Zoom in', zoomOut:'Zoom out',
     brandSubtitle:'Return visit map', save:'Save', savedLocally:'Saved locally', offline:'Offline', searchingLocation:'Finding location…',
     today:'Today', newVisit:'New', overdue:'Overdue', forToday:'For today', doneToday:'Done today', attention:'Attention',
     orderedByTime:'Ordered by time', allCaughtUp:'All caught up', noTodayTasks:'You have no overdue return visits or visits scheduled for today.', viewActiveMap:'View active map',
