@@ -31,8 +31,8 @@ function init(){
  addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();updateOnline();});
  addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;els.install.disabled=false;els.installHint.textContent=t('installReady');});
  addEventListener('appinstalled',()=>{installPrompt=null;els.install.disabled=true;els.installHint.textContent=t('installed');toast(t('appInstalled'));});
- addEventListener('error',e=>showError(t('errorApp'),e.message||'Error desconocido'));
- addEventListener('unhandledrejection',e=>showError(t('errorApp'),e.reason?.message||String(e.reason||'Error desconocido')));
+ addEventListener('error',e=>showError(t('errorApp'),e.message||t('unknownError')));
+ addEventListener('unhandledrejection',e=>showError(t('errorApp'),e.reason?.message||String(e.reason||t('unknownError'))));
 }
 
 
@@ -131,7 +131,7 @@ async function beginLocationConfirmation(loc){
 }
 function clearPendingLocation(clearDraft=true){lookupToken++;pendingLocation=null;els.confirmPanel.hidden=true;els.mapShell.classList.remove('has-pending');if(clearDraft)map.setDraft(null,null);}
 async function reverseGeocode(lat,lng){
- try{const q=new URLSearchParams({format:'jsonv2',lat:String(lat),lon:String(lng),zoom:'18','accept-language':'es'});const r=await fetch(`https://nominatim.openstreetmap.org/reverse?${q}`,{headers:{Accept:'application/json'}});if(!r.ok)throw new Error(`HTTP ${r.status}`);return (await r.json()).display_name||'';}catch(e){console.warn('Geocodificación no disponible.',e);return'';}
+ try{const q=new URLSearchParams({format:'jsonv2',lat:String(lat),lon:String(lng),zoom:'18','accept-language':getLanguage()});const r=await fetch(`https://nominatim.openstreetmap.org/reverse?${q}`,{headers:{Accept:'application/json'}});if(!r.ok)throw new Error(`HTTP ${r.status}`);return (await r.json()).display_name||'';}catch(e){console.warn('Geocodificación no disponible.',e);return'';}
 }
 
 function bindAgenda(){
@@ -150,7 +150,7 @@ function agendaCard(v,isOverdue){
  const card=document.createElement('article');card.className=`agenda-card card${isOverdue?' is-overdue':''}`;
  const top=document.createElement('div');top.className='agenda-top';const left=document.createElement('div'),h=document.createElement('h3');h.textContent=v.name;left.append(h);
  if(v.address){const p=document.createElement('p');p.textContent=v.address;left.append(p);}const time=document.createElement('span');time.className='agenda-time';time.textContent=v.dueTime?formatTime(v.dueTime,locale()):isOverdue?shortDate(v.dueDate):t('noTime');top.append(left,time);card.append(top);
- const meta=document.createElement('div');meta.className='visit-card-meta';if(isOverdue)meta.append(chip('Atrasada','overdue'));if(currentLocation)meta.append(chip(formatDistance(haversineKm(currentLocation.lat,currentLocation.lng,v.lat,v.lng))));card.append(meta);
+ const meta=document.createElement('div');meta.className='visit-card-meta';if(isOverdue)meta.append(chip(t('overdue'),'overdue'));if(currentLocation)meta.append(chip(formatDistance(haversineKm(currentLocation.lat,currentLocation.lng,v.lat,v.lng))));card.append(meta);
  const actions=document.createElement('div');actions.className='agenda-actions';actions.append(actionBtn(t('open'),v.id,'open'),actionBtn(t('markDone'),v.id,'done'),actionBtn(t('reschedule'),v.id,'reschedule'));card.append(actions);return card;
 }
 function actionBtn(label,id,action){const b=document.createElement('button');b.type='button';b.className=action==='done'?'btn btn-primary':'btn btn-secondary';b.textContent=label;b.dataset[action]=id;return b;}
@@ -200,7 +200,7 @@ function renderList(){
  els.summary.textContent=`${state.visits.filter(v=>v.status==='active').length} ${t('currentActive')} · ${state.visits.filter(v=>v.status==='completed').length} ${t('inHistory')}`;els.list.replaceChildren(...visits.map(visitCard));els.empty.hidden=visits.length!==0;els.list.hidden=visits.length===0;
 }
 function visitCard(v){
- const bucket=visitBucket(v),card=document.createElement('article');card.className=`visit-card card${v.status==='completed'?' completed':''}`;const body=document.createElement('div'),h=document.createElement('h3');h.textContent=v.name;body.append(h);if(v.address){const p=document.createElement('p');p.textContent=v.address;body.append(p);}if(v.notes){const p=document.createElement('p');p.className='note-preview';p.textContent=v.notes;body.append(p);}const meta=document.createElement('div');meta.className='visit-card-meta';if(v.status==='completed')meta.append(chip(t('done'),'done'));else if(bucket==='overdue')meta.append(chip(t('overdue'),'overdue'));if(v.dueDate)meta.append(chip(`${shortDate(v.dueDate)}${v.dueTime?' · '+formatTime(v.dueTime,locale()):''}`,'due'));if(currentLocation)meta.append(chip(formatDistance(haversineKm(currentLocation.lat,currentLocation.lng,v.lat,v.lng))));body.append(meta);const open=document.createElement('button');open.type='button';open.className='card-open';open.dataset.openVisit=v.id;open.setAttribute('aria-label',`Abrir revisita ${v.name}`);open.textContent='›';card.append(body,open);return card;
+ const bucket=visitBucket(v),card=document.createElement('article');card.className=`visit-card card${v.status==='completed'?' completed':''}`;const body=document.createElement('div'),h=document.createElement('h3');h.textContent=v.name;body.append(h);if(v.address){const p=document.createElement('p');p.textContent=v.address;body.append(p);}if(v.notes){const p=document.createElement('p');p.className='note-preview';p.textContent=v.notes;body.append(p);}const meta=document.createElement('div');meta.className='visit-card-meta';if(v.status==='completed')meta.append(chip(t('done'),'done'));else if(bucket==='overdue')meta.append(chip(t('overdue'),'overdue'));if(v.dueDate)meta.append(chip(`${shortDate(v.dueDate)}${v.dueTime?' · '+formatTime(v.dueTime,locale()):''}`,'due'));if(currentLocation)meta.append(chip(formatDistance(haversineKm(currentLocation.lat,currentLocation.lng,v.lat,v.lng))));body.append(meta);const open=document.createElement('button');open.type='button';open.className='card-open';open.dataset.openVisit=v.id;open.setAttribute('aria-label',t('openVisitAria',{name:v.name}));open.textContent='›';card.append(body,open);return card;
 }
 function chip(text,extra=''){const s=document.createElement('span');s.className=`mini-chip ${extra}`.trim();s.textContent=text;return s;}
 function shortDate(k){if(!k)return'';const[y,m,d]=k.split('-').map(Number);return new Intl.DateTimeFormat(locale(),{day:'numeric',month:'short'}).format(new Date(y,m-1,d));}
@@ -234,5 +234,5 @@ function persist(announce=true){try{saveState(state);setStatus(navigator.onLine?
 function setStatus(text,kind='success',announce=true){els.status.textContent=text;const c=kind==='danger'?'error':kind==='warn'?'warning':kind==='info'?'info':'success';els.status.style.color=`var(--color-${c})`;els.status.style.borderColor=`var(--border-${c}-soft)`;els.status.style.background=`var(--color-${c}-soft)`;els.status.setAttribute('aria-live',announce?'polite':'off');}
 function updateOnline(){setStatus(navigator.onLine?t('save'):t('offline'),navigator.onLine?'success':'warn');}
 function toast(message){const d=document.createElement('div');d.className='toast';d.textContent=message;els.toast.append(d);setTimeout(()=>d.remove(),3200);}
-function showError(type,message){const box=$('errorBoundary');box.replaceChildren();const s=document.createElement('strong');s.textContent=type,p=document.createElement('div');p.textContent=message;const b=document.createElement('button');b.type='button';b.className='btn btn-secondary';b.textContent='Cerrar';b.style.marginTop='8px';b.onclick=()=>box.hidden=true;box.append(s,p,b);box.hidden=false;}
+function showError(type,message){const box=$('errorBoundary');box.replaceChildren();const s=document.createElement('strong');s.textContent=type,p=document.createElement('div');p.textContent=message;const b=document.createElement('button');b.type='button';b.className='btn btn-secondary';b.textContent=t('close');b.style.marginTop='8px';b.onclick=()=>box.hidden=true;box.append(s,p,b);box.hidden=false;}
 async function registerSW(){if(!('serviceWorker'in navigator))return;try{swRegistration=await navigator.serviceWorker.register('./sw.js');if(swRegistration.waiting)els.update.hidden=false;swRegistration.addEventListener('updatefound',()=>{const w=swRegistration.installing;w?.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)els.update.hidden=false;});});navigator.serviceWorker.addEventListener('controllerchange',()=>location.reload());}catch(e){console.warn('No se pudo registrar el service worker.',e);}}
