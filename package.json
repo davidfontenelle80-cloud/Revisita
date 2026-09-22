@@ -1,6 +1,6 @@
 {
   "name": "revisita",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "PWA en español para guardar revisitas por ubicación, notas y fecha.",
   "private": true,
   "type": "module",
@@ -8,7 +8,8 @@
     "test": "node --test tests/*.test.mjs",
     "check:encoding": "node scripts/check-encoding.mjs .",
     "ship-check": "node scripts/khub-check.mjs .",
-    "check": "npm run check:encoding && npm test && npm run ship-check"
+    "check": "npm run check:encoding && npm run check:syntax && npm test && npm run ship-check",
+    "check:syntax": "node --check js/app.js && node --check js/map.js && node --check js/storage.js && node --check js/schedule-utils.js && node --check sw.js"
   },
   "engines": {
     "node": ">=18"
