@@ -1,54 +1,68 @@
 # Revisita
 
-PWA móvil en español para organizar revisitas por **ubicación, fecha, hora y estado**.
+PWA bilingüe (**Español / English**) para organizar revisitas por **ubicación, fecha, hora y estado**.
 
-## Flujo principal
+## KHub profile
 
-1. La app abre en **Hoy** y muestra primero las revisitas atrasadas y las programadas para el día.
-2. En **Mapa**, toca un punto o usa **Usar mi ubicación**.
-3. El pin queda **provisional**. Nada se guarda todavía.
-4. Revisa dirección aproximada, coordenadas y precisión GPS (si aplica), mueve el pin si hace falta y pulsa **Confirmar ubicación**.
-5. Añade nombre/referencia, notas, **fecha** y **hora opcional**.
-6. Pulsa **Guardar revisita**.
+- **Mode:** Vanilla.
+- **Archetype:** Task tracker / management.
+- **Layout:** Standard (`--max-width: 960px`).
+- **Theme:** dark or light, selectable in **Más / More → Apariencia / Appearance**.
+- **Language:** Spanish or English, selectable in **Más / More → Idioma / Language**.
+- **Responsive:** phone, tablet, landscape tablet, laptop and desktop.
+- **Orientation:** unrestricted (`any`) so tablets can rotate.
+- **Zoom:** locked in the installed UI, following the KHub phone-first field-use default. Responsive layout does not depend on browser zoom; all form controls remain at least 16px.
 
-## Funciones
+## Main flow
 
-- **Hoy:** atrasadas + revisitas del día, ordenadas por hora.
-- **Hora opcional:** permite programar una hora concreta o dejar solo la fecha.
-- **Hecha / Reprogramar:** marca una revisita completada o cambia su próxima fecha/hora.
-- **Historial:** conserva las visitas completadas.
-- **Mapa por modo:** Hoy, Activas, Próximas, Todas y Cerca de mí.
-- **Cerca de mí:** muestra las revisitas activas dentro de 5 km cuando el GPS está disponible.
-- **Confirmación de ubicación:** un toque en el mapa nunca guarda por sí solo.
-- **Vista previa:** al abrir una revisita guardada se muestra un mapa centrado en el punto.
-- **Google Maps:** botón explícito para abrir navegación hacia la revisita.
-- **Buscar/filtrar:** por nombre, dirección, nota, estado y programación.
-- **Datos locales:** las revisitas se guardan en el dispositivo con `localStorage`.
-- **Copia de seguridad:** exportación/importación JSON con vista previa, conflictos y snapshot de recuperación.
-- **PWA/offline:** el shell, las revisitas y los mosaicos ya vistos siguen disponibles sin conexión.
+1. Revisita opens on **Hoy / Today** and shows overdue visits first, then visits scheduled for the day.
+2. In **Mapa / Map**, tap a point or use **Usar mi ubicación / Use my location**.
+3. The pin remains **temporary**. Nothing is saved yet.
+4. Review the approximate address, coordinates and GPS accuracy, move the pin if needed, then confirm the location.
+5. Add name/reference, notes, **date** and optional **time**.
+6. Save the return visit.
 
-## Compatibilidad
+## Features
 
-La versión 1.1.0 migra automáticamente los datos creados con la versión 1.0.0. Las revisitas antiguas quedan **Activas**, sin hora, y conservan su fecha, notas y ubicación.
+- **Today dashboard:** overdue + today, ordered by time.
+- **Optional return time.**
+- **Done / Reschedule:** completed visits move to history instead of disappearing.
+- **Map modes:** Today, Active, Upcoming, All and Near me.
+- **Near me:** active return visits within 5 km when GPS is available.
+- **Location confirmation:** tapping the map never saves by itself.
+- **Saved-location preview:** opening a return visit shows a map preview centered on its pin.
+- **Google Maps:** explicit navigation button.
+- **Search and filters** for name, address, note, status and schedule.
+- **Local storage:** return visits remain on the device.
+- **Backup / restore:** JSON export/import with preview, conflict policy and recovery snapshot.
+- **Offline/PWA:** app shell, saved data and previously viewed map tiles remain available offline.
+- **Responsive shell:** horizontal rows show swipe hints only when more choices are off-screen; wider screens reflow cards and settings into columns.
+- **EN/ES localization:** static UI, dynamic messages, dates and times follow the selected language.
+- **Light / dark mode:** explicit two-button choice, persisted locally.
+- **Keyboard:** `Alt+L` switches language and `Alt+D` switches theme on hardware keyboards.
 
-## Privacidad
+## Compatibility
 
-Los nombres, notas y revisitas permanecen en el dispositivo. Cuando hay conexión, OpenStreetMap entrega los mosaicos y Nominatim puede resolver una dirección aproximada a partir de las coordenadas.
+Version 1.2.0 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
 
-## Publicación
+## Privacy
 
-GitHub Pages publica la rama `main`:
+Names, notes and return visits stay on the device. While online, OpenStreetMap provides map tiles and Nominatim can resolve an approximate address from coordinates.
+
+## Publication
+
+GitHub Pages publishes `main`:
 
 `https://davidfontenelle80-cloud.github.io/Revisita/`
 
-## Verificación
+## Verification
 
 ```bash
 npm run check
 ```
 
-Incluye encoding, sintaxis JavaScript, pruebas unitarias y KHub ship check.
+This runs encoding checks, JavaScript syntax checks, unit tests and the KHub ship check.
 
-## Dependencias de red
+## Network dependencies
 
-No hay frameworks JavaScript ni fuentes externas. El motor del mapa es vanilla. Los servicios de mapa/dirección se documentan en `docs/DEPENDENCY-INVENTORY.md`.
+There are no JavaScript frameworks or external fonts. The map engine is vanilla. Map/address services are documented in `docs/DEPENDENCY-INVENTORY.md`.
