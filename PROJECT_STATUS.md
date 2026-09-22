@@ -2,55 +2,69 @@
 
 ## Estado
 
-**v1.1.1 implementada — READY FOR REVIEW.**
+**v1.2.0 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
-- La aplicación abre en **Hoy**.
-- Hoy muestra **Atrasadas** y **Para hoy**, ordenadas por hora.
-- El mapa ofrece **Hoy · Activas · Próximas · Todas · Cerca de mí**.
+- La app abre en **Hoy / Today**.
+- Hoy muestra atrasadas y las programadas para el día, ordenadas por hora.
+- El mapa ofrece **Hoy · Activas · Próximas · Todas · Cerca de mí** y sus equivalentes en inglés.
 - Tocar el mapa o usar GPS crea un **pin provisional**.
-- La ubicación requiere **Confirmar ubicación** antes de abrir el formulario.
-- El formulario admite fecha + **hora opcional**.
-- Las revisitas se pueden marcar **Hecha** o **Reprogramar**.
-- Las visitas completadas pasan al **Historial**.
-- Al abrir una revisita se muestra una **vista previa del mapa**.
-- **Abrir en Google Maps** inicia navegación hacia las coordenadas.
+- La ubicación se confirma antes de abrir el formulario.
+- El formulario admite fecha + hora opcional.
+- Las revisitas se pueden marcar hechas o reprogramar.
+- El historial conserva visitas completadas.
+- Al abrir una revisita se muestra un mapa previo de la ubicación.
+- Google Maps abre navegación hacia las coordenadas guardadas.
+
+## Responsive / pantallas
+
+- Layout KHub **Standard 960** centrado.
+- Teléfonos: una columna y navegación compacta.
+- Tablets: tarjetas/listas en dos columnas cuando hay espacio.
+- Tablets grandes/laptops: diálogo más ancho, mapa más alto y navegación centrada.
+- Landscape: altura de mapa adaptativa.
+- Manifest permite orientación **any**.
+- Las filas horizontales mantienen la pista **Desliza / Swipe para ver más** solo cuando hace falta.
+
+## Apariencia e idioma
+
+- **Oscuro / Dark** y **Claro / Light** con control explícito.
+- **Español / English** con control explícito.
+- La elección de tema se conserva en el estado local.
+- El idioma se guarda localmente en `revisita.lang`.
+- Fechas, horas, textos dinámicos, errores y mensajes siguen el idioma elegido.
+- Atajos en teclado físico: `Alt+L` idioma, `Alt+D` tema.
 
 ## Datos
 
-- Persistencia: `localStorage`, clave histórica `revisita.state.v1` para conservar compatibilidad.
-- Esquema lógico actual: versión 2.
-- Nuevos campos: `dueTime`, `status`, `completedAt`, `history`.
-- Migración automática desde v1.
+- Persistencia de revisitas: `localStorage`, clave histórica `revisita.state.v1`.
+- Esquema lógico: versión 2.
+- Campos: `dueTime`, `status`, `completedAt`, `history`.
+- Migración automática desde datos anteriores.
 - Sin backend ni cuenta.
+
+## PWA
+
+- Versión app: **1.2.0**.
+- Cache del service worker: **v4**.
+- `js/i18n.js` se incluye en el precache.
+- GitHub Pages despliega desde `main`.
 
 ## Verificación automatizada
 
 - Encoding check.
-- JavaScript syntax check.
-- Tests de mapas, distancias, agenda, importación y migración.
+- JavaScript syntax check, incluido i18n.
+- Tests de mapas, distancias, agenda, importación, migración, historial e idiomas.
 - KHub ship check.
-- GitHub Pages despliega desde `main`.
 
 ## Pendiente de supervisor
 
-Prueba breve en Android real:
-1. Abrir Hoy.
-2. Crear pin por toque y verificar que **no se guarda** antes de confirmar/guardar.
-3. Crear pin por GPS y revisar precisión.
-4. Guardar con fecha + hora.
-5. Verlo en Hoy y en Mapa.
-6. Marcar Hecha y Reprogramar.
-7. Abrir una revisita y comprobar mapa previo + Google Maps.
-8. Probar Cerca de mí e instalación PWA.
-
-
-## Ajustes móviles v1.1.1
-
-- Encabezado compacto para evitar texto cortado en pantallas estrechas.
-- El control verde ahora dice **Guardar** y es accionable.
-- Se corrigieron límites de ancho/overflow en vistas, tarjetas y ajustes.
-- Las filas horizontales de filtros muestran **“Desliza para ver más →”** cuando hay opciones fuera de pantalla.
-- Tocar esa pista desplaza la fila; desaparece al llegar al final.
-- Cache PWA actualizado a v3 para entregar los cambios de interfaz.
+Prueba visual/funcional en:
+1. teléfono pequeño,
+2. teléfono grande,
+3. tablet portrait,
+4. tablet landscape,
+5. tema claro y oscuro,
+6. español e inglés,
+7. flujo completo de crear, confirmar ubicación, guardar, abrir y navegar.
