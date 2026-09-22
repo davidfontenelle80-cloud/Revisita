@@ -273,3 +273,52 @@ button, .btn, .nav-item, .filter-chip { transition: transform var(--transition-s
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+
+/* v1.1 daily workflow */
+.agenda-section{margin-top:18px}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
+.section-title h3{margin:0;font-size:1.05rem}
+.agenda-list{display:grid;gap:10px}
+.agenda-card{padding:14px}
+.agenda-card.is-overdue{border-color:var(--border-warning-soft)}
+.agenda-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.agenda-card h3{margin:0;font-size:1.02rem}
+.agenda-time{font-family:var(--font-mono);font-weight:900;color:var(--color-primary-strong);white-space:nowrap}
+.agenda-card p{margin:4px 0 0;color:var(--color-text-muted);font-size:.86rem}
+.agenda-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.agenda-actions .btn{min-height:40px;padding:7px 8px;font-size:.8rem}
+.map-mode-row{margin-bottom:3px}
+.map-mode-summary{margin:0 0 9px;font-size:.82rem}
+.location-confirm{position:absolute;z-index:12;left:10px;right:10px;bottom:10px;padding:14px;background:color-mix(in srgb,var(--color-surface) 96%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow-md)}
+.location-confirm strong{display:block;font-size:1rem}
+.location-confirm p{margin:4px 0;color:var(--color-text-muted);font-size:.82rem}
+.location-confirm .coord-line{font-size:.72rem}
+.accuracy-line{color:var(--color-info)!important}
+.confirm-actions{display:grid;grid-template-columns:1fr 1.15fr 1.5fr;gap:7px;margin-top:10px}
+.confirm-actions .btn{min-height:40px;padding:7px 8px;font-size:.76rem}
+.map-shell.has-pending .locate-btn{display:none}
+.nav-item{position:relative}
+.nav-badge{position:absolute;top:6px;right:calc(50% - 28px);min-width:18px;height:18px;padding:0 5px;display:grid;place-items:center;border-radius:var(--radius-full);background:var(--color-warning);color:#17120a;font:800 .65rem/1 var(--font-mono)}
+.marker.completed::before{background:var(--color-text-dim);border-color:var(--color-text-dim);opacity:.65}
+.marker.overdue::before{background:var(--color-warning);border-color:var(--color-warning)}
+.detail-map-section{position:relative;margin:0 0 14px}
+.detail-map{height:190px;position:relative;overflow:hidden;border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface-2);touch-action:none}
+.detail-map .marker{pointer-events:none}
+.map-open-btn{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);min-height:40px;white-space:nowrap}
+.map-open-btn:active{transform:translateX(-50%) scale(.97)}
+.schedule-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.history-panel{padding:12px;margin-bottom:13px;box-shadow:none}
+.history-panel>strong{display:block;margin-bottom:7px}
+.history-entry{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--color-border);color:var(--color-text-muted);font-size:.8rem}
+.existing-actions{grid-template-columns:repeat(2,1fr)}
+.visit-card.completed{opacity:.72}
+.mini-chip.done{color:var(--color-success);background:var(--color-success-soft);border-color:var(--border-success-soft)}
+.mini-chip.overdue{color:var(--color-warning);background:var(--color-warning-soft);border-color:var(--border-warning-soft)}
+@media(max-width:520px){
+  .agenda-actions{grid-template-columns:1fr 1fr}
+  .agenda-actions .btn:first-child{grid-column:1/-1}
+  .confirm-actions{grid-template-columns:1fr 1fr}
+  .confirm-actions .btn-primary{grid-column:1/-1}
+  .schedule-grid{grid-template-columns:1fr}
+}
