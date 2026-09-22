@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
+- **Status:** IN PROGRESS
 - **% complete:** 100% — responsive + tema + bilingüe implementado y verificado
 - **Confidence:** 95%
 
@@ -145,3 +145,17 @@ Prueba visual rápida en:
 ## Next step
 
 David revisa la versión publicada. Cualquier observación pasa a un nuevo ajuste; solo el supervisor marca COMPLETE.
+
+
+## iPhone install UX follow-up — 2026-09-22
+
+Requested:
+- Make the install control useful on iPhone/iPad instead of appearing to do nothing.
+- Respect iOS platform limits: a web app cannot programmatically force Apple's Add to Home Screen action.
+
+Plan:
+- Detect iOS/iPadOS and standalone state.
+- On supported Android/Chromium, keep the native install prompt.
+- On iPhone/iPad, change the button copy to platform-specific install guidance.
+- Tapping it opens an in-app instruction sheet for Add to Home Screen.
+- Provide Spanish/English copy and keep the flow responsive.
