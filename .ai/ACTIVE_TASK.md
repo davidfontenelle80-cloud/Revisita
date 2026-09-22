@@ -8,8 +8,8 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
-- **% complete:** 100% local implementation; remote publication in progress
+- **Status:** READY FOR REVIEW
+- **% complete:** 100% de la implementación del repositorio
 - **Confidence:** 95%
 
 ## Objective
@@ -27,23 +27,36 @@ Crear la primera versión de **Revisita**, una PWA en español para Android que 
 - Usar el icono aportado por David.
 - Transiciones y flujo de captura lo más directo posible.
 
-## Files changed this session
+## Resultado de esta sesión
 
-Proyecto completo nuevo: HTML, CSS, JS, service worker, manifest, iconos, pruebas y documentación.
+- Repositorio publicado en `davidfontenelle80-cloud/Revisita`.
+- App completa en `main`: HTML, CSS, JavaScript, service worker, manifest, documentación, pruebas e iconos.
+- Iconos derivados del arte suministrado por David incluidos en tamaños PWA 72/192/512 y variantes maskable.
+- GitHub Actions ejecutó `npm run check` correctamente en el commit con los iconos.
+- El repositorio está listo para activar GitHub Pages.
 
 ## Verification completed
 
-- `npm run check`: PASS.
-- Encoding check: PASS (22 text files at verification time).
-- Node tests: PASS (6/6).
-- KHub ship check: PASS.
-- JavaScript syntax checks: PASS.
-- Supplied artwork converted into the required PWA icon set (192/512, maskable 192/512, 72px header, Apple touch and favicon).
-- Headless Chromium visual capture could not complete in the container because the local Chromium process stalled on its environment/DBus setup; this is not treated as a browser acceptance test.
+- GitHub Actions / Check: **PASS**.
+- Encoding check: **PASS**.
+- Node tests: **PASS (6/6)**.
+- KHub ship check: **PASS**.
+- Archivos requeridos e iconos verificados remotamente.
+- Falta una prueba de aceptación en un Android real: permiso GPS, instalación PWA, mapa y URI `geo:`.
+
+## Remaining supervisor action
+
+GitHub Pages requiere una configuración de repositorio que este conector no puede cambiar:
+
+**Settings → Pages → Deploy from a branch → main → /(root) → Save**
+
+Después de activarlo, la URL prevista es:
+
+`https://davidfontenelle80-cloud.github.io/Revisita/`
 
 ## Next step
 
-Publish the verified local build to `davidfontenelle80-cloud/Revisita`, verify the remote files match the local commit, then hand off for Supervisor review and Android device acceptance testing.
+David revisa la app, activa GitHub Pages y hace la prueba corta en Android. Corregir cualquier observación antes de marcar la tarea COMPLETE.
 
 ## Supervisor Review
 

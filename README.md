@@ -31,11 +31,17 @@ Las revisitas, nombres y notas no se suben a un servidor propio. Permanecen en e
 
 ## Publicar con GitHub Pages
 
-1. Crear un repositorio llamado `revisita`.
-2. Subir el contenido de esta carpeta a la rama `main`.
-3. En GitHub: **Settings → Pages → Deploy from a branch → main / root**.
-4. Esperar a que GitHub Pages publique la URL HTTPS.
-5. Abrirla en Chrome para Android y tocar **Instalar Revisita** o **Añadir a pantalla principal**.
+El código ya está en `davidfontenelle80-cloud/Revisita`.
+
+1. En el repositorio abre **Settings → Pages**.
+2. En **Build and deployment**, selecciona **Deploy from a branch**.
+3. Selecciona **main** y **/(root)**.
+4. Pulsa **Save**.
+5. Espera a que GitHub Pages termine el despliegue.
+
+URL prevista:
+
+`https://davidfontenelle80-cloud.github.io/Revisita/`
 
 El GPS del navegador requiere HTTPS; GitHub Pages lo proporciona.
 
@@ -48,6 +54,8 @@ npm run ship-check
 # o todo junto:
 npm run check
 ```
+
+El workflow `Check` de GitHub Actions ejecuta estas verificaciones en cada push.
 
 ## Dependencias de red
 
