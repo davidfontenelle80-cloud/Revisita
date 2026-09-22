@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
+- **Status:** READY FOR REVIEW
 - **% complete:** 100% — responsive + tema + bilingüe implementado y verificado
 - **Confidence:** 95%
 
@@ -159,3 +159,19 @@ Plan:
 - On iPhone/iPad, change the button copy to platform-specific install guidance.
 - Tapping it opens an in-app instruction sheet for Add to Home Screen.
 - Provide Spanish/English copy and keep the flow responsive.
+
+
+## iPhone install UX result
+
+- iPhone/iPad is detected at runtime.
+- Installed standalone mode is detected.
+- On Android/Chromium with `beforeinstallprompt`, the native install prompt is preserved.
+- On iPhone/iPad, **Instalar Revisita** becomes **Instalar en iPhone / Install on iPhone**.
+- Tapping it opens a bilingual in-app guide:
+  1. Tap Share.
+  2. Choose Add to Home Screen.
+  3. Tap Add.
+- On unsupported browsers without a native prompt, the button now gives browser-menu guidance instead of doing nothing.
+- App version: **1.2.1**.
+- Service worker cache: **v5**.
+- Final automated check: **PASS**.
