@@ -8,56 +8,61 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
-- **% complete:** 10%
+- **Status:** READY FOR REVIEW
+- **% complete:** 100% implementation and automated verification
 - **Confidence:** 95%
 
-## Objective
+## Objective completed
 
 Actualizar Revisita a una versión de seguimiento diario y mapa operativo, manteniendo el flujo simple en Android.
 
-## Scope approved by supervisor
+## Implemented
 
-- Añadir **hora opcional** además de fecha para volver.
-- Abrir la app en una vista **Hoy** que muestre atrasadas y las revisitas del día, ordenadas por hora.
-- Añadir acciones rápidas **Hecha** y **Reprogramar**, conservando historial de visitas completadas.
-- Cambiar la navegación a **Hoy · Mapa · Revisitas · Más**.
-- Añadir modos del mapa: **Hoy · Activas · Próximas · Todas**, con opción **Cerca de mí**.
-- Un toque en el mapa o GPS crea solo una **ubicación pendiente**: nunca guarda automáticamente.
-- Antes de abrir el formulario, mostrar **¿Es esta la ubicación correcta?**, dirección aproximada, coordenadas y precisión GPS cuando exista.
-- Permitir mover el pin tocando otro punto antes de confirmar.
-- Al abrir una revisita guardada, mostrar un **mapa de vista previa** centrado en su ubicación.
-- Añadir botón explícito **Abrir en Google Maps** para navegación.
-- Mantener compatibilidad con datos existentes de v1.
-- Mantener PWA/offline, import/export y KHub standards.
+- **Hora opcional** además de fecha para volver.
+- La app abre en **Hoy**: Atrasadas + Para hoy, con las del día ordenadas por hora.
+- Acciones **Marcar hecha** y **Reprogramar**.
+- **Historial** persistente de visitas completadas.
+- Navegación: **Hoy · Mapa · Revisitas · Más**.
+- Modos del mapa: **Hoy · Activas · Próximas · Todas · Cerca de mí**.
+- **Cerca de mí** muestra activas dentro de 5 km cuando hay GPS.
+- Tocar mapa/GPS crea solamente un **pin provisional**.
+- Panel **¿Es esta la ubicación correcta?** con dirección aproximada, coordenadas y precisión GPS.
+- El usuario puede tocar otro punto o usar **Ajustar ubicación** antes de confirmar.
+- Ninguna revisita se guarda hasta pulsar **Guardar revisita**.
+- Al abrir una revisita guardada aparece una **vista previa del mapa** centrada en su pin.
+- Botón **Abrir en Google Maps** para navegación.
+- Compatibilidad/migración automática de datos v1 al esquema v2.
+- Service worker actualizado a cache v2.
+- App version actualizada a **1.1.0**.
 
-## Files expected to change
+## Verification completed
 
-- `index.html`
-- `css/main.css`
-- `js/app.js`
-- `js/map.js`
-- `js/storage.js`
-- `js/schedule-utils.js` (nuevo)
-- `tests/**`
-- `sw.js`
-- `manifest.json`
-- `README.md`
-- `PROJECT_STATUS.md`
-- `.ai/ACTIVE_TASK.md`
+- GitHub Actions `npm run check`: **PASS** en el código final antes de esta actualización de estado.
+- Encoding check: **PASS**.
+- JavaScript syntax check: **PASS**.
+- Unit tests: **11 PASS** (mapas/distancias, agenda, importación, migración e historial).
+- KHub ship check: **PASS**.
+- GitHub Pages build: **PASS**.
+- GitHub Pages deploy: **PASS**.
+- URL publicada: `https://davidfontenelle80-cloud.github.io/Revisita/`.
 
-## Verification plan
+## Remaining supervisor acceptance test
 
-- GitHub Actions: `npm run check`.
-- Tests de migración v1 → nuevo esquema, orden de Hoy y clasificación activa/completada.
-- Verificar que no se guarde una revisita hasta `Guardar revisita`.
-- Verificar que el pin pendiente requiera `Confirmar ubicación`.
-- Verificar mapa de detalle y URL de Google Maps.
-- Prueba final en Android real por el supervisor.
+En Android real:
 
-## Next step if interrupted
+1. Abrir la app y confirmar que inicia en **Hoy**.
+2. Tocar el mapa y comprobar que solo aparece un pin provisional.
+3. Mover el pin y confirmar ubicación.
+4. Probar GPS + precisión.
+5. Guardar con fecha y hora.
+6. Verlo en Hoy, Activas y Cerca de mí.
+7. Marcar Hecha y luego Reprogramar.
+8. Abrir una revisita y comprobar mapa previo + Google Maps.
+9. Confirmar instalación PWA y comportamiento offline básico.
 
-Implementar el nuevo modelo de datos y UI, actualizar cache version, ejecutar GitHub Actions y dejar en `READY FOR REVIEW`.
+## Next step
+
+David revisa el flujo real. Cualquier observación pasa a una nueva tarea; solo el supervisor marca COMPLETE.
 
 ## Supervisor Review
 
