@@ -24,6 +24,20 @@
   <main id="main" class="app-main">
     <section id="view-today" class="view is-active" data-view="today" aria-labelledby="todayTitle">
       <div class="view-heading"><div><h2 id="todayTitle" data-i18n="today">Hoy</h2><p id="todayDate"></p></div><button id="todayNewBtn" class="btn btn-primary btn-small" type="button" data-i18n="newVisit">Nueva</button></div>
+      <section id="nextVisitCard" class="next-visit-card card" hidden>
+        <div class="next-visit-kicker" data-i18n="nextVisit">Próxima revisita</div>
+        <div class="next-visit-main">
+          <div>
+            <h3 id="nextVisitName"></h3>
+            <p id="nextVisitMeta" class="muted"></p>
+          </div>
+          <span id="nextVisitTime" class="next-visit-time num"></span>
+        </div>
+        <div class="next-visit-actions">
+          <button id="nextVisitOpenBtn" class="btn btn-secondary" type="button" data-i18n="open">Abrir</button>
+          <button id="nextVisitDirectionsBtn" class="btn btn-primary" type="button" data-i18n="directions">Cómo llegar</button>
+        </div>
+      </section>
       <div class="summary-grid">
         <div class="summary-card card"><span data-i18n="overdue">Atrasadas</span><strong id="overdueCount" class="num">0</strong></div>
         <div class="summary-card card"><span data-i18n="forToday">Para hoy</span><strong id="todayCount" class="num">0</strong></div>
@@ -48,7 +62,15 @@
       </div>
       <p id="mapModeSummary" class="map-mode-summary muted"></p>
 
-      <div class="map-shell card" id="mapShell">
+      <div class="map-workspace">
+        <aside id="mapSidebar" class="map-sidebar card" aria-label="Revisitas visibles" data-i18n-aria="visibleVisits">
+          <div class="map-sidebar-header">
+            <strong data-i18n="visibleVisits">Revisitas visibles</strong>
+            <span id="mapSidebarCount" class="mini-chip">0</span>
+          </div>
+          <div id="mapSidebarList" class="map-sidebar-list"></div>
+        </aside>
+        <div class="map-shell card" id="mapShell">
         <div id="map" class="map" role="application" aria-label="Mapa de revisitas" data-i18n-aria="mapAria"><div class="map-placeholder"><span>Mapa</span><small data-i18n="mapTiles">Los mosaicos aparecen cuando hay conexión.</small></div></div>
         <div class="map-controls" aria-label="Controles del mapa" data-i18n-aria="mapControls"><button id="zoomInBtn" class="map-control" type="button" aria-label="Acercar" data-i18n-aria="zoomIn">+</button><button id="zoomOutBtn" class="map-control" type="button" aria-label="Alejar" data-i18n-aria="zoomOut">−</button></div>
         <button id="locateBtn" class="locate-btn" type="button"><span aria-hidden="true">◎</span><span data-i18n="useLocation">Usar mi ubicación</span></button>
@@ -64,6 +86,7 @@
           </div>
         </div>
         <div class="map-attribution">© OpenStreetMap contributors</div>
+        </div>
       </div>
       <div class="map-tip alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong data-i18n="confirmTipTitle">Primero confirma:</strong> <span data-i18n="confirmTip">al tocar el mapa aparece un pin provisional. Puedes tocar otro punto antes de confirmarlo.</span></span></div>
     </section>
@@ -95,10 +118,12 @@
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p data-i18n="privacyText">Las revisitas y notas se guardan solamente en este dispositivo. El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.2.2</p>
+        <p class="app-version">Revisita v1.3.0</p>
       </div>
     </section>
   </main>
+
+  <button id="fabNewVisit" class="fab-new" type="button" aria-label="Nueva revisita" data-i18n-aria="newVisitTitle"><span aria-hidden="true">＋</span><span data-i18n="newVisit">Nueva</span></button>
 
   <nav class="bottom-nav" aria-label="Navegación principal" data-i18n-aria="mainNav">
     <button class="nav-item is-active" type="button" data-destination="today" aria-current="page"><span class="nav-icon" aria-hidden="true">◷</span><span data-i18n="navToday">Hoy</span><span id="todayBadge" class="nav-badge" hidden>0</span></button>
@@ -135,6 +160,26 @@
     </form>
   </dialog>
 
+
+
+  <dialog id="onboardingDialog" class="sheet-dialog onboarding-dialog">
+    <div class="sheet">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-header">
+        <div>
+          <h2 data-i18n="welcomeTitle">Bienvenido a Revisita</h2>
+          <p data-i18n="welcomeIntro">Tres pasos para comenzar.</p>
+        </div>
+        <button id="closeOnboardingBtn" class="icon-btn" type="button" aria-label="Cerrar" data-i18n-aria="close">×</button>
+      </div>
+      <div class="onboarding-steps">
+        <div class="onboarding-step"><span>1</span><div><strong data-i18n="welcomeStep1Title">Permite tu ubicación</strong><p data-i18n="welcomeStep1Text">Así el mapa puede mostrar dónde estás y qué revisitas tienes cerca.</p></div></div>
+        <div class="onboarding-step"><span>2</span><div><strong data-i18n="welcomeStep2Title">Guarda una revisita</strong><p data-i18n="welcomeStep2Text">Toca el mapa o usa tu ubicación, confirma el pin y añade el nombre o referencia.</p></div></div>
+        <div class="onboarding-step"><span>3</span><div><strong data-i18n="welcomeStep3Title">Programa cuándo volver</strong><p data-i18n="welcomeStep3Text">Añade fecha y hora para verla automáticamente en Hoy.</p></div></div>
+      </div>
+      <div class="sheet-footer"><button id="onboardingDoneBtn" class="btn btn-primary" type="button" data-i18n="startUsing">Empezar</button></div>
+    </div>
+  </dialog>
 
   <dialog id="iosInstallDialog" class="sheet-dialog install-guide-dialog">
     <div class="sheet">
