@@ -4,14 +4,15 @@ import{dateKey,visitBucket,compareSchedule,formatTime}from'./schedule-utils.js';
 import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js';
 import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot}from'./storage.js';
 
-let state=loadState(),currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,lookupToken=0;
+let state=loadState(),currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,lookupToken=0,nextVisitId=null;
+const ONBOARDING_KEY='revisita.onboarding.v1';
 const $=id=>document.getElementById(id);
 const els={
  status:$('saveStatus'),mapEl:$('map'),mapShell:$('mapShell'),locate:$('locateBtn'),confirmPanel:$('locationConfirmPanel'),pendingAddress:$('pendingAddress'),pendingCoords:$('pendingCoords'),pendingAccuracy:$('pendingAccuracy'),mapModeSummary:$('mapModeSummary'),
  dialog:$('visitDialog'),form:$('visitForm'),id:$('visitId'),lat:$('visitLat'),lng:$('visitLng'),visitStatus:$('visitStatus'),name:$('visitName'),address:$('visitAddress'),notes:$('visitNotes'),due:$('visitDueDate'),dueTime:$('visitDueTime'),title:$('dialogTitle'),coords:$('dialogCoords'),existing:$('existingActions'),deleteVisit:$('deleteVisitBtn'),detailMapSection:$('detailMapSection'),historyPanel:$('historyPanel'),historyList:$('historyList'),markDone:$('markDoneBtn'),reschedule:$('rescheduleBtn'),
  list:$('visitList'),empty:$('emptyList'),summary:$('listSummary'),search:$('searchInput'),
- todayDate:$('todayDate'),overdueCount:$('overdueCount'),todayCount:$('todayCount'),doneTodayCount:$('doneTodayCount'),overdueSection:$('overdueSection'),todaySection:$('todaySection'),overdueList:$('overdueList'),todayList:$('todayList'),todayEmpty:$('todayEmpty'),todayBadge:$('todayBadge'),
- importDialog:$('importDialog'),importPreview:$('importPreview'),importFile:$('importFileInput'),restore:$('restoreSnapshotBtn'),install:$('installBtn'),installHint:$('installHint'),iosInstallDialog:$('iosInstallDialog'),update:$('updateNotice'),toast:$('toastRegion')
+ todayDate:$('todayDate'),overdueCount:$('overdueCount'),todayCount:$('todayCount'),doneTodayCount:$('doneTodayCount'),overdueSection:$('overdueSection'),todaySection:$('todaySection'),overdueList:$('overdueList'),todayList:$('todayList'),todayEmpty:$('todayEmpty'),todayBadge:$('todayBadge'),nextVisitCard:$('nextVisitCard'),nextVisitName:$('nextVisitName'),nextVisitMeta:$('nextVisitMeta'),nextVisitTime:$('nextVisitTime'),
+ importDialog:$('importDialog'),importPreview:$('importPreview'),importFile:$('importFileInput'),restore:$('restoreSnapshotBtn'),install:$('installBtn'),installHint:$('installHint'),iosInstallDialog:$('iosInstallDialog'),onboardingDialog:$('onboardingDialog'),mapSidebarList:$('mapSidebarList'),mapSidebarCount:$('mapSidebarCount'),fab:$('fabNewVisit'),update:$('updateNotice'),toast:$('toastRegion')
 };
 const map=new SimpleMap(els.mapEl,state.map);
 const detailMap=new SimpleMap($('detailMap'),{...state.map,interactive:false,zoom:17});
@@ -25,8 +26,8 @@ function init(){
  initLanguage();
  applyTheme(state.settings.theme||'dark');
  applyTranslations(document);
- bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindAgenda();bindList();bindMore();bindKeyboardShortcuts();
- renderAll();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();
+ bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindAgenda();bindList();bindMore();bindPolishUI();bindKeyboardShortcuts();
+ renderAll();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();maybeShowOnboarding();
  addEventListener('online',updateOnline);addEventListener('offline',updateOnline);
  addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();updateOnline();updateInstallUI();});
  addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;updateInstallUI();});
@@ -81,6 +82,7 @@ function showView(name){
  if(name==='map')requestAnimationFrame(()=>{map.render();renderMapMode(false);centerMapOnCurrentLocation();});
  if(name==='today')renderToday();
  if(name==='list')renderList();
+ if(els.fab)els.fab.hidden=name==='more';
  scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -88,6 +90,7 @@ function bindMap(){
  $('zoomInBtn').addEventListener('click',()=>map.setZoom(map.zoom+1));$('zoomOutBtn').addEventListener('click',()=>map.setZoom(map.zoom-1));
  els.locate.addEventListener('click',()=>requestLocation(loc=>beginLocationConfirmation({...loc,source:'gps'}),true));
  document.querySelectorAll('[data-map-mode]').forEach(b=>b.addEventListener('click',()=>selectMapMode(b.dataset.mapMode)));
+ $('mapSidebarList')?.addEventListener('click',handleMapSidebarAction);
  $('cancelLocationBtn').addEventListener('click',()=>clearPendingLocation());
  $('adjustLocationBtn').addEventListener('click',()=>{if(!pendingLocation)return;map.setView(pendingLocation.lat,pendingLocation.lng,19);toast(t('tapAnother'));});
  $('confirmLocationBtn').addEventListener('click',()=>{if(!pendingLocation)return;const p={...pendingLocation};clearPendingLocation(false);openEditor(null,p);});
@@ -112,9 +115,53 @@ function renderMapMode(fit=false){
  const labels={today:t('mapSummaryToday'),active:t('mapSummaryActive'),upcoming:t('mapSummaryUpcoming'),all:t('mapSummaryAll'),nearby:t('mapSummaryNearby')};
  els.mapModeSummary.textContent=`${visits.length} ${visits.length===1?t('visitsSingular'):t('visitsPlural')} ${labels[mapMode]}`;
  if(currentLocation)map.setUserLocation(currentLocation.lat,currentLocation.lng);
+ renderMapSidebar(visits);
  if(fit){const pts=[...visits];if(mapMode==='nearby'&&currentLocation)pts.push(currentLocation);if(pts.length)requestAnimationFrame(()=>map.fitPoints(pts,mapMode==='nearby'?15:16));}
 }
 
+function handleMapSidebarAction(e){
+ const dir=e.target.closest('[data-map-directions]');
+ const open=e.target.closest('[data-map-open]');
+ if(dir){e.stopPropagation();openDirectionsForVisit(dir.dataset.mapDirections);return;}
+ if(open)openEditor(open.dataset.mapOpen);
+}
+function renderMapSidebar(visits){
+ if(!els.mapSidebarList||!els.mapSidebarCount)return;
+ els.mapSidebarCount.textContent=visits.length;
+ if(!visits.length){
+   const empty=document.createElement('div');
+   empty.className='map-sidebar-empty';
+   empty.textContent=t('noVisits');
+   els.mapSidebarList.replaceChildren(empty);
+   return;
+ }
+ const cards=visits.slice().sort(compareSchedule).map(v=>{
+   const card=document.createElement('article');
+   card.className='map-sidebar-card';
+   card.dataset.mapOpen=v.id;
+   card.tabIndex=0;
+   const top=document.createElement('div');top.className='map-sidebar-card-top';
+   const title=document.createElement('strong');title.textContent=v.name;
+   const when=document.createElement('span');when.className='map-sidebar-when';
+   when.textContent=v.dueDate?(shortDate(v.dueDate)+(v.dueTime?' · '+formatTime(v.dueTime,locale()):'')):t('undated');
+   top.append(title,when);card.append(top);
+   const detail=document.createElement('p');
+   const distance=currentLocation?formatDistance(haversineKm(currentLocation.lat,currentLocation.lng,v.lat,v.lng)):'';
+   detail.textContent=[v.address||t('noAddress'),distance].filter(Boolean).join(' · ');
+   card.append(detail);
+   const actions=document.createElement('div');actions.className='map-sidebar-actions';
+   const openBtn=document.createElement('button');openBtn.type='button';openBtn.className='btn btn-secondary';openBtn.dataset.mapOpen=v.id;openBtn.textContent=t('open');
+   const dirBtn=document.createElement('button');dirBtn.type='button';dirBtn.className='btn btn-primary';dirBtn.dataset.mapDirections=v.id;dirBtn.textContent=t('directions');
+   actions.append(openBtn,dirBtn);card.append(actions);
+   card.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('button')){e.preventDefault();openEditor(v.id);}});
+   return card;
+ });
+ els.mapSidebarList.replaceChildren(...cards);
+}
+function openDirectionsForVisit(id){
+ const v=state.visits.find(x=>x.id===id);
+ if(v)window.open(googleMapsUrl(v),'_blank','noopener');
+}
 function centerMapOnCurrentLocation(){
  if(!currentLocation||pendingLocation)return;
  map.setUserLocation(currentLocation.lat,currentLocation.lng);
@@ -129,6 +176,7 @@ function autoLocateOnLaunch(){
    if(mapView&&!mapView.hidden)centerMapOnCurrentLocation();
    renderToday();
    renderList();
+   renderMapMode(false);
  },()=>{}, {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
 }
 
@@ -142,12 +190,12 @@ function requestLocation(done,forNewVisit){
 async function beginLocationConfirmation(loc){
  pendingLocation={lat:Number(loc.lat),lng:Number(loc.lng),accuracy:Number.isFinite(loc.accuracy)?loc.accuracy:null,source:loc.source||'map',address:''};
  map.setDraft(pendingLocation.lat,pendingLocation.lng);map.setView(pendingLocation.lat,pendingLocation.lng,Math.max(map.zoom,17));
- els.mapShell.classList.add('has-pending');els.confirmPanel.hidden=false;els.pendingCoords.textContent=`${pendingLocation.lat.toFixed(6)}, ${pendingLocation.lng.toFixed(6)}`;
+ els.mapShell.classList.add('has-pending');document.body.classList.add('location-pending');els.confirmPanel.hidden=false;els.pendingCoords.textContent=`${pendingLocation.lat.toFixed(6)}, ${pendingLocation.lng.toFixed(6)}`;
  els.pendingAccuracy.hidden=!pendingLocation.accuracy;els.pendingAccuracy.textContent=pendingLocation.accuracy?t('gpsAccuracy',{meters:Math.round(pendingLocation.accuracy)}):'';
  els.pendingAddress.textContent=navigator.onLine?t('searchingAddress'):t('offlineVerifyPin');
  const token=++lookupToken;if(navigator.onLine){const address=await reverseGeocode(pendingLocation.lat,pendingLocation.lng);if(token===lookupToken&&pendingLocation){pendingLocation.address=address;els.pendingAddress.textContent=address||t('locationNoAddress');}}
 }
-function clearPendingLocation(clearDraft=true){lookupToken++;pendingLocation=null;els.confirmPanel.hidden=true;els.mapShell.classList.remove('has-pending');if(clearDraft)map.setDraft(null,null);}
+function clearPendingLocation(clearDraft=true){lookupToken++;pendingLocation=null;els.confirmPanel.hidden=true;els.mapShell.classList.remove('has-pending');document.body.classList.remove('location-pending');if(clearDraft)map.setDraft(null,null);}
 async function reverseGeocode(lat,lng){
  try{const q=new URLSearchParams({format:'jsonv2',lat:String(lat),lon:String(lng),zoom:'18','accept-language':getLanguage()});const r=await fetch(`https://nominatim.openstreetmap.org/reverse?${q}`,{headers:{Accept:'application/json'}});if(!r.ok)throw new Error(`HTTP ${r.status}`);return (await r.json()).display_name||'';}catch(e){console.warn('Geocodificación no disponible.',e);return'';}
 }
@@ -163,6 +211,23 @@ function renderToday(){
  const actionCount=overdue.length+due.length;els.todayBadge.textContent=actionCount;els.todayBadge.hidden=!actionCount;
  els.overdueSection.hidden=!overdue.length;els.overdueList.replaceChildren(...overdue.map(v=>agendaCard(v,true)));els.todayList.replaceChildren(...due.map(v=>agendaCard(v,false)));
  els.todaySection.hidden=!due.length;els.todayEmpty.hidden=actionCount!==0;
+ renderNextVisit(overdue,due);
+}
+function renderNextVisit(overdue,due){
+ if(!els.nextVisitCard)return;
+ const now=new Date(),hhmm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+ const futureToday=due.filter(v=>!v.dueTime||v.dueTime>=hhmm).sort(compareSchedule);
+ const upcoming=state.visits.filter(v=>visitBucket(v)==='upcoming').sort(compareSchedule);
+ const v=futureToday[0]||due[0]||overdue[0]||upcoming[0]||null;
+ nextVisitId=v?.id||null;
+ els.nextVisitCard.hidden=!v;
+ if(!v)return;
+ els.nextVisitName.textContent=v.name;
+ const bucket=visitBucket(v);
+ const distance=currentLocation?formatDistance(haversineKm(currentLocation.lat,currentLocation.lng,v.lat,v.lng)):'';
+ const status=bucket==='overdue'?t('overdue'):bucket==='today'?t('today'):v.dueDate?shortDate(v.dueDate):t('undated');
+ els.nextVisitMeta.textContent=[v.address||t('noAddress'),distance,status].filter(Boolean).join(' · ');
+ els.nextVisitTime.textContent=v.dueTime?formatTime(v.dueTime,locale()):(bucket==='today'?t('noTime'):v.dueDate?shortDate(v.dueDate):'');
 }
 function agendaCard(v,isOverdue){
  const card=document.createElement('article');card.className=`agenda-card card${isOverdue?' is-overdue':''}`;
@@ -223,6 +288,24 @@ function visitCard(v){
 function chip(text,extra=''){const s=document.createElement('span');s.className=`mini-chip ${extra}`.trim();s.textContent=text;return s;}
 function shortDate(k){if(!k)return'';const[y,m,d]=k.split('-').map(Number);return new Intl.DateTimeFormat(locale(),{day:'numeric',month:'short'}).format(new Date(y,m-1,d));}
 
+function bindPolishUI(){
+ els.fab?.addEventListener('click',()=>{showView('map');toast(t('tapMapOrLocation'));});
+ $('nextVisitOpenBtn')?.addEventListener('click',()=>{if(nextVisitId)openEditor(nextVisitId);});
+ $('nextVisitDirectionsBtn')?.addEventListener('click',()=>{if(nextVisitId)openDirectionsForVisit(nextVisitId);});
+ $('closeOnboardingBtn')?.addEventListener('click',completeOnboarding);
+ $('onboardingDoneBtn')?.addEventListener('click',completeOnboarding);
+ els.onboardingDialog?.addEventListener('cancel',e=>{e.preventDefault();completeOnboarding();});
+ els.onboardingDialog?.addEventListener('click',e=>{if(e.target===els.onboardingDialog)completeOnboarding();});
+}
+function maybeShowOnboarding(){
+ if(!els.onboardingDialog||state.visits.length)return;
+ try{if(localStorage.getItem(ONBOARDING_KEY))return;}catch{}
+ setTimeout(()=>{if(!els.onboardingDialog.open&&!document.querySelector('dialog[open]'))els.onboardingDialog.showModal();},900);
+}
+function completeOnboarding(){
+ try{localStorage.setItem(ONBOARDING_KEY,'1');}catch{}
+ if(els.onboardingDialog?.open)els.onboardingDialog.close();
+}
 function bindKeyboardShortcuts(){
  document.addEventListener('keydown',e=>{
    if(!e.altKey)return;
