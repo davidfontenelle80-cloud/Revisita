@@ -1,16 +1,176 @@
-const CACHE_VERSION = 'v8';
+const APP_BUILD = '1.3.2';
 const CACHE_PREFIX = 'revisita-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-${CACHE_VERSION}`;
-const TILE_CACHE = `${CACHE_PREFIX}tiles-${CACHE_VERSION}`;
-const REQUIRED_SHELL = [
-  './','./index.html','./css/main.css?v=1.3.1','./js/app.js?v=1.3.1','./js/map.js?v=1.3.1','./js/map-utils.js?v=1.3.1','./js/storage.js?v=1.3.1','./js/schedule-utils.js?v=1.3.1','./js/i18n.js?v=1.3.1','./manifest.json',
-  './icons/icon-72.png','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-192-maskable.png','./icons/icon-512-maskable.png','./icons/apple-touch-icon.png','./icons/favicon.png'
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v9-auto-update`;
+const TILE_CACHE = `${CACHE_PREFIX}tiles-v1`;
+
+const PRECACHE_URLS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './css/main.css?v=1.3.2',
+  './js/app.js?v=1.3.2',
+  './js/map.js?v=1.3.2',
+  './js/map-utils.js?v=1.3.2',
+  './js/storage.js?v=1.3.2',
+  './js/schedule-utils.js?v=1.3.2',
+  './js/i18n.js?v=1.3.2',
+  './icons/icon-72.png',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-192-maskable.png',
+  './icons/icon-512-maskable.png',
+  './icons/apple-touch-icon.png',
+  './icons/favicon.png'
 ];
-self.addEventListener('install',e=>e.waitUntil(caches.open(SHELL_CACHE).then(c=>c.addAll(REQUIRED_SHELL))));
-self.addEventListener('activate',e=>e.waitUntil((async()=>{const names=await caches.keys();await Promise.all(names.filter(n=>n.startsWith(CACHE_PREFIX)&&![SHELL_CACHE,TILE_CACHE].includes(n)).map(n=>caches.delete(n)));await self.clients.claim();})()));
-self.addEventListener('message',e=>{if(e.data?.type==='SKIP_WAITING')self.skipWaiting();});
-self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);if(u.hostname==='tile.openstreetmap.org'){e.respondWith(tile(r));return;}if(u.origin!==self.location.origin)return;if(r.mode==='navigate'){e.respondWith(doc(r));return;}e.respondWith(asset(r));});
-async function doc(r){try{const x=await fetch(r);if(x.ok)(await caches.open(SHELL_CACHE)).put('./index.html',x.clone());return x;}catch{return(await caches.match('./index.html'))||Response.error();}}
-async function asset(r){const c=await caches.match(r);if(c)return c;const x=await fetch(r);if(x.ok)(await caches.open(SHELL_CACHE)).put(r,x.clone());return x;}
-async function tile(r){const c=await caches.open(TILE_CACHE),hit=await c.match(r);if(hit)return hit;try{const x=await fetch(r);if(x.ok||x.type==='opaque'){c.put(r,x.clone());trim(TILE_CACHE,220);}return x;}catch{return Response.error();}}
-async function trim(n,m){const c=await caches.open(n),k=await c.keys(),e=k.length-m;if(e>0)await Promise.all(k.slice(0,e).map(x=>c.delete(x)));}
+
+function pathFor(value) {
+  return new URL(value, self.location.href).pathname;
+}
+
+function isShellPath(url) {
+  return PRECACHE_URLS.some((path) => pathFor(path) === url.pathname);
+}
+
+function isDocumentRequest(request) {
+  return request.mode === 'navigate' || request.destination === 'document';
+}
+
+async function cacheShellResponse(request, response) {
+  if (response && response.ok && response.type === 'basic') {
+    const cache = await caches.open(SHELL_CACHE);
+    await cache.put(request, response.clone());
+  }
+  return response;
+}
+
+async function shellFallback(request) {
+  const cache = await caches.open(SHELL_CACHE);
+  return (
+    (await cache.match(request)) ||
+    (await cache.match(request, { ignoreSearch: true })) ||
+    Response.error()
+  );
+}
+
+async function documentFallback(request) {
+  const cache = await caches.open(SHELL_CACHE);
+  return (
+    (await cache.match(request)) ||
+    (await cache.match(request, { ignoreSearch: true })) ||
+    (await cache.match('./index.html')) ||
+    (await cache.match('./')) ||
+    Response.error()
+  );
+}
+
+async function networkFirstDocument(request) {
+  try {
+    return await cacheShellResponse(request, await fetch(request, { cache: 'no-store' }));
+  } catch {
+    return documentFallback(request);
+  }
+}
+
+async function networkFirstAsset(request) {
+  try {
+    return await cacheShellResponse(request, await fetch(request, { cache: 'no-store' }));
+  } catch {
+    return shellFallback(request);
+  }
+}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches
+      .open(SHELL_CACHE)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+      .catch((error) => {
+        console.error('[Revisita SW] Atomic shell install failed:', error);
+        throw error;
+      })
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter(
+              (key) =>
+                key.startsWith(CACHE_PREFIX) &&
+                key !== SHELL_CACHE &&
+                key !== TILE_CACHE
+            )
+            .map((key) => caches.delete(key))
+        )
+      )
+      .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
+      .then((clients) => {
+        clients.forEach((client) =>
+          client.postMessage({ type: 'RELOAD_READY', build: APP_BUILD })
+        );
+      })
+  );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+
+  if (url.hostname === 'tile.openstreetmap.org') {
+    event.respondWith(tile(request));
+    return;
+  }
+
+  if (url.origin !== self.location.origin) return;
+
+  if (isDocumentRequest(request)) {
+    event.respondWith(networkFirstDocument(request));
+    return;
+  }
+
+  if (isShellPath(url)) {
+    event.respondWith(networkFirstAsset(request));
+  }
+});
+
+async function tile(request) {
+  const cache = await caches.open(TILE_CACHE);
+  const hit = await cache.match(request);
+  if (hit) return hit;
+
+  try {
+    const response = await fetch(request);
+    if (response.ok || response.type === 'opaque') {
+      eventlessCachePut(cache, request, response.clone());
+      trimTiles(220);
+    }
+    return response;
+  } catch {
+    return Response.error();
+  }
+}
+
+function eventlessCachePut(cache, request, response) {
+  cache.put(request, response).catch(() => {});
+}
+
+async function trimTiles(maxEntries) {
+  const cache = await caches.open(TILE_CACHE);
+  const keys = await cache.keys();
+  const extra = keys.length - maxEntries;
+  if (extra > 0) {
+    await Promise.all(keys.slice(0, extra).map((key) => cache.delete(key)));
+  }
+}
