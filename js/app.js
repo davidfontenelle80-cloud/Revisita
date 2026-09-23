@@ -1,10 +1,10 @@
-import{SimpleMap}from'./map.js?v=1.4.1';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.1';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.1';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.1';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.1';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.1';
-import{createCloudSync}from'./cloud-sync.js?v=1.4.1';
+import{SimpleMap}from'./map.js?v=1.4.2';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.2';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.2';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.2';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.2';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.2';
+import{createCloudSync}from'./cloud-sync.js?v=1.4.2';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null;
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -267,12 +267,13 @@ function renderNextVisit(overdue,due){
  const v=selectNextVisit(state.visits,new Date());
  nextVisitId=v?.id||null;
  els.nextVisitCard.hidden=!v;
- if(!v)return;
+ if(!v){setCallLink($('nextVisitCallBtn'),'');return;}
  els.nextVisitName.textContent=v.name;
  const bucket=visitBucket(v);
  const distance=currentLocation?formatDistance(haversineKm(currentLocation.lat,currentLocation.lng,v.lat,v.lng)):'';
  const status=bucket==='overdue'?t('overdue'):bucket==='today'?t('today'):v.dueDate?shortDate(v.dueDate):t('undated');
  els.nextVisitMeta.textContent=[placeLine(v)||t('noAddress'),distance,status].filter(Boolean).join(' · ');
+ setCallLink($('nextVisitCallBtn'),v.phone);
  els.nextVisitTime.textContent=v.dueTime?formatTime(v.dueTime,locale()):(bucket==='today'?t('noTime'):v.dueDate?shortDate(v.dueDate):'');
 }
 function agendaCard(v,kind){
@@ -280,9 +281,12 @@ function agendaCard(v,kind){
  const card=document.createElement('article');card.className=`agenda-card card${isOverdue?' is-overdue':''}`;
  const top=document.createElement('div');top.className='agenda-top';const left=document.createElement('div'),h=document.createElement('h3');h.textContent=v.name;left.append(h);
  const place=placeLine(v);if(place){const p=document.createElement('p');p.textContent=place;left.append(p);}const time=document.createElement('span');time.className='agenda-time';if(kind==='upcoming'){time.classList.add('is-stacked');const d=document.createElement('span');d.textContent=shortDate(v.dueDate);time.append(d);if(v.dueTime){const h=document.createElement('span');h.textContent=formatTime(v.dueTime,locale());time.append(h);}}else time.textContent=v.dueTime?formatTime(v.dueTime,locale()):isOverdue?shortDate(v.dueDate):t('noTime');top.append(left,time);card.append(top);
- const meta=document.createElement('div');meta.className='visit-card-meta';if(isOverdue)meta.append(chip(t('overdue'),'overdue'));if(currentLocation)meta.append(chip(formatDistance(haversineKm(currentLocation.lat,currentLocation.lng,v.lat,v.lng))));card.append(meta);
+ const meta=document.createElement('div');meta.className='visit-card-meta';if(isOverdue)meta.append(chip(t('overdue'),'overdue'));if(currentLocation)meta.append(chip(formatDistance(haversineKm(currentLocation.lat,currentLocation.lng,v.lat,v.lng))));
+ const tel=telUrl(v.phone);if(tel){const call=document.createElement('a');call.className='call-link';call.href=tel;call.setAttribute('aria-label',`${t('call')}: ${v.name}`);call.innerHTML='<span aria-hidden="true">☎</span> ';const lbl=document.createElement('span');lbl.textContent=t('call');call.append(lbl);meta.append(call);}
+ card.append(meta);
  const actions=document.createElement('div');actions.className='agenda-actions';actions.append(actionBtn(t('open'),v.id,'open'),actionBtn(t('directions'),v.id,'dir'),actionBtn(t('logVisit'),v.id,'log'));card.append(actions);return card;
 }
+function setCallLink(el,phone){if(!el)return;const tel=telUrl(phone);el.hidden=!tel;if(tel)el.href=tel;else el.removeAttribute('href');}
 function actionBtn(label,id,action){const b=document.createElement('button');b.type='button';b.className=action==='log'?'btn btn-primary':'btn btn-secondary';b.textContent=label;b.dataset[action]=id;return b;}
 function handleVisitAction(e){
  const open=e.target.closest('[data-open]'),dir=e.target.closest('[data-dir]'),log=e.target.closest('[data-log]');
@@ -703,7 +707,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.1',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.2',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();
