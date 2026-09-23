@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
+- **Status:** IN PROGRESS
 - **% complete:** 100% — corrección de caché iPhone implementada y desplegada
 - **Confidence:** 96%
 
@@ -285,3 +285,16 @@ On iPhone:
 2. Tap the map.
 3. Confirm the full location panel appears immediately in the visible viewport.
 4. Confirm the bottom navigation is hidden while that panel is active.
+
+
+## Horizontal filter hint follow-up — 2026-09-22
+
+Supervisor observation from iPhone:
+- The “Desliza para ver más →” hint is positioned on top of the filter chips.
+- It can obscure a category such as Próximas and makes it look like an option is missing until the row is fully scrolled.
+
+Fix:
+- Move the hint into its own line above the chips; never overlay filter buttons.
+- Keep it dynamic: only show when the chip row actually overflows and hide when the user reaches the end.
+- Remove the artificial right padding that was reserving space for the old overlay.
+- Preserve horizontal swiping and selected-chip visibility on small screens.
