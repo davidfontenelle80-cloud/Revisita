@@ -799,3 +799,10 @@ body.location-pending .location-confirm{
 .agenda-time.is-stacked span + span { font-size: .85em; font-weight: 700; color: var(--color-text-muted); }
 /* Leave room so the floating + Nueva never covers the last card's buttons */
 .app-main { padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 88px) !important; }
+
+/* ===== v1.4.2 — Llamar on Hoy cards ===== */
+.call-link { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 5px 12px; border-radius: var(--radius-full); border: 1px solid var(--border-success-soft); background: var(--color-success-soft); color: var(--color-success); font-size: .8rem; font-weight: 850; text-decoration: none; }
+.call-link:active { transform: scale(.97); }
+.call-link[hidden] { display: none; }
+.next-visit-main .call-link { margin-top: 8px; }
+.visit-card-meta { align-items: center; }
