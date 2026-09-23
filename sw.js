@@ -1,9 +1,9 @@
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const CACHE_PREFIX = 'revisita-';
 const SHELL_CACHE = `${CACHE_PREFIX}shell-${CACHE_VERSION}`;
 const TILE_CACHE = `${CACHE_PREFIX}tiles-${CACHE_VERSION}`;
 const REQUIRED_SHELL = [
-  './','./index.html','./css/main.css','./js/app.js','./js/map.js','./js/map-utils.js','./js/storage.js','./js/schedule-utils.js','./js/i18n.js','./manifest.json',
+  './','./index.html','./css/main.css?v=1.3.1','./js/app.js?v=1.3.1','./js/map.js?v=1.3.1','./js/map-utils.js?v=1.3.1','./js/storage.js?v=1.3.1','./js/schedule-utils.js?v=1.3.1','./js/i18n.js?v=1.3.1','./manifest.json',
   './icons/icon-72.png','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-192-maskable.png','./icons/icon-512-maskable.png','./icons/apple-touch-icon.png','./icons/favicon.png'
 ];
 self.addEventListener('install',e=>e.waitUntil(caches.open(SHELL_CACHE).then(c=>c.addAll(REQUIRED_SHELL))));
