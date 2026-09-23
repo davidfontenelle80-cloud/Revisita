@@ -777,3 +777,25 @@ body.location-pending .location-confirm{
 @media (min-width: 600px) {
   .view-secondary-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+/* ===== v1.4.1 — workflow tweaks ===== */
+/* Próxima revisita: Registrar visita spans the full row under Abrir / Cómo llegar */
+.next-visit-actions .next-visit-log { grid-column: 1 / -1; background: var(--color-success); color: var(--color-on-primary); box-shadow: none; }
+/* New-visit form: "¿Cuándo vuelves?" group with quick chips first */
+.schedule-fieldset { margin-bottom: 13px; }
+.schedule-fieldset .quick-dates { margin: 4px 0 10px; }
+/* + Nueva chooser */
+.new-choices { display: grid; gap: 10px; margin: 4px 0 6px; }
+.new-choice { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 12px 14px; text-align: left; font: inherit; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); cursor: pointer; }
+.new-choice strong { display: block; font-size: 1rem; }
+.new-choice small { display: block; margin-top: 2px; color: var(--color-text-muted); font-size: .85rem; }
+.new-choice-icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; font-size: 1.25rem; color: var(--color-primary); background: var(--color-info-soft); }
+.new-choice-primary { border-color: var(--color-primary); }
+.new-choice-primary .new-choice-icon { color: var(--color-on-primary); background: var(--color-primary); }
+.new-choice:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+#calendarAskDialog p, #calendarStaleDialog p { margin: 0 0 8px; line-height: 1.45; }
+/* Próximos días: date over time so the name keeps its width */
+.agenda-time.is-stacked { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.agenda-time.is-stacked span + span { font-size: .85em; font-weight: 700; color: var(--color-text-muted); }
+/* Leave room so the floating + Nueva never covers the last card's buttons */
+.app-main { padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 88px) !important; }
