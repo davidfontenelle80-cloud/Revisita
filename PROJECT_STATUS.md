@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.3.0 implementada — READY FOR REVIEW.**
+**v1.3.1 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -46,8 +46,8 @@
 
 ## PWA
 
-- Versión app: **1.3.0**.
-- Cache del service worker: **v7**.
+- Versión app: **1.3.1**.
+- Cache del service worker: **v8**.
 - `js/i18n.js` se incluye en el precache.
 - GitHub Pages despliega desde `main`.
 
@@ -89,3 +89,13 @@ Prueba visual/funcional en:
 - Durante la confirmación de ubicación se oculta temporalmente la navegación inferior.
 - Guía inicial de tres pasos para usuarios nuevos sin revisitas guardadas.
 - Selección de “próxima revisita” cubierta por pruebas unitarias.
+
+
+## Entrega de actualización en iPhone v1.3.1
+
+- Los assets principales y módulos usan URLs versionadas para evitar que un service worker viejo sirva UI antigua.
+- El registro del service worker usa `updateViaCache: 'none'`.
+- La captura del supervisor mostraba una versión antigua: todavía aparecía “Guardado localmente” y la navegación inferior seguía visible al confirmar.
+- En la versión actual, la confirmación de ubicación queda fija y visible, y la navegación/FAB se ocultan durante la confirmación.
+- GitHub Actions `Check`: PASS.
+- GitHub Pages: build/deploy PASS.
