@@ -1,6 +1,6 @@
 import{SimpleMap}from'./map.js';
 import{haversineKm,formatDistance}from'./map-utils.js';
-import{dateKey,visitBucket,compareSchedule,formatTime}from'./schedule-utils.js';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js';
 import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js';
 import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot}from'./storage.js';
 
@@ -215,10 +215,7 @@ function renderToday(){
 }
 function renderNextVisit(overdue,due){
  if(!els.nextVisitCard)return;
- const now=new Date(),hhmm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
- const futureToday=due.filter(v=>!v.dueTime||v.dueTime>=hhmm).sort(compareSchedule);
- const upcoming=state.visits.filter(v=>visitBucket(v)==='upcoming').sort(compareSchedule);
- const v=futureToday[0]||due[0]||overdue[0]||upcoming[0]||null;
+ const v=selectNextVisit(state.visits,new Date());
  nextVisitId=v?.id||null;
  els.nextVisitCard.hidden=!v;
  if(!v)return;
