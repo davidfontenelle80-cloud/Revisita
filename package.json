@@ -1,6 +1,6 @@
 {
   "name": "revisita",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "PWA en español para guardar revisitas por ubicación, notas y fecha.",
   "private": true,
   "type": "module",
