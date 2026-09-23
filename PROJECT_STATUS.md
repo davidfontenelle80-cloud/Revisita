@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.2.0 implementada — READY FOR REVIEW.**
+**v1.2.2 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -46,8 +46,8 @@
 
 ## PWA
 
-- Versión app: **1.2.0**.
-- Cache del service worker: **v4**.
+- Versión app: **1.2.2**.
+- Cache del service worker: **v6**.
 - `js/i18n.js` se incluye en el precache.
 - GitHub Pages despliega desde `main`.
 
@@ -68,3 +68,12 @@ Prueba visual/funcional en:
 5. tema claro y oscuro,
 6. español e inglés,
 7. flujo completo de crear, confirmar ubicación, guardar, abrir y navegar.
+
+
+## Ajuste de ubicación v1.2.2
+
+- Solicita ubicación automáticamente al abrir la app.
+- Al abrir **Mapa**, centra la vista en la ubicación actual si está disponible.
+- La ubicación automática no crea ni guarda una revisita.
+- **Usar mi ubicación** conserva el flujo de pin provisional + confirmación.
+- El panel de confirmación ahora queda fijo por encima de la navegación inferior y puede desplazarse internamente si la pantalla es baja.
