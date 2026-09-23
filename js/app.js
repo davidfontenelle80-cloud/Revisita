@@ -1,8 +1,8 @@
-import{SimpleMap}from'./map.js?v=1.3.3';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.3.3';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.3.3';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.3.3';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot}from'./storage.js?v=1.3.3';
+import{SimpleMap}from'./map.js?v=1.3.4';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.3.4';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.3.4';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.3.4';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot}from'./storage.js?v=1.3.4';
 
 let state=loadState(),currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null;
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -464,7 +464,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.3.3',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.3.4',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();
