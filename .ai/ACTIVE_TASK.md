@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
+- **Status:** IN PROGRESS
 - **% complete:** 100% — corrección de caché iPhone implementada y desplegada
 - **Confidence:** 96%
 
@@ -308,3 +308,25 @@ Fix:
 - Selected map/list filter chips automatically scroll into view when necessary.
 - App version: **1.3.1**.
 - Service worker cache: **v8**.
+
+
+## Service-worker reliability follow-up — 2026-09-22
+
+Supervisor request:
+- Updates must reliably reach installed/browser-cached copies without requiring manual cache-busting.
+- Compare Revisita with other KHub-family apps and adopt the more reliable update lifecycle.
+
+Reference review:
+- KHub Boilerplate: network-first shell assets, atomic precache, self.skipWaiting(), clients.claim(), RELOAD_READY broadcast, periodic update manager.
+- Ministry Tracker: startup registration.update(), safe reload detection, RELOAD_READY, skip-waiting lifecycle.
+- Talk Arrangements: versioned critical CSS/JS plus network-first for polished assets.
+- Umbriq: network-first shell with offline fallback and app-owned cache cleanup.
+
+Planned fix:
+- Replace Revisita's cache-first shell strategy with KHub-style network-first shell handling.
+- Use atomic precache + immediate worker activation + RELOAD_READY broadcast.
+- Check for a new worker on every startup and when the app returns to the foreground.
+- Reload automatically only when safe; otherwise show the update banner.
+- Add versioned critical asset URLs for transition away from the old cache-first worker.
+- Keep map-tile cache separate and persistent across app-shell updates.
+- Add service-worker/update regression tests.
