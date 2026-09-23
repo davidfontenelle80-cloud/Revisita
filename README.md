@@ -43,7 +43,7 @@ PWA bilingüe (**Español / English**) para organizar revisitas por **ubicación
 
 ## Compatibility
 
-Version 1.3.2 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
+Version 1.3.3 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
 
 ## Privacy
 
@@ -103,3 +103,18 @@ Revisita now follows the KHub service-worker update pattern used by the stronger
 - Critical CSS/JS/module URLs are versioned for the transition away from the previous cache-first worker.
 - The OpenStreetMap tile cache is kept separate and stable so app updates do not unnecessarily discard previously viewed map tiles.
 - Regression tests verify the update lifecycle and versioned critical assets.
+
+
+## Map smoothness in 1.3.3
+
+A performance issue in the custom map renderer was causing visible flicker/jank during panning. The old renderer destroyed and recreated every visible OpenStreetMap tile and every marker on each pointer-move render.
+
+The map now:
+- reuses tile DOM nodes keyed to map tiles,
+- only adds/removes tiles as they enter or leave the buffered viewport,
+- reuses marker/user/draft nodes while panning,
+- coalesces redraws to one per animation frame,
+- positions moving layers with GPU-friendly `translate3d`,
+- slightly throttles wheel zoom on desktop.
+
+This keeps existing tap-to-pin, GPS, marker, fit-to-visits and offline tile behavior while substantially reducing DOM/image churn.
