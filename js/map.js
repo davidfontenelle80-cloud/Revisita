@@ -174,7 +174,7 @@ export class SimpleMap{
       if(ty<0||ty>=n)continue;
       for(let tx=minTx;tx<=maxTx;tx++){
         const wrappedX=((tx%n)+n)%n;
-        const key=`${this.zoom}/${wrappedX}/${ty}`;
+        const key=`${this.zoom}/${tx}/${ty}`;
         needed.add(key);
         let img=this.tileNodes.get(key);
         if(!img){
@@ -185,6 +185,8 @@ export class SimpleMap{
           img.decoding='async';
           img.src=`https://tile.openstreetmap.org/${this.zoom}/${wrappedX}/${ty}.png`;
           img.dataset.tileKey=key;
+          img.style.left='0';
+          img.style.top='0';
           this.tileNodes.set(key,img);
           this.tileLayer.append(img);
         }
@@ -211,6 +213,8 @@ export class SimpleMap{
         node=document.createElement('button');
         node.type='button';
         node.className='marker';
+        node.style.left='0';
+        node.style.top='0';
         node.addEventListener('pointerdown',e=>e.stopPropagation());
         node.addEventListener('click',e=>{
           e.stopPropagation();
@@ -235,6 +239,8 @@ export class SimpleMap{
     if(this.draft&&!this.draftNode){
       this.draftNode=document.createElement('div');
       this.draftNode.className='marker draft';
+      this.draftNode.style.left='0';
+      this.draftNode.style.top='0';
       this.markerLayer.append(this.draftNode);
     }else if(!this.draft&&this.draftNode){
       this.draftNode.remove();
@@ -244,6 +250,8 @@ export class SimpleMap{
     if(this.userLocation&&!this.userNode){
       this.userNode=document.createElement('div');
       this.userNode.className='user-dot';
+      this.userNode.style.left='0';
+      this.userNode.style.top='0';
       this.markerLayer.append(this.userNode);
     }else if(!this.userLocation&&this.userNode){
       this.userNode.remove();
@@ -272,17 +280,17 @@ export class SimpleMap{
       const p=point(marker.lat,marker.lng);
       const visible=!(p.x<-50||p.y<-50||p.x>w+50||p.y>h+50);
       node.hidden=!visible;
-      if(visible)node.style.transform=`translate3d(${p.x}px,${p.y}px,0)`;
+      if(visible)node.style.transform=`translate3d(${p.x}px,${p.y}px,0) translate(-50%,-100%)`;
     }
 
     if(this.draft&&this.draftNode){
       const p=point(this.draft.lat,this.draft.lng);
-      this.draftNode.style.transform=`translate3d(${p.x}px,${p.y}px,0)`;
+      this.draftNode.style.transform=`translate3d(${p.x}px,${p.y}px,0) translate(-50%,-100%)`;
     }
 
     if(this.userLocation&&this.userNode){
       const p=point(this.userLocation.lat,this.userLocation.lng);
-      this.userNode.style.transform=`translate3d(${p.x}px,${p.y}px,0)`;
+      this.userNode.style.transform=`translate3d(${p.x}px,${p.y}px,0) translate(-50%,-50%)`;
     }
   }
 }
