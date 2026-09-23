@@ -6,6 +6,7 @@ import{loadState,saveState,exportPayload,validateImportPayload,previewImport,app
 
 let state=loadState(),currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null;
 const ONBOARDING_KEY='revisita.onboarding.v1';
+if('scrollRestoration' in history)history.scrollRestoration='manual';
 const $=id=>document.getElementById(id);
 const els={
  status:$('saveStatus'),mapEl:$('map'),mapShell:$('mapShell'),locate:$('locateBtn'),confirmPanel:$('locationConfirmPanel'),pendingAddress:$('pendingAddress'),pendingCoords:$('pendingCoords'),pendingAccuracy:$('pendingAccuracy'),mapModeSummary:$('mapModeSummary'),
@@ -29,6 +30,8 @@ function init(){
  bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindAgenda();bindList();bindMore();bindPolishUI();bindKeyboardShortcuts();
  renderAll();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();maybeShowOnboarding();
  addEventListener('online',updateOnline);addEventListener('offline',updateOnline);
+ addEventListener('pageshow',()=>{if(isMapViewActive())resetPageScroll(true);});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isMapViewActive())resetPageScroll(true);});
  addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();updateOnline();updateInstallUI();});
  addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;updateInstallUI();});
  addEventListener('appinstalled',()=>{installPrompt=null;updateInstallUI();toast(t('appInstalled'));});
@@ -79,11 +82,29 @@ function showView(name){
  if(name!=='map'&&pendingLocation)clearPendingLocation();
  document.querySelectorAll('.view').forEach(v=>{const on=v.dataset.view===name;v.hidden=!on;v.classList.toggle('is-active',on);});
  document.querySelectorAll('[data-destination]').forEach(b=>{const on=b.dataset.destination===name;b.classList.toggle('is-active',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
- if(name==='map')requestAnimationFrame(()=>{map.render();renderMapMode(false);centerMapOnCurrentLocation();});
+ if(name==='map')requestAnimationFrame(()=>{map.render();renderMapMode(false);centerMapOnCurrentLocation();resetPageScroll(true);});
  if(name==='today')renderToday();
  if(name==='list')renderList();
  if(els.fab)els.fab.hidden=name==='more';
- scrollTo({top:0,behavior:'smooth'});
+ resetPageScroll(name==='map');
+}
+
+
+function isMapViewActive(){
+ const view=document.querySelector('[data-view="map"]');
+ return Boolean(view&&!view.hidden);
+}
+function resetPageScroll(reassert=false){
+ const apply=()=>{
+   window.scrollTo(0,0);
+   const scroller=document.scrollingElement;
+   if(scroller)scroller.scrollTop=0;
+   document.documentElement.scrollTop=0;
+   document.body.scrollTop=0;
+ };
+ apply();
+ requestAnimationFrame(apply);
+ if(reassert)setTimeout(apply,80);
 }
 
 function bindMap(){
