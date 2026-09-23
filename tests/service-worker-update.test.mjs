@@ -15,9 +15,9 @@ test('service worker uses the KHub immediate-update lifecycle', () => {
 });
 
 test('critical shell assets are versioned for transition from older cache-first workers', () => {
-  assert.match(index, /css\/main\.css\?v=1\.3\.3/);
-  assert.match(index, /js\/app\.js\?v=1\.3\.3/);
-  assert.match(app, /sw\.js\?v=1\.3\.3/);
+  assert.match(index, /css\/main\.css\?v=1\.3\.4/);
+  assert.match(index, /js\/app\.js\?v=1\.3\.4/);
+  assert.match(app, /sw\.js\?v=1\.3\.4/);
 });
 
 test('app checks for service-worker updates and reloads safely', () => {
