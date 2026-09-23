@@ -1,6 +1,6 @@
 // Pure helpers for Revisita v1.4: addresses, dates, directions, calendar, sharing and sync merge.
 // No DOM access here so everything can be unit-tested in Node.
-import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.4.0';
+import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.4.1';
 
 /** Build a short, human address from a Nominatim jsonv2 response. */
 export function compactAddress(result) {
@@ -106,12 +106,14 @@ function endOf(key, time, minutes) {
  * Timed visits use floating local time (the phone's own time zone) with an alarm `alarmMinutes` before.
  * Undated-time visits become all-day events with an alarm at 8:00 that morning.
  */
-export function buildICS(v, { alarmMinutes = 30, now = new Date(), title = 'Revisita', durationMinutes = 30, description = '' } = {}) {
+export function buildICS(v, { alarmMinutes = 30, now = new Date(), title = 'Revisita', durationMinutes = 30, description = '', sequence = 0 } = {}) {
   if (!v?.dueDate) throw new Error('visit-has-no-date');
   const lines = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//KHub//Revisita//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:revisita-${v.id}-${v.dueDate}@khub`,
+    // One UID per visit (not per date): calendars that honour UID + SEQUENCE update the event instead of adding a second one.
+    `UID:revisita-${v.id}@khub`,
+    `SEQUENCE:${Math.max(0, Math.round(Number(sequence) || 0))}`,
     `DTSTAMP:${stamp(now)}`,
   ];
   if (v.dueTime) {
@@ -148,6 +150,22 @@ export function googleCalendarUrl(v, { title = 'Revisita', durationMinutes = 30,
     location: placeLine(v) || `${v.lat}, ${v.lng}`,
   });
   return `https://calendar.google.com/calendar/render?${q}`;
+}
+
+/** The date/time slot a visit was handed to the phone calendar for ("2026-09-26 10:00" or "2026-09-26"). */
+export function calendarSlot(v) {
+  if (!v?.dueDate) return '';
+  return v.dueTime ? `${v.dueDate} ${v.dueTime}` : v.dueDate;
+}
+/**
+ * A web app cannot delete events from the phone calendar. When a visit that was already sent to the
+ * calendar moves to another slot (or ends / is deleted), return the old slot so the user can be told to remove it.
+ */
+export function staleCalendarSlot(previous, next) {
+  const old = String(previous?.calendarSlot || '');
+  if (!old) return '';
+  if (!next || next.status === 'completed' || !next.dueDate) return old;
+  return calendarSlot(next) === old ? '' : old;
 }
 
 // ---------- Sync merge ----------
