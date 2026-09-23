@@ -8,9 +8,9 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
-- **% complete:** 100% — responsive + tema + bilingüe implementado y verificado
-- **Confidence:** 95%
+- **Status:** IN PROGRESS
+- **% complete:** 80% — corrigiendo entrega de la UI actualizada en iPhone
+- **Confidence:** 96%
 
 ## Objective completed
 
@@ -253,3 +253,15 @@ Check:
 3. + Nueva button.
 4. Location confirmation with nav hidden.
 5. New-user onboarding on a clean browser/device.
+
+
+## iPhone confirmation popup + stale-cache follow-up — 2026-09-22
+
+Supervisor observation:
+- Al tocar el mapa, el panel de confirmación todavía puede aparecer abajo/oculto en iPhone.
+- La captura muestra UI antigua (por ejemplo, “Guardado localmente” y navegación inferior visible durante la confirmación), aunque el código actual ya contiene la corrección de panel fijo y ocultamiento de navegación.
+
+Plan:
+- Hacer que la página cargue assets versionados para evitar que un service worker antiguo siga sirviendo CSS/JS viejos.
+- Mantener el panel de confirmación fijo y visible por encima del viewport seguro.
+- Subir versión/cache y ejecutar checks.
