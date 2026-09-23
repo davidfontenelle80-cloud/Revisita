@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compactAddress, shortAddress, placeLine, addDays, addMonths, nextDatePresets, directionsUrl, phoneDigits, whatsappUrl, buildICS, googleCalendarUrl, mergeVisits, visitsFingerprint } from '../js/visit-tools.js';
+import { compactAddress, shortAddress, placeLine, addDays, addMonths, nextDatePresets, directionsUrl, phoneDigits, whatsappUrl, buildICS, googleCalendarUrl, mergeVisits, visitsFingerprint, calendarSlot, staleCalendarSlot } from '../js/visit-tools.js';
 
 const visit = { id: 'abc', name: 'Familia Pérez', reference: 'Casa verde, frente al colmado', address: 'Calle Luis E. Pérez García, La Agustina, Santo Domingo de Guzmán, Distrito Nacional, 03201, República Dominicana', lat: 18.4869, lng: -69.9304, dueDate: '2026-09-26', dueTime: '10:00', updatedAt: '2026-09-23T10:00:00.000Z' };
 
@@ -93,4 +93,26 @@ test('offline zone tiles stay under the OSM bulk-download cap', async () => {
   assert.match(small[0], /^https:\/\/tile\.openstreetmap\.org\/15\/\d+\/\d+\.png$/);
   const huge = zoneTileUrls({ north: 19.9, west: -72, south: 17.5, east: -68.3 }, [14, 15, 16]);
   assert.ok(huge.length <= 200);
+});
+
+test('ICS uses one UID per visit plus SEQUENCE, so a reschedule updates instead of duplicating', () => {
+  const a = buildICS(visit, { now: new Date('2026-09-23T10:00:00Z') });
+  const b = buildICS({ ...visit, dueDate: '2026-10-03' }, { now: new Date('2026-09-23T10:00:00Z'), sequence: 2 });
+  assert.match(a, /UID:revisita-abc@khub\r\n/);
+  assert.match(b, /UID:revisita-abc@khub\r\n/);
+  assert.match(a, /SEQUENCE:0\r\n/);
+  assert.match(b, /SEQUENCE:2\r\n/);
+});
+
+test('calendar slot and stale-slot detection', () => {
+  assert.equal(calendarSlot(visit), '2026-09-26 10:00');
+  assert.equal(calendarSlot({ ...visit, dueTime: '' }), '2026-09-26');
+  assert.equal(calendarSlot({ ...visit, dueDate: '' }), '');
+  const sent = { ...visit, calendarSlot: '2026-09-26 10:00' };
+  assert.equal(staleCalendarSlot(sent, sent), '', 'same slot is not stale');
+  assert.equal(staleCalendarSlot(sent, { ...sent, dueDate: '2026-10-03' }), '2026-09-26 10:00', 'moved date');
+  assert.equal(staleCalendarSlot(sent, { ...sent, dueTime: '11:00' }), '2026-09-26 10:00', 'moved time');
+  assert.equal(staleCalendarSlot(sent, { ...sent, status: 'completed', dueDate: '' }), '2026-09-26 10:00', 'ended');
+  assert.equal(staleCalendarSlot(sent, null), '2026-09-26 10:00', 'deleted');
+  assert.equal(staleCalendarSlot(visit, { ...visit, dueDate: '2026-10-03' }), '', 'never sent to the calendar');
 });

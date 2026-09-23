@@ -67,3 +67,23 @@ test('v1.4 fields and settings normalize with safe defaults', () => {
   assert.equal(state.settings.calendarOnSave, false);
   assert.deepEqual(state.deleted, { a: '2026-09-23T00:00:00Z' });
 });
+
+test('v1.4.1: calendar hand-off is off until the user answers the one-time question', () => {
+  const fresh = normalizeState({});
+  assert.equal(fresh.settings.calendarOnSave, false);
+  assert.equal(fresh.settings.calendarAsked, false);
+  const legacy = normalizeState({ settings: { calendarOnSave: true } });
+  assert.equal(legacy.settings.calendarOnSave, true);
+  assert.equal(legacy.settings.calendarAsked, false, 'v1.4.0 users are asked once too');
+  const answered = normalizeState({ settings: { calendarOnSave: false, calendarAsked: true } });
+  assert.equal(answered.settings.calendarAsked, true);
+});
+
+test('v1.4.1: calendar slot bookkeeping survives a reload', () => {
+  const s = normalizeState({ visits: [{ id: 'c', name: 'C', lat: 18, lng: -70, dueDate: '2026-09-26', calendarSlot: '2026-09-26', calendarSeq: 3 }] });
+  assert.equal(s.visits[0].calendarSlot, '2026-09-26');
+  assert.equal(s.visits[0].calendarSeq, 3);
+  const bare = normalizeState({ visits: [{ id: 'd', name: 'D', lat: 18, lng: -70 }] });
+  assert.equal(bare.visits[0].calendarSlot, '');
+  assert.equal(bare.visits[0].calendarSeq, 0);
+});
