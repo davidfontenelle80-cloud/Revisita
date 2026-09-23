@@ -1,4 +1,4 @@
-import{TILE_SIZE,clamp,latLngToWorld,worldToLatLng}from'./map-utils.js';
+import{TILE_SIZE,clamp,latLngToWorld,worldToLatLng}from'./map-utils.js?v=1.3.1';
 export class SimpleMap{
 constructor(el,o={}){this.el=el;this.center={lat:o.lat??18.7357,lng:o.lng??-70.1627};this.zoom=clamp(Math.round(o.zoom??8),2,19);this.interactive=o.interactive!==false;this.markers=[];this.draft=null;this.userLocation=null;this.onTap=()=>{};this.onMarkerTap=()=>{};this.onViewChange=()=>{};this.drag=null;this.buildLayers();if(this.interactive)this.bind();this.resizeObserver=new ResizeObserver(()=>this.render());this.resizeObserver.observe(this.el);this.render();}
 buildLayers(){this.tileLayer=document.createElement('div');this.tileLayer.className='tile-layer';this.markerLayer=document.createElement('div');this.markerLayer.className='marker-layer';this.el.append(this.tileLayer,this.markerLayer);}
