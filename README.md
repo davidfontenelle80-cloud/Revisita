@@ -43,7 +43,7 @@ PWA bilingüe (**Español / English**) para organizar revisitas por **ubicación
 
 ## Compatibility
 
-Version 1.2.0 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
+Version 1.2.2 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
 
 ## Privacy
 
@@ -66,3 +66,12 @@ This runs encoding checks, JavaScript syntax checks, unit tests and the KHub shi
 ## Network dependencies
 
 There are no JavaScript frameworks or external fonts. The map engine is vanilla. Map/address services are documented in `docs/DEPENDENCY-INVENTORY.md`.
+
+
+## Location behavior
+
+- On launch, Revisita requests the current device location when geolocation is available.
+- Opening **Mapa / Map** centers the map on the current location automatically.
+- Automatic location only updates the current-position dot and map center; it does **not** create or save a return visit.
+- **Usar mi ubicación / Use my location** still creates a provisional pin that must be confirmed before saving.
+- The confirmation panel is viewport-fixed above the bottom navigation so its buttons remain visible on phones and tablets.
