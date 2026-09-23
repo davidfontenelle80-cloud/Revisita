@@ -4,7 +4,7 @@ const STRINGS = {
   es: {
     skip:'Ir al contenido', updateAvailable:'Hay una actualización disponible.', update:'Actualizar', close:'Cerrar', mainNav:'Navegación principal', mapModes:'Modos del mapa', filterVisits:'Filtrar revisitas', swipeMoreOptions:'Desliza o toca para ver más opciones', swipeMoreFilters:'Desliza o toca para ver más filtros', zoomIn:'Acercar', zoomOut:'Alejar', mapAria:'Mapa de revisitas', mapControls:'Controles del mapa', searchVisitsAria:'Buscar revisitas', themeAria:'Tema', languageAria:'Idioma', unknownError:'Error desconocido', returnLabel:'Volver', openVisitAria:'Abrir revisita {name}',
     brandSubtitle:'Mapa de revisitas', save:'Guardar', savedLocally:'Guardado localmente', offline:'Sin conexión', searchingLocation:'Buscando ubicación…',
-    today:'Hoy', newVisit:'Nueva', overdue:'Atrasadas', forToday:'Para hoy', doneToday:'Hechas hoy', attention:'Atención',
+    today:'Hoy', newVisit:'Nueva', nextVisit:'Próxima revisita', directions:'Cómo llegar', visibleVisits:'Revisitas visibles', overdue:'Atrasadas', forToday:'Para hoy', doneToday:'Hechas hoy', attention:'Atención',
     orderedByTime:'Ordenadas por hora', allCaughtUp:'Todo al día', noTodayTasks:'No tienes revisitas atrasadas ni programadas para hoy.', viewActiveMap:'Ver mapa de activas',
     map:'Mapa', mapSubtitle:'Visualiza tus revisitas y confirma cada ubicación antes de guardarla.', active:'Activas', upcoming:'Próximas', all:'Todas', nearby:'Cerca de mí',
     swipeMore:'Desliza para ver más', mapTiles:'Los mosaicos aparecen cuando hay conexión.', useLocation:'Usar mi ubicación',
@@ -43,12 +43,12 @@ const STRINGS = {
     importCount:'Revisitas en la copia', newRecords:'Nuevas', conflicts:'Coincidencias por ID', currentSaved:'Guardadas actualmente',
     appInstalled:'Revisita se instaló correctamente.', installReady:'Lista para instalarse en este dispositivo.', installed:'Revisita quedó instalada.',
     errorApp:'Error de la app', errorSave:'Error al guardar', saveFailed:'No se pudo guardar', importFailed:'No se pudo importar', importApplyFailed:'No se pudo aplicar la importación', restoreFailed:'No se pudo restaurar',
-    completedVisit:'Visita completada', scheduled:'Programada: {value}', open:'Abrir'
+    completedVisit:'Visita completada', scheduled:'Programada: {value}', open:'Abrir', welcomeTitle:'Bienvenido a Revisita', welcomeIntro:'Tres pasos para comenzar.', welcomeStep1Title:'Permite tu ubicación', welcomeStep1Text:'Así el mapa puede mostrar dónde estás y qué revisitas tienes cerca.', welcomeStep2Title:'Guarda una revisita', welcomeStep2Text:'Toca el mapa o usa tu ubicación, confirma el pin y añade el nombre o referencia.', welcomeStep3Title:'Programa cuándo volver', welcomeStep3Text:'Añade fecha y hora para verla automáticamente en Hoy.', startUsing:'Empezar', dueNow:'Ahora', noAddress:'Sin dirección',
   },
   en: {
     skip:'Skip to content', updateAvailable:'An update is available.', update:'Update', close:'Close', mainNav:'Main navigation', mapModes:'Map modes', filterVisits:'Filter return visits', swipeMoreOptions:'Swipe or tap to see more options', swipeMoreFilters:'Swipe or tap to see more filters', zoomIn:'Zoom in', zoomOut:'Zoom out', mapAria:'Return visit map', mapControls:'Map controls', searchVisitsAria:'Search return visits', themeAria:'Theme', languageAria:'Language', unknownError:'Unknown error', returnLabel:'Return', openVisitAria:'Open return visit {name}',
     brandSubtitle:'Return visit map', save:'Save', savedLocally:'Saved locally', offline:'Offline', searchingLocation:'Finding location…',
-    today:'Today', newVisit:'New', overdue:'Overdue', forToday:'For today', doneToday:'Done today', attention:'Attention',
+    today:'Today', newVisit:'New', nextVisit:'Next return visit', directions:'Directions', visibleVisits:'Visible return visits', overdue:'Overdue', forToday:'For today', doneToday:'Done today', attention:'Attention',
     orderedByTime:'Ordered by time', allCaughtUp:'All caught up', noTodayTasks:'You have no overdue return visits or visits scheduled for today.', viewActiveMap:'View active map',
     map:'Map', mapSubtitle:'See your return visits and confirm each location before saving it.', active:'Active', upcoming:'Upcoming', all:'All', nearby:'Near me',
     swipeMore:'Swipe to see more', mapTiles:'Map tiles appear when you are online.', useLocation:'Use my location',
@@ -87,7 +87,7 @@ const STRINGS = {
     importCount:'Return visits in backup', newRecords:'New', conflicts:'Matching IDs', currentSaved:'Currently saved',
     appInstalled:'Revisita was installed successfully.', installReady:'Ready to install on this device.', installed:'Revisita is installed.',
     errorApp:'App error', errorSave:'Save error', saveFailed:'Could not save', importFailed:'Could not import', importApplyFailed:'Could not apply the import', restoreFailed:'Could not restore',
-    completedVisit:'Visit completed', scheduled:'Scheduled: {value}', open:'Open'
+    completedVisit:'Visit completed', scheduled:'Scheduled: {value}', open:'Open', welcomeTitle:'Welcome to Revisita', welcomeIntro:'Three steps to get started.', welcomeStep1Title:'Allow your location', welcomeStep1Text:'This lets the map show where you are and which return visits are nearby.', welcomeStep2Title:'Save a return visit', welcomeStep2Text:'Tap the map or use your location, confirm the pin, and add a name or reference.', welcomeStep3Title:'Schedule when to return', welcomeStep3Text:'Add a date and time so it appears automatically on Today.', startUsing:'Get started', dueNow:'Now', noAddress:'No address',
   }
 };
 
