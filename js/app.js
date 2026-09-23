@@ -441,6 +441,7 @@ function applyServiceWorkerUpdate(){
 }
 async function registerSW(){
  if(!('serviceWorker'in navigator))return;
+ const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
    swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.3.2',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
@@ -460,11 +461,12 @@ async function registerSW(){
      });
    });
    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+     if(!initiallyControlled)return;
      if(isSafeForServiceWorkerReload())reloadForServiceWorkerUpdate();
      else showServiceWorkerUpdate();
    });
    navigator.serviceWorker.addEventListener('message',event=>{
-     if(event.data?.type!=='RELOAD_READY')return;
+     if(event.data?.type!=='RELOAD_READY'||!initiallyControlled)return;
      if(isSafeForServiceWorkerReload())reloadForServiceWorkerUpdate();
      else showServiceWorkerUpdate();
    });
