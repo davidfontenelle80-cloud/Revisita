@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
+- **Status:** IN PROGRESS
 - **% complete:** 100% — apertura del mapa corregida y verificada
 - **Confidence:** 96%
 
@@ -428,3 +428,21 @@ Fix plan:
 - App version: **1.3.4**.
 - Shell cache: **revisita-shell-v11-map-viewport**.
 - Latest GitHub Check: **PASS**.
+
+
+## App icon fidelity follow-up — 2026-09-23
+
+Supervisor observation from iPhone:
+- The installed Home Screen icon looks darker/flatter and less faithful than the supplied original artwork.
+- The original artwork has richer blue/silver/brown tones and smoother photographic shading.
+
+Cause:
+- Earlier icon assets were aggressively color-quantized to keep binary uploads tiny, including a 4-color 512px version.
+- iOS uses `apple-touch-icon.png`; the currently installed shortcut can also keep its old icon cached even after the web app updates.
+
+Fix:
+- Rebuild all icon sizes directly from the supplied original artwork in full true-color PNG.
+- Provide a native 180x180 Apple touch icon.
+- Keep Android regular and maskable icon sets.
+- Version the icon URLs so new installs fetch the new artwork.
+- Existing iPhone Home Screen shortcuts may need to be removed/re-added once because iOS caches installed icons separately from the service worker.
