@@ -7,7 +7,7 @@ import { mergeVisits, visitsFingerprint } from './visit-tools.js?v=1.4.0';
 const FIREBASE_VERSION = '10.12.2';
 const BASE = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
 const CONFIG = {
-  apiKey: 'AIzaSyAUiVMxG1JbtpaW3KKmYSsTheMP473uTbQ',
+  apiKey: 'AIzaSyBG6H6T147vMUeRtWdLcU_WtXZIR_ltrS4',
   authDomain: 'khub-apps.firebaseapp.com',
   projectId: 'khub-apps',
   storageBucket: 'khub-apps.firebasestorage.app',
