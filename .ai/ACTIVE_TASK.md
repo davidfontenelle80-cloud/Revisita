@@ -488,3 +488,55 @@ Supervisor acceptance (real devices):
 6. Mapa → Guardar zona while on Wi-Fi → airplane mode → map still shows that area.
 
 Deferred: house photo (IndexedDB + sync size); push notifications (replaced by calendar per Supervisor).
+
+
+## v1.4.1 — Approved batch (Supervisor: "go ahead and make all those improvements", 2026-09-23 07:35)
+
+Worker: Claude / Opus 5.5 · Status: **READY FOR REVIEW** (see result below)
+
+Repo vs tracker checked before coding: matches v1.4.0 (commit `f46b19f`), `npm run check` PASS. Supervisor's API-key rotation (`d97971a`, cloud-sync.js only) landed mid-task; fast-forwarded, no overlap.
+
+Bugs:
+1. **Stale calendar events** — rescheduling / Registrar visita adds a new calendar event but the old one stays. Fix: stable per-visit event UID (update replaces on iPhone .ics) + "calendar event date" tracking so the user is told to remove the old event when the date moves (Google Calendar links cannot delete).
+2. **Privacy text** — "only on this device" is wrong when KHub sync is on. Text switches when signed in to sync (wording change approved by Supervisor in this batch).
+
+Workflow:
+3. **+ Nueva** opens a chooser: "Aquí (mi ubicación)" or "Elegir en el mapa".
+4. Rename required field "Nombre o referencia" → **Nombre**.
+5. New-visit form: Dirección aproximada + Notas move into "Más detalles".
+6. Quick-date chips placed **before** the date inputs in both forms.
+7. Hoy: remove the three counters; Próxima card no longer repeated as the first list item.
+8. Hoy: new **Próximos días** section (next 7 days).
+9. Revisitas filters reduced to **Activas · Sin fecha · Historial · Todas**.
+10. **Añadir al calendario al guardar** default OFF; asked once on the first dated save.
+
+
+## v1.4.1 result — READY FOR REVIEW
+
+Correction to item 2: the live app already showed a sync-aware privacy sentence (i18n `privacyText`); only the HTML fallback said "solamente en este dispositivo". Now the fallback matches, and when signed in to sync the card switches to `privacyTextSynced` ("…en este dispositivo y en tu cuenta KHub…").
+
+All 10 items implemented:
+1. Calendar: one UID per visit (`revisita-{id}@khub`) + incrementing SEQUENCE; each visit remembers the slot it was sent for (`calendarSlot`, `calendarSeq` — device bookkeeping, does not bump `updatedAt`). When a calendared visit is rescheduled, ended ("No volver") or deleted, a **"Borra el aviso anterior"** sheet names the old date/time, then the new one is added. Limitation: a web app cannot delete phone-calendar events; visits sent to the calendar under v1.4.0 have no recorded slot, so they cannot be warned about.
+2. Privacy text (above).
+3. **+ Nueva / Nueva / Revisitas → Nueva** open "¿Dónde está la casa?": **Aquí — mi ubicación** (GPS → confirm pin) or **Elegir en el mapa**.
+4. Field renamed **Nombre** (placeholder "Familia Pérez, doña Carmen").
+5. Dirección aproximada + Notas moved into **Más detalles** (closed for new visits; open on edit when it holds notes/phone/left/topic).
+6. Form order: Nombre → Referencia → **¿Cuándo vuelves?** (chips first, then fecha/hora) — same order as Registrar visita.
+7. Hoy: counters removed; the Próxima card is no longer repeated in the lists and now has **Registrar visita**.
+8. Hoy: **Próximos días** (next 7 days), date over time.
+9. Revisitas filters: **Activas · Sin fecha · Historial · Todas**.
+10. Calendar hand-off defaults **off**; the first dated save asks once (**Sí, añadir siempre / No, gracias**). v1.4.0 users are asked once too. Toggle in Más still works.
+Also: extra bottom padding so the floating **+** never covers the last card's buttons.
+
+Verification:
+- `npm run check`: encoding clean (32) · syntax PASS · **45/45 tests PASS** (new: stable UID+SEQUENCE, calendar slot/stale detection, ask-once defaults, slot persistence) · KHub ship check PASS.
+- Headless iPhone 13 walkthrough, 21/21 checks PASS, zero page errors: chooser → Aquí → confirm → Nombre form order → ask-once (No remembered) → Elegir en el mapa; seeded Hoy (Próxima not repeated, Próximos días only ≤7 days) → Registrar +2 semanas on a calendared visit → notice → .ics same UID, SEQUENCE 1 → notes-only edit does not touch calendar → "No volver" shows notice → privacy text → English chooser.
+- App version **1.4.1** · shell cache **revisita-shell-v13-workflow-tweaks** (tiles/zones caches unchanged).
+
+Supervisor acceptance (real phone):
+1. Tap **+** → Aquí → confirm pin → save with +1 semana → answer the calendar question once.
+2. Open that visit → Registrar visita → +2 semanas → the "Borra el aviso anterior" sheet appears → delete the old event in Calendar.
+3. Hoy: Próxima card not repeated below; Próximos días shows this week's visits.
+4. Revisitas: four filters, no swipe hint needed.
+
+Delivery: shell `git push` is blocked for this repo in this session, so the files were pushed through the GitHub connector to branch `v1.4.1`, each file verified byte-for-byte against the tested local copy, then merged to `main` as one squash commit (single deploy).
