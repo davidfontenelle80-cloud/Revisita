@@ -446,3 +446,26 @@ Fix:
 - Keep Android regular and maskable icon sets.
 - Version the icon URLs so new installs fetch the new artwork.
 - Existing iPhone Home Screen shortcuts may need to be removed/re-added once because iOS caches installed icons separately from the service worker.
+
+
+## Tracker reconciliation — 2026-09-23 (Claude / Opus 5.5)
+
+- Repo vs tracker checked before coding. Discrepancy: **App icon fidelity follow-up** was opened by the previous worker (commit `cf91926`) but **no icon files were changed** — `icons/*.png` are still 2–4-bit palette PNGs (512px = 4 colors). Status corrected: that task is **taken over by Claude** and folded into v1.4.0 below.
+- Supervisor browser review (iPhone 13 viewport, live v1.3.4): create → confirm pin → save → Hoy → open works, zero console errors. Findings drove the plan below.
+
+## v1.4.0 — Approved batch (Supervisor: "let's get it all done", 2026-09-23 06:24)
+
+Status: **IN PROGRESS**
+
+1. **Icons** — rebuild every size in true color from the supplied artwork (blue panel + wordmark, no double bezel); native 180px Apple touch icon; Android maskable with safe-zone padding; versioned icon URLs.
+2. **Visit card** — opening a saved visit shows a read-first card (no keyboard): Cómo llegar · Registrar visita · Editar; call/WhatsApp when a phone exists.
+3. **Registrar visita** — replaces "Marcar como hecha": log note + what was left + next date (quick chips +1 sem / +2 sem / +1 mes / elegir) in one step; "Terminar revisita" is an explicit option. History keeps each visit.
+4. **DR-friendly location text** — new **Referencia** field (how to find the house); compact auto-address; optional details (teléfono, qué dejaste, tema próxima vez).
+5. **Directions** — Google Maps / Waze / Apple Maps (iPhone) with a remembered preference; Share includes reference + map link (WhatsApp via share sheet or wa.me fallback).
+6. **Calendar reminders instead of push** (Supervisor, 06:25): after saving a dated visit, hand it to the phone calendar with an alarm (.ics on iPhone, Google Calendar on Android). Setting to turn off; reminder lead time selectable.
+7. **Map screen** — fewer chips (Hoy · Activas · Todas · Cerca), no subtitle, first-use-only tip, taller map.
+8. **Offline zone** — "Guardar esta zona" pre-caches the visible area (OSM policy-safe cap, separate persistent cache).
+9. **Header** — replace do-nothing "Guardar" button with passive "Guardado ✓ / Sin conexión" status.
+10. **Cloud sync** — optional KHub account (same Firebase project `khub-apps`, path `backups/revisita/users/{uid}` already allowed by rules); merge by visit id + `updatedAt` with deletion tombstones; Firebase SDK lazy-loaded only when used, so the app stays fully offline-capable.
+
+Deferred (not in this batch): house photo (needs IndexedDB + sync size planning); push notifications (replaced by calendar reminders per Supervisor).
