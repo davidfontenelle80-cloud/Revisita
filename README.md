@@ -43,7 +43,7 @@ PWA bilingüe (**Español / English**) para organizar revisitas por **ubicación
 
 ## Compatibility
 
-Version 1.2.2 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
+Version 1.3.0 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
 
 ## Privacy
 
@@ -75,3 +75,12 @@ There are no JavaScript frameworks or external fonts. The map engine is vanilla.
 - Automatic location only updates the current-position dot and map center; it does **not** create or save a return visit.
 - **Usar mi ubicación / Use my location** still creates a provisional pin that must be confirmed before saving.
 - The confirmation panel is viewport-fixed above the bottom navigation so its buttons remain visible on phones and tablets.
+
+
+## User-side polish in 1.3.0
+
+- **Next return visit card** on Today with quick Open and Directions actions.
+- **Tablet split view:** visible return visits are listed beside the map on wider screens, with distance, schedule, Open and Directions.
+- **Universal + New button** keeps creating a return visit one tap away.
+- While confirming a provisional pin, the bottom navigation is temporarily hidden so the location-confirmation actions stay visually dominant.
+- Brand-new users with no saved visits get a short three-step onboarding guide.
