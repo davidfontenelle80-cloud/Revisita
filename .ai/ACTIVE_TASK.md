@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
+- **Status:** IN PROGRESS
 - **% complete:** 100% — actualización automática del service worker implementada y verificada
 - **Confidence:** 96%
 
@@ -354,3 +354,24 @@ After this deployment reaches the device:
 2. Future releases should be detected on startup/foreground automatically.
 3. When no form is open, the app should move to the new build automatically.
 4. If the user is editing/confirming something, the update banner should appear instead of interrupting the work.
+
+
+## Map smoothness follow-up — 2026-09-23
+
+Supervisor observation:
+- The map can feel glitchy/flickery when it opens and especially while dragging/panning.
+
+Code-level cause found:
+- `renderTiles()` destroys and recreates every visible tile image on every pointer-move render via `replaceChildren()`.
+- `renderMarkers()` also destroys/recreates all marker DOM on every render.
+- Pointer-move events call a full render synchronously, potentially many times per animation frame.
+- Wheel zoom can fire multiple zoom steps in a very short burst.
+
+Fix plan:
+- Retain/reuse tile DOM nodes keyed by z/x/y and only add/remove tiles that enter/leave the buffered viewport.
+- Retain marker/user/draft nodes and update positions instead of rebuilding them while panning.
+- Coalesce map redraws with `requestAnimationFrame`.
+- Use GPU-friendly translate3d positioning.
+- Throttle wheel zoom slightly.
+- Preserve existing tap-to-pin, GPS, marker opening, zoom, fitPoints and saved map-center behavior.
+- Add regression checks so tile/marker DOM is not rebuilt during every pan frame.
