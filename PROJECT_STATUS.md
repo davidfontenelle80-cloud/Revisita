@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.2.2 implementada — READY FOR REVIEW.**
+**v1.3.0 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -46,8 +46,8 @@
 
 ## PWA
 
-- Versión app: **1.2.2**.
-- Cache del service worker: **v6**.
+- Versión app: **1.3.0**.
+- Cache del service worker: **v7**.
 - `js/i18n.js` se incluye en el precache.
 - GitHub Pages despliega desde `main`.
 
@@ -77,3 +77,15 @@ Prueba visual/funcional en:
 - La ubicación automática no crea ni guarda una revisita.
 - **Usar mi ubicación** conserva el flujo de pin provisional + confirmación.
 - El panel de confirmación ahora queda fijo por encima de la navegación inferior y puede desplazarse internamente si la pantalla es baja.
+
+
+## Pulido de experiencia v1.3.0
+
+- **Próxima revisita** destacada en Hoy.
+- Botones rápidos **Abrir** y **Cómo llegar**.
+- Vista dividida en tablet/escritorio: lista de revisitas visibles + mapa.
+- La lista lateral muestra horario, dirección/distancia y navegación.
+- Botón flotante universal **+ Nueva**.
+- Durante la confirmación de ubicación se oculta temporalmente la navegación inferior.
+- Guía inicial de tres pasos para usuarios nuevos sin revisitas guardadas.
+- Selección de “próxima revisita” cubierta por pruebas unitarias.
