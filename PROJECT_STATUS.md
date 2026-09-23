@@ -99,3 +99,12 @@ Prueba visual/funcional en:
 - En la versión actual, la confirmación de ubicación queda fija y visible, y la navegación/FAB se ocultan durante la confirmación.
 - GitHub Actions `Check`: PASS.
 - GitHub Pages: build/deploy PASS.
+
+
+## Ajuste de filtros v1.3.1
+
+- La pista **“Desliza para ver más →”** ya no se superpone sobre los botones.
+- Ahora aparece en una línea independiente encima de los filtros.
+- Solo aparece cuando hay opciones fuera de pantalla y se oculta al llegar al final.
+- Se eliminó el espacio reservado que antes podía hacer parecer que faltaba una categoría.
+- Al seleccionar una categoría, el chip elegido se desplaza automáticamente a una posición visible.
