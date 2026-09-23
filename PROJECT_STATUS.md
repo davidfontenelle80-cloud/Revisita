@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.3.2 implementada — READY FOR REVIEW.**
+**v1.3.3 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -46,8 +46,8 @@
 
 ## PWA
 
-- Versión app: **1.3.2**.
-- Cache del service worker: **v9-auto-update**.
+- Versión app: **1.3.3**.
+- Cache del service worker: **v10-map-smooth**.
 - `js/i18n.js` se incluye en el precache.
 - GitHub Pages despliega desde `main`.
 
@@ -120,3 +120,15 @@ Prueba visual/funcional en:
 - CSS, app y módulos críticos usan `?v=1.3.2` para romper el ciclo del worker cache-first anterior.
 - El cache de mosaicos OSM queda separado como `revisita-tiles-v1` y sobrevive a actualizaciones del shell.
 - Se añadieron pruebas de regresión específicas para el service worker.
+
+
+## Rendimiento del mapa v1.3.3
+
+- Causa del “glitch”: el mapa recreaba todos los tiles y marcadores en cada movimiento del dedo.
+- Los tiles ahora se reutilizan y solo se agregan/quitan al entrar/salir del viewport con buffer.
+- Marcadores, pin provisional y punto GPS se reutilizan durante el paneo.
+- Los movimientos se renderizan como máximo una vez por animation frame.
+- Posicionamiento mediante `translate3d` para reducir layout/paint.
+- Wheel zoom ligeramente limitado para evitar saltos múltiples.
+- Pruebas específicas impiden volver al patrón `replaceChildren()` durante paneo.
+- GitHub Check: **22/22 PASS**; encoding 28 archivos; KHub ship check PASS.
