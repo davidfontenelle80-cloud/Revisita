@@ -43,7 +43,7 @@ PWA bilingüe (**Español / English**) para organizar revisitas por **ubicación
 
 ## Compatibility
 
-Version 1.3.1 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
+Version 1.3.2 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
 
 ## Privacy
 
@@ -90,3 +90,16 @@ There are no JavaScript frameworks or external fonts. The map engine is vanilla.
 - **Universal + New button** keeps creating a return visit one tap away.
 - While confirming a provisional pin, the bottom navigation is temporarily hidden so the location-confirmation actions stay visually dominant.
 - Brand-new users with no saved visits get a short three-step onboarding guide.
+
+
+## Reliable update delivery in 1.3.2
+
+Revisita now follows the KHub service-worker update pattern used by the stronger apps in this account:
+
+- The app shell is **network-first** while online, with the current cache used only as an offline fallback.
+- A new service worker installs atomically, calls **skipWaiting**, claims clients and broadcasts **RELOAD_READY**.
+- The app calls `registration.update()` on every startup and re-checks when it returns to the foreground.
+- Reloads happen automatically only when there is no open dialog, provisional location or focused form control; otherwise the update banner is shown.
+- Critical CSS/JS/module URLs are versioned for the transition away from the previous cache-first worker.
+- The OpenStreetMap tile cache is kept separate and stable so app updates do not unnecessarily discard previously viewed map tiles.
+- Regression tests verify the update lifecycle and versioned critical assets.
