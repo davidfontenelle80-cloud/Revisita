@@ -683,3 +683,18 @@ body.location-pending .location-confirm{
   .horizontal-options .filter-row{padding-right:0}
   .scroll-more{padding-left:2px;font-size:.66rem}
 }
+
+
+/* v1.3.3 map rendering performance */
+.tile-layer,.marker-layer{will-change:transform}
+.map-tile{
+  left:0;
+  top:0;
+  will-change:transform;
+  contain:layout paint style;
+  backface-visibility:hidden;
+}
+.marker,.user-dot{
+  will-change:transform;
+  backface-visibility:hidden;
+}
