@@ -43,7 +43,7 @@ PWA bilingüe (**Español / English**) para organizar revisitas por **ubicación
 
 ## Compatibility
 
-Version 1.3.0 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
+Version 1.3.1 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
 
 ## Privacy
 
@@ -76,6 +76,12 @@ There are no JavaScript frameworks or external fonts. The map engine is vanilla.
 - **Usar mi ubicación / Use my location** still creates a provisional pin that must be confirmed before saving.
 - The confirmation panel is viewport-fixed above the bottom navigation so its buttons remain visible on phones and tablets.
 
+
+## iPhone cache-delivery fix in 1.3.1
+
+- App shell URLs are versioned so older service workers cannot keep serving stale CSS/JavaScript after a deployment.
+- Service-worker registration bypasses the browser HTTP cache for update checks.
+- This ensures the existing fixed confirmation panel behavior reaches iPhone/iPad reliably.
 
 ## User-side polish in 1.3.0
 
