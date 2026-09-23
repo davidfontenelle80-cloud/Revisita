@@ -8,8 +8,8 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
-- **% complete:** 80% — corrigiendo entrega de la UI actualizada en iPhone
+- **Status:** READY FOR REVIEW
+- **% complete:** 100% — corrección de caché iPhone implementada y desplegada
 - **Confidence:** 96%
 
 ## Objective completed
@@ -265,3 +265,23 @@ Plan:
 - Hacer que la página cargue assets versionados para evitar que un service worker antiguo siga sirviendo CSS/JS viejos.
 - Mantener el panel de confirmación fijo y visible por encima del viewport seguro.
 - Subir versión/cache y ejecutar checks.
+
+
+## iPhone confirmation popup + stale-cache result — v1.3.1
+
+- Confirmed the screenshot was rendering stale UI rather than the current confirmation behavior.
+- Added versioned URLs to the main stylesheet, app module and browser module imports.
+- Service-worker registration now uses a versioned script URL and `updateViaCache: 'none'`.
+- Service-worker cache bumped to **v8**.
+- App version bumped to **1.3.1**.
+- Current confirmation behavior remains fixed to the viewport; bottom navigation and FAB are hidden while confirmation is active.
+- GitHub Actions final check: **PASS**.
+- GitHub Pages final build/deploy: **PASS**.
+
+## Remaining supervisor acceptance test
+
+On iPhone:
+1. Close and reopen the Revisita tab once.
+2. Tap the map.
+3. Confirm the full location panel appears immediately in the visible viewport.
+4. Confirm the bottom navigation is hidden while that panel is active.
