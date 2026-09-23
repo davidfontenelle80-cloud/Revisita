@@ -1,4 +1,4 @@
-const APP_BUILD = '1.3.2';
+const APP_BUILD = '1.3.3';
 const CACHE_PREFIX = 'revisita-';
 const SHELL_CACHE = `${CACHE_PREFIX}shell-v9-auto-update`;
 const TILE_CACHE = 'revisita-tiles-v1';
@@ -7,13 +7,13 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.json',
-  './css/main.css?v=1.3.2',
-  './js/app.js?v=1.3.2',
-  './js/map.js?v=1.3.2',
-  './js/map-utils.js?v=1.3.2',
-  './js/storage.js?v=1.3.2',
-  './js/schedule-utils.js?v=1.3.2',
-  './js/i18n.js?v=1.3.2',
+  './css/main.css?v=1.3.3',
+  './js/app.js?v=1.3.3',
+  './js/map.js?v=1.3.3',
+  './js/map-utils.js?v=1.3.3',
+  './js/storage.js?v=1.3.3',
+  './js/schedule-utils.js?v=1.3.3',
+  './js/i18n.js?v=1.3.3',
   './icons/icon-72.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
