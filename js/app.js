@@ -97,9 +97,24 @@ function bindMap(){
 }
 function selectMapMode(mode){
  mapMode=mode;syncMapModeButtons();
+ ensureChipVisible(document.querySelector(`[data-map-mode="${mode}"]`));
  if(mode==='nearby'&&!currentLocation){requestLocation(()=>renderMapMode(true),false);return;}
  renderMapMode(true);
 }
+
+function ensureChipVisible(chip){
+ if(!chip)return;
+ const row=chip.closest('.filter-row');
+ if(!row)return;
+ const left=chip.offsetLeft;
+ const right=left+chip.offsetWidth;
+ const visibleLeft=row.scrollLeft;
+ const visibleRight=visibleLeft+row.clientWidth;
+ if(left<visibleLeft+6||right>visibleRight-6){
+   row.scrollTo({left:Math.max(0,left-(row.clientWidth-chip.offsetWidth)/2),behavior:'smooth'});
+ }
+}
+
 function syncMapModeButtons(){document.querySelectorAll('[data-map-mode]').forEach(b=>b.classList.toggle('is-active',b.dataset.mapMode===mapMode));}
 function mapVisits(){
  const today=dateKey();
@@ -270,7 +285,7 @@ function openGoogleMaps(){const v=currentVisit();if(!v)return;window.open(google
 async function shareVisit(){const v=currentVisit();if(!v)return;const url=`https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}`,text=`${v.name}\n${v.address||''}\n${v.dueDate?'Volver: '+shortDate(v.dueDate)+(v.dueTime?' '+formatTime(v.dueTime,locale()):'')+'\n':''}${url}`.trim();try{if(navigator.share)await navigator.share({title:`Revisita: ${v.name}`,text});else{await navigator.clipboard.writeText(text);toast(t('copiedLocation'));}}catch(e){if(e?.name!=='AbortError')toast(t('shareFailed'));}}
 
 function bindList(){
- els.search.addEventListener('input',renderList);document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('is-active',x===b));renderList();}));els.list.addEventListener('click',handleListAction);
+ els.search.addEventListener('input',renderList);document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('is-active',x===b));ensureChipVisible(b);renderList();}));els.list.addEventListener('click',handleListAction);
 }
 function handleListAction(e){const b=e.target.closest('[data-open-visit]');if(b)openEditor(b.dataset.openVisit);}
 function renderAll(){renderToday();renderList();renderMapMode(false);els.restore.hidden=!hasRecoverySnapshot();}
