@@ -1,10 +1,10 @@
-import{SimpleMap}from'./map.js?v=1.3.1';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.3.1';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.3.1';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.3.1';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot}from'./storage.js?v=1.3.1';
+import{SimpleMap}from'./map.js?v=1.3.2';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.3.2';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.3.2';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.3.2';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot}from'./storage.js?v=1.3.2';
 
-let state=loadState(),currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,lookupToken=0,nextVisitId=null;
+let state=loadState(),currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null;
 const ONBOARDING_KEY='revisita.onboarding.v1';
 const $=id=>document.getElementById(id);
 const els={
@@ -386,7 +386,7 @@ function bindMore(){
  $('iosInstallDoneBtn')?.addEventListener('click',closeIOSInstallGuide);
  els.iosInstallDialog?.addEventListener('cancel',e=>{e.preventDefault();closeIOSInstallGuide();});
  els.iosInstallDialog?.addEventListener('click',e=>{if(e.target===els.iosInstallDialog)closeIOSInstallGuide();});
- $('exportBtn').addEventListener('click',exportBackup);$('importBtn').addEventListener('click',()=>els.importFile.click());els.importFile.addEventListener('change',importFile);$('closeImportBtn').addEventListener('click',closeImport);$('cancelImportBtn').addEventListener('click',closeImport);$('confirmImportBtn').addEventListener('click',confirmImport);els.restore.addEventListener('click',restoreSnapshot);$('deleteAllBtn').addEventListener('click',deleteAll);$('reloadAppBtn').addEventListener('click',()=>{swRegistration?.waiting?.postMessage({type:'SKIP_WAITING'});location.reload();});
+ $('exportBtn').addEventListener('click',exportBackup);$('importBtn').addEventListener('click',()=>els.importFile.click());els.importFile.addEventListener('change',importFile);$('closeImportBtn').addEventListener('click',closeImport);$('cancelImportBtn').addEventListener('click',closeImport);$('confirmImportBtn').addEventListener('click',confirmImport);els.restore.addEventListener('click',restoreSnapshot);$('deleteAllBtn').addEventListener('click',deleteAll);$('reloadAppBtn').addEventListener('click',applyServiceWorkerUpdate);
 }
 function applyTheme(theme){document.documentElement.dataset.theme=theme==='light'?'light':'dark';document.querySelector('meta[name="theme-color"]').content=theme==='light'?'#eaf0f5':'#102d49';syncThemeButtons();}
 function syncThemeButtons(){document.querySelectorAll('[data-theme-choice]').forEach(b=>b.classList.toggle('is-active',b.dataset.themeChoice===document.documentElement.dataset.theme));}
@@ -403,4 +403,76 @@ function setStatus(text,kind='success',announce=true){els.status.textContent=tex
 function updateOnline(){setStatus(navigator.onLine?t('save'):t('offline'),navigator.onLine?'success':'warn');}
 function toast(message){const d=document.createElement('div');d.className='toast';d.textContent=message;els.toast.append(d);setTimeout(()=>d.remove(),3200);}
 function showError(type,message){const box=$('errorBoundary');box.replaceChildren();const s=document.createElement('strong');s.textContent=type,p=document.createElement('div');p.textContent=message;const b=document.createElement('button');b.type='button';b.className='btn btn-secondary';b.textContent=t('close');b.style.marginTop='8px';b.onclick=()=>box.hidden=true;box.append(s,p,b);box.hidden=false;}
-async function registerSW(){if(!('serviceWorker'in navigator))return;try{swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.3.1',{updateViaCache:'none'});if(swRegistration.waiting)els.update.hidden=false;swRegistration.addEventListener('updatefound',()=>{const w=swRegistration.installing;w?.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)els.update.hidden=false;});});navigator.serviceWorker.addEventListener('controllerchange',()=>location.reload());}catch(e){console.warn('No se pudo registrar el service worker.',e);}}
+function isSafeForServiceWorkerReload(){
+ if(pendingLocation)return false;
+ if(document.querySelector('dialog[open]'))return false;
+ const focused=document.activeElement;
+ if(focused&&['INPUT','TEXTAREA','SELECT'].includes(focused.tagName))return false;
+ return true;
+}
+function showServiceWorkerUpdate(){
+ if(els.update)els.update.hidden=false;
+}
+function reloadForServiceWorkerUpdate(){
+ if(swReloading)return;
+ swReloading=true;
+ location.reload();
+}
+async function checkServiceWorkerForUpdate(force=false){
+ if(!swRegistration)return false;
+ const now=Date.now();
+ if(!force&&now-swLastUpdateCheck<10*60*1000)return false;
+ swLastUpdateCheck=now;
+ try{
+   await swRegistration.update();
+   return true;
+ }catch(e){
+   console.warn('[Revisita SW] Update check failed.',e);
+   return false;
+ }
+}
+function applyServiceWorkerUpdate(){
+ if(els.update)els.update.hidden=true;
+ if(swRegistration?.waiting){
+   swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
+   return;
+ }
+ reloadForServiceWorkerUpdate();
+}
+async function registerSW(){
+ if(!('serviceWorker'in navigator))return;
+ try{
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.3.2',{scope:'./',updateViaCache:'none'});
+   if(swRegistration.waiting&&navigator.serviceWorker.controller){
+     if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
+     else showServiceWorkerUpdate();
+   }
+   swRegistration.addEventListener('updatefound',()=>{
+     const worker=swRegistration.installing;
+     if(!worker)return;
+     worker.addEventListener('statechange',()=>{
+       if(worker.state!=='installed'||!navigator.serviceWorker.controller)return;
+       if(isSafeForServiceWorkerReload()){
+         if(swRegistration.waiting)swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
+       }else{
+         showServiceWorkerUpdate();
+       }
+     });
+   });
+   navigator.serviceWorker.addEventListener('controllerchange',()=>{
+     if(isSafeForServiceWorkerReload())reloadForServiceWorkerUpdate();
+     else showServiceWorkerUpdate();
+   });
+   navigator.serviceWorker.addEventListener('message',event=>{
+     if(event.data?.type!=='RELOAD_READY')return;
+     if(isSafeForServiceWorkerReload())reloadForServiceWorkerUpdate();
+     else showServiceWorkerUpdate();
+   });
+   await checkServiceWorkerForUpdate(true);
+   document.addEventListener('visibilitychange',()=>{
+     if(!document.hidden)checkServiceWorkerForUpdate();
+   });
+ }catch(e){
+   console.warn('[Revisita SW] Registration failed.',e);
+ }
+}
