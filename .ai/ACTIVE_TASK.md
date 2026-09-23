@@ -8,8 +8,8 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
-- **% complete:** 100% — corrección de caché iPhone implementada y desplegada
+- **Status:** READY FOR REVIEW
+- **% complete:** 100% — actualización automática del service worker implementada y verificada
 - **Confidence:** 96%
 
 ## Objective completed
@@ -330,3 +330,27 @@ Planned fix:
 - Add versioned critical asset URLs for transition away from the old cache-first worker.
 - Keep map-tile cache separate and persistent across app-shell updates.
 - Add service-worker/update regression tests.
+
+
+## Service-worker reliability result — v1.3.2
+
+- Adopted KHub-style **network-first** app-shell delivery with offline fallback.
+- Atomic shell precache prevents a partial/broken worker from replacing a complete worker.
+- New workers call `skipWaiting()`, then `clients.claim()`, then broadcast `RELOAD_READY`.
+- Revisita calls `registration.update()` on startup and when returning to the foreground (throttled).
+- Automatic reload is gated by safe-state checks; active dialogs, focused form fields and provisional locations are not interrupted.
+- Update banner remains the manual fallback when an immediate reload is unsafe.
+- Critical shell assets and module imports are versioned **1.3.2** to escape the previous cache-first worker immediately.
+- Map tile cache is stable across app-shell releases.
+- Added service-worker update regression tests.
+- App version: **1.3.2**.
+- Shell cache: **revisita-shell-v9-auto-update**.
+- Tile cache: **revisita-tiles-v1**.
+
+## Remaining supervisor acceptance test
+
+After this deployment reaches the device:
+1. Open Revisita normally without adding a query-string version.
+2. Future releases should be detected on startup/foreground automatically.
+3. When no form is open, the app should move to the new build automatically.
+4. If the user is editing/confirming something, the update banner should appear instead of interrupting the work.
