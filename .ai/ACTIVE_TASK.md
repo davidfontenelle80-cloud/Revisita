@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
+- **Status:** READY FOR REVIEW
 - **% complete:** 100% — corrección de caché iPhone implementada y desplegada
 - **Confidence:** 96%
 
@@ -298,3 +298,13 @@ Fix:
 - Keep it dynamic: only show when the chip row actually overflows and hide when the user reaches the end.
 - Remove the artificial right padding that was reserving space for the old overlay.
 - Preserve horizontal swiping and selected-chip visibility on small screens.
+
+
+## Horizontal filter hint result — v1.3.1
+
+- “Desliza para ver más →” moved above the chip row; it no longer covers Hoy/Activas/Próximas/Todas/Cerca de mí.
+- Hint remains dynamic and disappears when the horizontal row reaches its end.
+- Removed old right-side padding reserved for the overlay.
+- Selected map/list filter chips automatically scroll into view when necessary.
+- App version: **1.3.1**.
+- Service worker cache: **v8**.
