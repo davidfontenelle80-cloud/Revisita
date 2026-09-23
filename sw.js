@@ -1,7 +1,7 @@
 const APP_BUILD = '1.3.2';
 const CACHE_PREFIX = 'revisita-';
 const SHELL_CACHE = `${CACHE_PREFIX}shell-v9-auto-update`;
-const TILE_CACHE = `${CACHE_PREFIX}tiles-v1`;
+const TILE_CACHE = 'revisita-tiles-v1';
 
 const PRECACHE_URLS = [
   './',
