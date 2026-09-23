@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
+- **Status:** IN PROGRESS
 - **% complete:** 100% — responsive + tema + bilingüe implementado y verificado
 - **Confidence:** 95%
 
@@ -175,3 +175,19 @@ Plan:
 - App version: **1.2.1**.
 - Service worker cache: **v5**.
 - Final automated check: **PASS**.
+
+
+## Auto-location + confirmation visibility follow-up — 2026-09-22
+
+Supervisor observation from tablet:
+- Revisita should obtain the device location automatically when the app opens.
+- Opening the Map should center on the current location automatically when available.
+- The location-confirmation panel is currently hidden behind the fixed bottom navigation.
+
+Plan:
+- Request geolocation automatically at launch.
+- Keep the current-location dot available across views.
+- Center the map on the current location when Map opens, without creating/saving a visit.
+- Keep manual “Use my location” behavior for creating a provisional visit pin.
+- Move the confirmation panel to a viewport-fixed safe position above the bottom navigation.
+- Preserve phone/tablet/landscape responsiveness and EN/ES behavior.
