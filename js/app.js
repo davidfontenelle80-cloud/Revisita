@@ -26,7 +26,7 @@ function init(){
  applyTheme(state.settings.theme||'dark');
  applyTranslations(document);
  bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindAgenda();bindList();bindMore();bindKeyboardShortcuts();
- renderAll();registerSW();updateOnline();updateInstallUI();
+ renderAll();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();
  addEventListener('online',updateOnline);addEventListener('offline',updateOnline);
  addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();updateOnline();updateInstallUI();});
  addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;updateInstallUI();});
@@ -78,7 +78,7 @@ function showView(name){
  if(name!=='map'&&pendingLocation)clearPendingLocation();
  document.querySelectorAll('.view').forEach(v=>{const on=v.dataset.view===name;v.hidden=!on;v.classList.toggle('is-active',on);});
  document.querySelectorAll('[data-destination]').forEach(b=>{const on=b.dataset.destination===name;b.classList.toggle('is-active',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
- if(name==='map')requestAnimationFrame(()=>{map.render();renderMapMode(false);});
+ if(name==='map')requestAnimationFrame(()=>{map.render();renderMapMode(false);centerMapOnCurrentLocation();});
  if(name==='today')renderToday();
  if(name==='list')renderList();
  scrollTo({top:0,behavior:'smooth'});
@@ -114,6 +114,24 @@ function renderMapMode(fit=false){
  if(currentLocation)map.setUserLocation(currentLocation.lat,currentLocation.lng);
  if(fit){const pts=[...visits];if(mapMode==='nearby'&&currentLocation)pts.push(currentLocation);if(pts.length)requestAnimationFrame(()=>map.fitPoints(pts,mapMode==='nearby'?15:16));}
 }
+
+function centerMapOnCurrentLocation(){
+ if(!currentLocation||pendingLocation)return;
+ map.setUserLocation(currentLocation.lat,currentLocation.lng);
+ map.setView(currentLocation.lat,currentLocation.lng,Math.max(map.zoom,16));
+}
+function autoLocateOnLaunch(){
+ if(!navigator.geolocation)return;
+ navigator.geolocation.getCurrentPosition(p=>{
+   currentLocation={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy};
+   map.setUserLocation(currentLocation.lat,currentLocation.lng);
+   const mapView=document.querySelector('[data-view="map"]');
+   if(mapView&&!mapView.hidden)centerMapOnCurrentLocation();
+   renderToday();
+   renderList();
+ },()=>{}, {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+}
+
 function requestLocation(done,forNewVisit){
  if(!navigator.geolocation)return toast(t('gpsUnsupported'));
  setStatus(t('searchingLocation'),'info');if(forNewVisit)els.locate.disabled=true;
