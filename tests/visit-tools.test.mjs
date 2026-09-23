@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compactAddress, shortAddress, placeLine, addDays, addMonths, nextDatePresets, directionsUrl, phoneDigits, whatsappUrl, buildICS, googleCalendarUrl, mergeVisits, visitsFingerprint, calendarSlot, staleCalendarSlot } from '../js/visit-tools.js';
+import { compactAddress, shortAddress, placeLine, addDays, addMonths, nextDatePresets, directionsUrl, phoneDigits, whatsappUrl, buildICS, googleCalendarUrl, mergeVisits, visitsFingerprint, calendarSlot, staleCalendarSlot, telUrl } from '../js/visit-tools.js';
 
 const visit = { id: 'abc', name: 'Familia Pérez', reference: 'Casa verde, frente al colmado', address: 'Calle Luis E. Pérez García, La Agustina, Santo Domingo de Guzmán, Distrito Nacional, 03201, República Dominicana', lat: 18.4869, lng: -69.9304, dueDate: '2026-09-26', dueTime: '10:00', updatedAt: '2026-09-23T10:00:00.000Z' };
 
@@ -115,4 +115,11 @@ test('calendar slot and stale-slot detection', () => {
   assert.equal(staleCalendarSlot(sent, { ...sent, status: 'completed', dueDate: '' }), '2026-09-26 10:00', 'ended');
   assert.equal(staleCalendarSlot(sent, null), '2026-09-26 10:00', 'deleted');
   assert.equal(staleCalendarSlot(visit, { ...visit, dueDate: '2026-10-03' }), '', 'never sent to the calendar');
+});
+
+test('tel link only for real-looking numbers', () => {
+  assert.equal(telUrl('809-555-1234'), 'tel:8095551234');
+  assert.equal(telUrl('+1 (809) 555-1234'), 'tel:+18095551234');
+  assert.equal(telUrl('809'), '');
+  assert.equal(telUrl(''), '');
 });
