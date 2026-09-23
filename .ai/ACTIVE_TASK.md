@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
+- **Status:** READY FOR REVIEW
 - **% complete:** 100% — responsive + tema + bilingüe implementado y verificado
 - **Confidence:** 95%
 
@@ -224,3 +224,32 @@ Approved improvements:
 - Make the provisional-location confirmation even clearer by de-emphasizing/hiding the bottom nav while confirmation is active.
 - Add a lightweight first-use guide for brand-new users.
 - Keep EN/ES, light/dark, phone/tablet responsiveness, local storage and existing data compatibility.
+
+
+## User-side polish result — v1.3.0
+
+- **Próxima revisita / Next return visit** card added to Hoy with quick Open and Directions.
+- Next-visit selection prioritizes the next remaining visit today, then falls back to today's remaining items, overdue items, then upcoming.
+- **Tablet/desktop split Map view** added: visible return visits appear in a left-side list next to the map.
+- Sidebar cards show schedule, address/distance, Open and Directions.
+- Added universal floating **+ Nueva / + New** action.
+- While confirming a provisional location, bottom navigation and FAB are hidden so Confirm/Adjust/Cancel remain dominant.
+- Added first-use three-step onboarding for brand-new users with no saved visits.
+- Existing users with saved visits are not interrupted by onboarding.
+- EN/ES and light/dark behavior preserved.
+- App version: **1.3.0**.
+- Service worker cache: **v7**.
+- GitHub Actions: **PASS**.
+- Encoding: **26 text files clean**.
+- Unit tests: **15/15 PASS**.
+- KHub ship check: **PASS**.
+- GitHub Pages build/deploy: **PASS**.
+
+## Supervisor acceptance focus
+
+Check:
+1. Hoy → Próxima revisita card.
+2. Tablet Map → sidebar + map split layout.
+3. + Nueva button.
+4. Location confirmation with nav hidden.
+5. New-user onboarding on a clean browser/device.
