@@ -8,8 +8,8 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
-- **% complete:** 100% — actualización automática del service worker implementada y verificada
+- **Status:** READY FOR REVIEW
+- **% complete:** 100% — suavidad del mapa corregida y verificada
 - **Confidence:** 96%
 
 ## Objective completed
@@ -375,3 +375,29 @@ Fix plan:
 - Throttle wheel zoom slightly.
 - Preserve existing tap-to-pin, GPS, marker opening, zoom, fitPoints and saved map-center behavior.
 - Add regression checks so tile/marker DOM is not rebuilt during every pan frame.
+
+
+## Map smoothness result — v1.3.3
+
+- Root cause confirmed: tile and marker DOM was fully destroyed/recreated during every pan render.
+- Tile nodes are now retained/reused; only entering/leaving buffered tiles change.
+- Marker, draft-pin and user-location nodes are retained and repositioned.
+- Pointer-move redraws are coalesced with `requestAnimationFrame`.
+- GPU-friendly `translate3d` positioning added while preserving pin anchors.
+- Wheel zoom is throttled to prevent rapid multi-step jumps.
+- Existing map APIs/behaviors remain unchanged.
+- App version: **1.3.3**.
+- Shell cache: **revisita-shell-v10-map-smooth**.
+- GitHub Actions final Check: **PASS**.
+- Encoding: **28 text files clean**.
+- Unit/regression tests: **22/22 PASS**.
+- KHub ship check: **PASS**.
+
+## Supervisor acceptance focus
+
+On phone/tablet:
+1. Open Map and let it center on current location.
+2. Drag slowly, then quickly in several directions.
+3. Cross several blocks/tiles and watch for blank flashes or snapping.
+4. Zoom +/- and confirm the map remains stable.
+5. Tap a location and confirm the provisional pin still lands exactly where tapped.
