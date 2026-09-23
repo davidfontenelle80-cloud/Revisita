@@ -8,8 +8,8 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
-- **% complete:** 100% — suavidad del mapa corregida y verificada
+- **Status:** READY FOR REVIEW
+- **% complete:** 100% — apertura del mapa corregida y verificada
 - **Confidence:** 96%
 
 ## Objective completed
@@ -416,3 +416,15 @@ Fix plan:
 - Re-assert the top position on pageshow/foreground restore when Map is the active view.
 - Keep the map itself pannable; only page-level vertical scroll is reset.
 - Avoid changing the existing map pan/zoom behavior.
+
+
+## Map opening viewport result — v1.3.4
+
+- Browser/PWA scroll restoration disabled.
+- Map tab resets page scroll to top immediately on entry.
+- pageshow/foreground restore reasserts the top position when Map is active.
+- Phone map filters stay sticky below the app header, so Hoy/Activas/Próximas/Todas/Cerca de mí remain visible even if the page had been scrolled.
+- Tablet/desktop split layout remains unchanged.
+- App version: **1.3.4**.
+- Shell cache: **revisita-shell-v11-map-viewport**.
+- Latest GitHub Check: **PASS**.
