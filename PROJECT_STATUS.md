@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.4.1 implementada — READY FOR REVIEW.**
+**v1.4.2 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -170,3 +170,9 @@ Prueba visual/funcional en:
 - **Privacidad**: el texto cambia cuando la sincronización está activa.
 - Datos: campos de visita `calendarSlot`, `calendarSeq`; ajustes `calendarAsked`.
 - Versión **1.4.1** · shell cache **revisita-shell-v13-workflow-tweaks**.
+
+
+## Llamar en Hoy v1.4.2
+
+- **☎ Llamar** en la tarjeta Próxima revisita y en cada tarjeta de Hoy (Atrasadas, Para hoy, Próximos días) cuando la revisita tiene teléfono (7+ dígitos). Abre el marcador del teléfono.
+- Versión **1.4.2** · shell cache **revisita-shell-v14-call-hoy**.
