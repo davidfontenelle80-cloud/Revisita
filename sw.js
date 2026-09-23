@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const CACHE_PREFIX = 'revisita-';
 const SHELL_CACHE = `${CACHE_PREFIX}shell-${CACHE_VERSION}`;
 const TILE_CACHE = `${CACHE_PREFIX}tiles-${CACHE_VERSION}`;
