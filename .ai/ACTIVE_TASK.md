@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
+- **Status:** IN PROGRESS
 - **% complete:** 100% — suavidad del mapa corregida y verificada
 - **Confidence:** 96%
 
@@ -401,3 +401,18 @@ On phone/tablet:
 3. Cross several blocks/tiles and watch for blank flashes or snapping.
 4. Zoom +/- and confirm the map remains stable.
 5. Tap a location and confirm the provisional pin still lands exactly where tapped.
+
+
+## Map opening viewport follow-up — 2026-09-23
+
+Supervisor observation from iPhone:
+- Revisita can reopen/return to the Map view with the page scrolled down.
+- In that state the map is visible, but the map title/filter choices are above the viewport, so the user cannot immediately see Hoy / Activas / Próximas / Todas / Cerca de mí.
+- Scrolling upward reveals them, which proves the controls are present but the opening scroll position is wrong.
+
+Fix plan:
+- Disable browser scroll restoration so iOS/Safari/PWA does not restore an old vertical page position.
+- Reset the page to the top immediately (not smooth) whenever Map is entered.
+- Re-assert the top position on pageshow/foreground restore when Map is the active view.
+- Keep the map itself pannable; only page-level vertical scroll is reset.
+- Avoid changing the existing map pan/zoom behavior.
