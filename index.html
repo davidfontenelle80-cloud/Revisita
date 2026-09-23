@@ -7,9 +7,9 @@
   <meta name="description" content="Revisita: organiza revisitas por ubicación, fecha y hora.">
   <title>Revisita</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/favicon.png?v=1.4.0" type="image/png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.4.0">
-  <link rel="stylesheet" href="css/main.css?v=1.4.0">
+  <link rel="icon" href="icons/favicon.png?v=1.4.1" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.4.1">
+  <link rel="stylesheet" href="css/main.css?v=1.4.1">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -17,7 +17,7 @@
   <div id="updateNotice" class="update-notice" hidden><span data-i18n="updateAvailable">Hay una actualización disponible.</span><button id="reloadAppBtn" type="button" data-i18n="update">Actualizar</button></div>
 
   <header class="app-header">
-    <div class="brand"><img src="icons/icon-72.png?v=1.4.0" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
+    <div class="brand"><img src="icons/icon-72.png?v=1.4.1" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
     <span id="saveStatus" class="status-chip" role="status" aria-live="polite" data-i18n="savedCheck">Guardado ✓</span>
   </header>
 
@@ -36,16 +36,13 @@
         <div class="next-visit-actions">
           <button id="nextVisitOpenBtn" class="btn btn-secondary" type="button" data-i18n="open">Abrir</button>
           <button id="nextVisitDirectionsBtn" class="btn btn-primary" type="button" data-i18n="directions">Cómo llegar</button>
+          <button id="nextVisitLogBtn" class="btn btn-primary btn-log next-visit-log" type="button" data-i18n="logVisit">Registrar visita</button>
         </div>
       </section>
-      <div class="summary-grid">
-        <div class="summary-card card"><span data-i18n="overdue">Atrasadas</span><strong id="overdueCount" class="num">0</strong></div>
-        <div class="summary-card card"><span data-i18n="forToday">Para hoy</span><strong id="todayCount" class="num">0</strong></div>
-        <div class="summary-card card"><span data-i18n="doneToday">Hechas hoy</span><strong id="doneTodayCount" class="num">0</strong></div>
-      </div>
       <section id="overdueSection" class="agenda-section" hidden><div class="section-title"><h3 data-i18n="overdue">Atrasadas</h3><span class="mini-chip due" data-i18n="attention">Atención</span></div><div id="overdueList" class="agenda-list"></div></section>
       <section id="todaySection" class="agenda-section"><div class="section-title"><h3 data-i18n="forToday">Para hoy</h3><span class="muted" data-i18n="orderedByTime">Ordenadas por hora</span></div><div id="todayList" class="agenda-list"></div></section>
       <div id="todayEmpty" class="empty-state card" hidden><div class="empty-icon" aria-hidden="true">✓</div><h3 data-i18n="allCaughtUp">Todo al día</h3><p data-i18n="noTodayTasks">No tienes revisitas atrasadas ni programadas para hoy.</p><button id="todayMapBtn" class="btn btn-secondary" type="button" data-i18n="viewActiveMap">Ver mapa de activas</button></div>
+      <section id="upcomingSection" class="agenda-section" hidden><div class="section-title"><h3 data-i18n="upcomingDays">Próximos días</h3><span class="muted" data-i18n="upcomingDaysHint">Los próximos 7 días</span></div><div id="upcomingList" class="agenda-list"></div></section>
     </section>
 
     <section id="view-map" class="view" data-view="map" aria-labelledby="mapTitle" hidden>
@@ -96,8 +93,6 @@
       <div class="horizontal-options">
         <div id="listFilterRow" class="filter-row" role="group" aria-label="Filtrar revisitas" data-i18n-aria="filterVisits">
           <button class="filter-chip is-active" type="button" data-filter="active" data-i18n="active">Activas</button>
-          <button class="filter-chip" type="button" data-filter="today" data-i18n="today">Hoy</button>
-          <button class="filter-chip" type="button" data-filter="upcoming" data-i18n="upcoming">Próximas</button>
           <button class="filter-chip" type="button" data-filter="undated" data-i18n="undated">Sin fecha</button>
           <button class="filter-chip" type="button" data-filter="completed" data-i18n="history">Historial</button>
           <button class="filter-chip" type="button" data-filter="all" data-i18n="all">Todas</button>
@@ -136,9 +131,9 @@
         </section>
         <section class="card settings-card"><h3 data-i18n="language">Idioma</h3><p data-i18n="languageHelp">Puedes cambiar el idioma en cualquier momento.</p><div class="segmented-control" role="group" aria-label="Idioma" data-i18n-aria="languageAria"><button class="segment-btn" type="button" data-lang-choice="es" data-i18n="spanish">Español</button><button class="segment-btn" type="button" data-lang-choice="en" data-i18n="english">English</button></div></section>
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
-        <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p data-i18n="privacyText">Las revisitas y notas se guardan solamente en este dispositivo. El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
+        <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p id="privacyText" data-i18n="privacyText">Las revisitas y notas se guardan en este dispositivo (y en tu cuenta solo si activas la sincronización). El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.4.0</p>
+        <p class="app-version">Revisita v1.4.1</p>
       </div>
     </section>
   </main>
@@ -181,22 +176,25 @@
         </div>
       </section>
       <div id="editFields" class="edit-fields">
-      <label class="field"><span><span data-i18n="nameReference">Nombre o referencia</span> <b aria-hidden="true">*</b></span><input id="visitName" type="text" maxlength="120" required data-i18n-placeholder="namePlaceholder" placeholder="Ej.: Casa azul, familia Pérez"></label>
+      <label class="field"><span><span data-i18n="nameLabel">Nombre</span> <b aria-hidden="true">*</b></span><input id="visitName" type="text" maxlength="120" required data-i18n-placeholder="namePlaceholder" placeholder="Ej.: Familia Pérez, doña Carmen"></label>
       <label class="field"><span data-i18n="reference">Referencia (cómo encontrar la casa)</span><textarea id="visitReference" rows="2" maxlength="300" data-i18n-placeholder="referencePlaceholder" placeholder="Ej.: casa verde frente al colmado, segundo piso"></textarea></label>
-      <label class="field"><span data-i18n="approximateAddress">Dirección aproximada</span><div class="field-action-row"><input id="visitAddress" type="text" maxlength="220" data-i18n-placeholder="addressPlaceholder" placeholder="Se puede completar automáticamente"><button id="lookupAddressBtn" class="btn btn-secondary btn-compact" type="button" data-i18n="search">Buscar</button></div></label>
-      <label class="field"><span data-i18n="notes">Notas</span><textarea id="visitNotes" rows="4" maxlength="1200" data-i18n-placeholder="notesPlaceholder" placeholder="Qué hablaron, qué recordar, mejor horario…"></textarea></label>
-      <div class="schedule-grid">
-        <label class="field"><span data-i18n="returnDate">Volver el</span><input id="visitDueDate" type="date"></label>
-        <label class="field"><span data-i18n="returnTime">Hora de volver</span><input id="visitDueTime" type="time" step="900"></label>
-      </div>
-      <div class="quick-dates" role="group" aria-label="Fechas rápidas" data-i18n-aria="quickDates">
-        <button class="filter-chip" type="button" data-edit-preset="w1" data-i18n="inOneWeek">+1 semana</button>
-        <button class="filter-chip" type="button" data-edit-preset="w2" data-i18n="inTwoWeeks">+2 semanas</button>
-        <button class="filter-chip" type="button" data-edit-preset="m1" data-i18n="inOneMonth">+1 mes</button>
-      </div>
+      <fieldset class="log-next schedule-fieldset">
+        <legend data-i18n="whenReturn">¿Cuándo vuelves?</legend>
+        <div class="quick-dates" role="group" aria-label="Fechas rápidas" data-i18n-aria="quickDates">
+          <button class="filter-chip" type="button" data-edit-preset="w1" data-i18n="inOneWeek">+1 semana</button>
+          <button class="filter-chip" type="button" data-edit-preset="w2" data-i18n="inTwoWeeks">+2 semanas</button>
+          <button class="filter-chip" type="button" data-edit-preset="m1" data-i18n="inOneMonth">+1 mes</button>
+        </div>
+        <div class="schedule-grid">
+          <label class="field"><span data-i18n="returnDate">Volver el</span><input id="visitDueDate" type="date"></label>
+          <label class="field"><span data-i18n="returnTime">Hora de volver</span><input id="visitDueTime" type="time" step="900"></label>
+        </div>
+      </fieldset>
       <details class="more-details">
         <summary data-i18n="moreDetails">Más detalles (opcional)</summary>
         <label class="field"><span data-i18n="phone">Teléfono / WhatsApp</span><input id="visitPhone" type="tel" inputmode="tel" maxlength="40" autocomplete="off" data-i18n-placeholder="phonePlaceholder" placeholder="Ej.: 809-555-1234"></label>
+        <label class="field"><span data-i18n="approximateAddress">Dirección aproximada</span><div class="field-action-row"><input id="visitAddress" type="text" maxlength="220" data-i18n-placeholder="addressPlaceholder" placeholder="Se puede completar automáticamente"><button id="lookupAddressBtn" class="btn btn-secondary btn-compact" type="button" data-i18n="search">Buscar</button></div></label>
+        <label class="field"><span data-i18n="notes">Notas</span><textarea id="visitNotes" rows="4" maxlength="1200" data-i18n-placeholder="notesPlaceholder" placeholder="Qué hablaron, qué recordar, mejor horario…"></textarea></label>
         <label class="field"><span data-i18n="leftWith">Qué le dejaste</span><input id="visitLeftWith" type="text" maxlength="160" data-i18n-placeholder="leftWithPlaceholder" placeholder="Ej.: revista, folleto, video"></label>
         <label class="field"><span data-i18n="nextTopic">Tema para la próxima vez</span><input id="visitNextTopic" type="text" maxlength="200" data-i18n-placeholder="nextTopicPlaceholder" placeholder="Pregunta o tema pendiente"></label>
       </details>
@@ -270,6 +268,35 @@
     </form>
   </dialog>
 
+  <dialog id="newVisitDialog" class="sheet-dialog small-sheet">
+    <div class="sheet">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-header"><div><h2 data-i18n="newVisitTitle">Nueva revisita</h2><p data-i18n="newWhereTitle">¿Dónde está la casa?</p></div><button id="closeNewVisitBtn" class="icon-btn" type="button" aria-label="Cerrar" data-i18n-aria="close">×</button></div>
+      <div class="new-choices">
+        <button id="newHereBtn" class="new-choice new-choice-primary" type="button"><span class="new-choice-icon" aria-hidden="true">◎</span><span><strong data-i18n="newHere">Aquí — mi ubicación</strong><small data-i18n="newHereHint">Estás frente a la casa ahora.</small></span></button>
+        <button id="newOnMapBtn" class="new-choice" type="button"><span class="new-choice-icon" aria-hidden="true">⌖</span><span><strong data-i18n="newOnMap">Elegir en el mapa</strong><small data-i18n="newOnMapHint">Toca el lugar en el mapa.</small></span></button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="calendarAskDialog" class="sheet-dialog small-sheet">
+    <div class="sheet">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-header"><div><h2 data-i18n="calendarAskTitle">¿Añadir al calendario?</h2></div></div>
+      <p data-i18n="calendarAskText">Revisita puede poner esta visita en el calendario de tu teléfono con una alarma. Puedes cambiarlo luego en Más → Recordatorios.</p>
+      <div class="sheet-footer"><button id="calendarAskNoBtn" class="btn btn-secondary" type="button" data-i18n="calendarAskNo">No, gracias</button><button id="calendarAskYesBtn" class="btn btn-primary" type="button" data-i18n="calendarAskYes">Sí, añadir siempre</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="calendarStaleDialog" class="sheet-dialog small-sheet">
+    <div class="sheet">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-header"><div><h2 data-i18n="calendarStaleTitle">Borra el aviso anterior</h2></div></div>
+      <p id="calendarStaleText"></p>
+      <div class="sheet-footer"><button id="calendarStaleOkBtn" class="btn btn-primary" type="button" data-i18n="calendarStaleOk">Entendido</button></div>
+    </div>
+  </dialog>
+
   <dialog id="directionsDialog" class="sheet-dialog small-sheet">
     <div class="sheet">
       <div class="sheet-handle" aria-hidden="true"></div>
@@ -288,6 +315,6 @@
   </dialog>
 
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.4.0"></script>
+  <script type="module" src="js/app.js?v=1.4.1"></script>
 </body>
 </html>
