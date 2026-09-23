@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** READY FOR REVIEW
+- **Status:** IN PROGRESS
 - **% complete:** 100% — responsive + tema + bilingüe implementado y verificado
 - **Confidence:** 95%
 
@@ -213,3 +213,14 @@ On the tablet/phone:
 2. Open Map and confirm it centers on the live position automatically.
 3. Tap a different point and verify the confirmation panel is fully visible above the bottom nav.
 4. Confirm the point and verify the editor opens normally.
+
+
+## User-side polish follow-up — 2026-09-22
+
+Approved improvements:
+- Add a prominent **Próxima revisita / Next return visit** card on Hoy.
+- On tablets/large screens, use a **split Map + visits list** layout instead of only enlarging the phone map.
+- Add a universal floating **+ Nueva / + New** action.
+- Make the provisional-location confirmation even clearer by de-emphasizing/hiding the bottom nav while confirmation is active.
+- Add a lightweight first-use guide for brand-new users.
+- Keep EN/ES, light/dark, phone/tablet responsiveness, local storage and existing data compatibility.
