@@ -12,12 +12,14 @@ test('service worker uses the KHub immediate-update lifecycle', () => {
   assert.match(sw, /RELOAD_READY/);
   assert.match(sw, /fetch\(request, \{ cache: 'no-store' \}\)/);
   assert.match(sw, /revisita-tiles-v1/);
+  assert.match(sw, /revisita-zones-v1/);
+  assert.match(sw, /key !== ZONE_CACHE/);
 });
 
 test('critical shell assets are versioned for transition from older cache-first workers', () => {
-  assert.match(index, /css\/main\.css\?v=1\.3\.4/);
-  assert.match(index, /js\/app\.js\?v=1\.3\.4/);
-  assert.match(app, /sw\.js\?v=1\.3\.4/);
+  assert.match(index, /css\/main\.css\?v=1\.4\.0/);
+  assert.match(index, /js\/app\.js\?v=1\.4\.0/);
+  assert.match(app, /sw\.js\?v=1\.4\.0/);
 });
 
 test('app checks for service-worker updates and reloads safely', () => {

@@ -1,26 +1,30 @@
-const APP_BUILD = '1.3.4';
+const APP_BUILD = '1.4.0';
 const CACHE_PREFIX = 'revisita-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v11-map-viewport`;
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v12-workflow`;
 const TILE_CACHE = 'revisita-tiles-v1';
+// Areas the user saved on purpose with "Guardar zona"; never trimmed, survives shell updates.
+const ZONE_CACHE = 'revisita-zones-v1';
 
 const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.json',
-  './css/main.css?v=1.3.4',
-  './js/app.js?v=1.3.4',
-  './js/map.js?v=1.3.4',
-  './js/map-utils.js?v=1.3.4',
-  './js/storage.js?v=1.3.4',
-  './js/schedule-utils.js?v=1.3.4',
-  './js/i18n.js?v=1.3.4',
-  './icons/icon-72.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-192-maskable.png',
-  './icons/icon-512-maskable.png',
-  './icons/apple-touch-icon.png',
-  './icons/favicon.png'
+  './css/main.css?v=1.4.0',
+  './js/app.js?v=1.4.0',
+  './js/map.js?v=1.4.0',
+  './js/map-utils.js?v=1.4.0',
+  './js/storage.js?v=1.4.0',
+  './js/schedule-utils.js?v=1.4.0',
+  './js/i18n.js?v=1.4.0',
+  './js/visit-tools.js?v=1.4.0',
+  './js/cloud-sync.js?v=1.4.0',
+  './icons/icon-72.png?v=1.4.0',
+  './icons/icon-192.png?v=1.4.0',
+  './icons/icon-512.png?v=1.4.0',
+  './icons/icon-192-maskable.png?v=1.4.0',
+  './icons/icon-512-maskable.png?v=1.4.0',
+  './icons/apple-touch-icon.png?v=1.4.0',
+  './icons/favicon.png?v=1.4.0'
 ];
 
 function pathFor(value) {
@@ -103,7 +107,8 @@ self.addEventListener('activate', (event) => {
               (key) =>
                 key.startsWith(CACHE_PREFIX) &&
                 key !== SHELL_CACHE &&
-                key !== TILE_CACHE
+                key !== TILE_CACHE &&
+                key !== ZONE_CACHE
             )
             .map((key) => caches.delete(key))
         )
@@ -147,7 +152,7 @@ self.addEventListener('fetch', (event) => {
 
 async function tile(request) {
   const cache = await caches.open(TILE_CACHE);
-  const hit = await cache.match(request);
+  const hit = (await cache.match(request)) || (await (await caches.open(ZONE_CACHE)).match(request.url));
   if (hit) return hit;
 
   try {

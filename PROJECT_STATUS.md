@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.3.4 implementada — READY FOR REVIEW.**
+**v1.4.0 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -143,3 +143,18 @@ Prueba visual/funcional en:
 - En teléfono, los filtros de Mapa quedan sticky debajo del encabezado para que sigan visibles aunque el usuario desplace la página.
 - En tablet/escritorio, el toolbar vuelve a layout normal.
 - Se añadieron pruebas de regresión específicas del viewport del mapa.
+
+
+## Flujo de trabajo v1.4.0
+
+- **Iconos**: reconstruidos en color real desde el arte original (`icons/source/revisita-artwork.webp`, `scripts/build-icons.py`). Apple touch 180 px nativo; maskable Android con zona segura. URLs versionadas `?v=1.4.0`. En iPhone hay que borrar y volver a añadir el icono una vez.
+- **Tarjeta de revisita**: al abrir una revisita guardada se ve primero la tarjeta (sin teclado): Cómo llegar · Registrar visita; Llamar/WhatsApp si hay teléfono; Calendario · Compartir · Ver en mapa · Editar.
+- **Registrar visita** reemplaza “Marcar como hecha”: nota, qué le dejaste, tema próximo, próxima fecha (+1 semana / +2 semanas / +1 mes / elegir) en un paso. “No volver” la pasa al historial. Cada visita queda en el historial.
+- **Referencia** (cómo encontrar la casa) como dato principal; dirección automática corta; detalles opcionales (teléfono, qué le dejaste, tema).
+- **Recordatorios por calendario** (en lugar de notificaciones push): al guardar con fecha se abre el calendario del teléfono con alarma (iPhone: .ics; Android: Google Calendar). Ajustes: activar/desactivar, minutos antes, tipo de calendario.
+- **Navegación**: Google Maps, Waze o Apple Maps (iPhone), con opción de recordar.
+- **Mapa**: 4 filtros (Hoy · Activas · Todas · Cerca), sin subtítulo, consejo solo la primera vez, mapa más alto, botón **Guardar zona** para usar sin conexión.
+- **Encabezado**: estado pasivo “Guardado ✓ / Sin conexión” (ya no es un botón).
+- **Sincronización opcional** con cuenta KHub (Firebase `khub-apps`), fusión por revisita + `updatedAt` con registros de borrado. Firebase solo se carga al abrir Más o si la sincronización está activa.
+- Datos: esquema lógico **3** (campos `reference`, `phone`, `leftWith`, `nextTopic`; historial con `note`, `leftWith`, `ended`; `deleted`). Migración automática desde v1/v2.
+- Versión app **1.4.0** · shell cache **revisita-shell-v12-workflow** · tiles **revisita-tiles-v1** · zonas **revisita-zones-v1**.

@@ -7,9 +7,9 @@
   <meta name="description" content="Revisita: organiza revisitas por ubicación, fecha y hora.">
   <title>Revisita</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/favicon.png" type="image/png">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/main.css?v=1.3.4">
+  <link rel="icon" href="icons/favicon.png?v=1.4.0" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.4.0">
+  <link rel="stylesheet" href="css/main.css?v=1.4.0">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -17,8 +17,8 @@
   <div id="updateNotice" class="update-notice" hidden><span data-i18n="updateAvailable">Hay una actualización disponible.</span><button id="reloadAppBtn" type="button" data-i18n="update">Actualizar</button></div>
 
   <header class="app-header">
-    <div class="brand"><img src="icons/icon-72.png" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
-    <button id="saveStatus" class="status-chip status-button" type="button" aria-live="polite" aria-label="Guardar ahora" data-i18n-aria="save"><span data-i18n="save">Guardar</span></button>
+    <div class="brand"><img src="icons/icon-72.png?v=1.4.0" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
+    <span id="saveStatus" class="status-chip" role="status" aria-live="polite" data-i18n="savedCheck">Guardado ✓</span>
   </header>
 
   <main id="main" class="app-main">
@@ -49,14 +49,13 @@
     </section>
 
     <section id="view-map" class="view" data-view="map" aria-labelledby="mapTitle" hidden>
-      <div class="view-heading map-heading"><div><h2 id="mapTitle" data-i18n="map">Mapa</h2><p data-i18n="mapSubtitle">Visualiza tus revisitas y confirma cada ubicación antes de guardarla.</p></div></div>
+      <div class="view-heading map-heading"><div><h2 id="mapTitle" data-i18n="map">Mapa</h2></div><button id="saveZoneBtn" class="btn btn-secondary btn-small zone-btn" type="button"><span aria-hidden="true">⤓</span> <span data-i18n="saveZone">Guardar zona</span></button></div>
       <div class="horizontal-options">
         <div id="mapModeRow" class="filter-row map-mode-row" role="group" aria-label="Modo del mapa" data-i18n-aria="mapModes">
           <button class="filter-chip" type="button" data-map-mode="today" data-i18n="today">Hoy</button>
           <button class="filter-chip is-active" type="button" data-map-mode="active" data-i18n="active">Activas</button>
-          <button class="filter-chip" type="button" data-map-mode="upcoming" data-i18n="upcoming">Próximas</button>
           <button class="filter-chip" type="button" data-map-mode="all" data-i18n="all">Todas</button>
-          <button class="filter-chip" type="button" data-map-mode="nearby" data-i18n="nearby">Cerca de mí</button>
+          <button class="filter-chip" type="button" data-map-mode="nearby" data-i18n="nearbyShort">Cerca</button>
         </div>
         <button id="mapScrollHint" class="scroll-more" type="button" aria-label="Desliza o toca para ver más opciones" data-i18n-aria="swipeMoreOptions"><span data-i18n="swipeMore">Desliza para ver más</span> <span aria-hidden="true">→</span></button>
       </div>
@@ -88,7 +87,7 @@
         <div class="map-attribution">© OpenStreetMap contributors</div>
         </div>
       </div>
-      <div class="map-tip alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong data-i18n="confirmTipTitle">Primero confirma:</strong> <span data-i18n="confirmTip">al tocar el mapa aparece un pin provisional. Puedes tocar otro punto antes de confirmarlo.</span></span></div>
+      <div id="mapTip" class="map-tip alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong data-i18n="confirmTipTitle">Primero confirma:</strong> <span data-i18n="confirmTip">al tocar el mapa aparece un pin provisional. Puedes tocar otro punto antes de confirmarlo.</span></span></div>
     </section>
 
     <section id="view-list" class="view" data-view="list" aria-labelledby="listTitle" hidden>
@@ -114,11 +113,32 @@
       <div class="settings-stack">
         <section class="card settings-card"><h3 data-i18n="installApp">Instalar la app</h3><p data-i18n="installText">Úsala como una app normal desde la pantalla de inicio.</p><button id="installBtn" class="btn btn-primary" type="button" disabled data-i18n="installRevisita">Instalar Revisita</button><p id="installHint" class="muted" data-i18n="installHint">Si ya está instalada, este botón puede no aparecer disponible.</p></section>
         <section class="card settings-card"><h3 data-i18n="appearance">Apariencia</h3><div><strong data-i18n="theme">Tema</strong><p class="muted" data-i18n="themeHelp">Elige cómo quieres ver Revisita.</p></div><div class="segmented-control" role="group" aria-label="Tema" data-i18n-aria="themeAria"><button class="segment-btn" type="button" data-theme-choice="dark" data-i18n="dark">Oscuro</button><button class="segment-btn" type="button" data-theme-choice="light" data-i18n="light">Claro</button></div></section>
+        <section class="card settings-card"><h3 data-i18n="remindersTitle">Recordatorios</h3><p data-i18n="remindersText">Revisita usa el calendario de tu teléfono para avisarte. Al guardar una revisita con fecha, se abre el calendario para añadirla con una alarma.</p>
+          <label class="check-row"><input id="calendarOnSaveToggle" type="checkbox"> <span data-i18n="calendarOnSave">Añadir al calendario al guardar</span></label>
+          <label class="field"><span data-i18n="reminderLead">Avisarme antes</span><select id="reminderMinutesSelect"><option value="0" data-i18n="atTime">A la hora</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option><option value="120">2 h</option></select></label>
+          <label class="field"><span data-i18n="calendarApp">Calendario</span><select id="calendarModeSelect"><option value="auto" data-i18n="calendarAuto">Automático (iPhone: Calendario · Android: Google Calendar)</option><option value="ics" data-i18n="calendarIcs">Archivo de calendario (.ics)</option><option value="google">Google Calendar</option></select></label>
+        </section>
+        <section class="card settings-card"><h3 data-i18n="navAppTitle">Navegación</h3><label class="field"><span data-i18n="navAppLabel">Abrir “Cómo llegar” con</span><select id="navAppSelect"><option value="ask" data-i18n="askEachTime">Preguntar cada vez</option><option value="google">Google Maps</option><option value="waze">Waze</option><option value="apple">Apple Maps</option></select></label></section>
+        <section id="cloudCard" class="card settings-card"><h3 data-i18n="cloudTitle">Sincronizar entre dispositivos</h3>
+          <p data-i18n="cloudText">Opcional. Usa tu cuenta KHub (la misma de tus otras apps) para tener tus revisitas en el teléfono y la tableta.</p>
+          <div id="cloudSignedOut">
+            <label class="field"><span data-i18n="email">Correo</span><input id="cloudEmail" type="email" autocomplete="username" inputmode="email"></label>
+            <label class="field"><span data-i18n="password">Contraseña</span><input id="cloudPassword" type="password" autocomplete="current-password"></label>
+            <div class="button-stack"><button id="cloudSignInBtn" class="btn btn-primary" type="button" data-i18n="signIn">Entrar</button><button id="cloudSignUpBtn" class="btn btn-secondary" type="button" data-i18n="createAccount">Crear cuenta</button><button id="cloudResetBtn" class="btn btn-secondary btn-small" type="button" data-i18n="forgotPassword">Olvidé mi contraseña</button></div>
+          </div>
+          <div id="cloudSignedIn" hidden>
+            <p id="cloudUser" class="cloud-user"></p>
+            <p id="cloudLastSync" class="muted"></p>
+            <div class="button-stack"><button id="cloudSyncBtn" class="btn btn-primary" type="button" data-i18n="syncNow">Sincronizar ahora</button><button id="cloudSignOutBtn" class="btn btn-secondary" type="button" data-i18n="signOut">Cerrar sesión</button></div>
+          </div>
+          <p id="cloudStatus" class="muted" aria-live="polite"></p>
+          <p class="muted" data-i18n="cloudPrivacy">Solo tú puedes leer tus datos en la nube. Guarda únicamente lo necesario para la revisita.</p>
+        </section>
         <section class="card settings-card"><h3 data-i18n="language">Idioma</h3><p data-i18n="languageHelp">Puedes cambiar el idioma en cualquier momento.</p><div class="segmented-control" role="group" aria-label="Idioma" data-i18n-aria="languageAria"><button class="segment-btn" type="button" data-lang-choice="es" data-i18n="spanish">Español</button><button class="segment-btn" type="button" data-lang-choice="en" data-i18n="english">English</button></div></section>
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p data-i18n="privacyText">Las revisitas y notas se guardan solamente en este dispositivo. El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.3.4</p>
+        <p class="app-version">Revisita v1.4.0</p>
       </div>
     </section>
   </main>
@@ -139,24 +159,50 @@
       <input id="visitId" type="hidden"><input id="visitLat" type="hidden"><input id="visitLng" type="hidden"><input id="visitStatus" type="hidden" value="active">
       <section id="detailMapSection" class="detail-map-section" hidden>
         <div id="detailMap" class="detail-map" aria-label="Vista previa de la ubicación" data-i18n-aria="locationPreview"></div>
-        <button id="googleMapsTopBtn" class="btn btn-primary map-open-btn" type="button" data-i18n="openGoogleMaps">Abrir en Google Maps</button>
       </section>
+      <section id="visitView" class="visit-view" hidden>
+        <p id="viewPlace" class="view-place"></p>
+        <div id="viewSchedule" class="view-schedule"></div>
+        <div class="view-primary-actions">
+          <button id="viewDirectionsBtn" class="btn btn-primary" type="button"><span aria-hidden="true">➤</span> <span data-i18n="directions">Cómo llegar</span></button>
+          <button id="viewLogBtn" class="btn btn-primary btn-log" type="button"><span aria-hidden="true">✓</span> <span data-i18n="logVisit">Registrar visita</span></button>
+        </div>
+        <div id="viewContactActions" class="view-secondary-actions" hidden>
+          <a id="viewCallBtn" class="btn btn-secondary" href="#"><span aria-hidden="true">☎</span> <span data-i18n="call">Llamar</span></a>
+          <a id="viewWhatsappBtn" class="btn btn-secondary" href="#" target="_blank" rel="noopener"><span aria-hidden="true">💬</span> WhatsApp</a>
+        </div>
+        <dl id="viewDetails" class="view-details"></dl>
+        <section id="historyPanel" class="history-panel card" hidden><strong data-i18n="history">Historial</strong><div id="historyList"></div></section>
+        <div class="view-secondary-actions">
+          <button id="viewCalendarBtn" class="btn btn-secondary" type="button"><span aria-hidden="true">📅</span> <span data-i18n="addToCalendar">Calendario</span></button>
+          <button id="shareBtn" class="btn btn-secondary" type="button"><span aria-hidden="true">↗</span> <span data-i18n="share">Compartir</span></button>
+          <button id="showOnMapBtn" class="btn btn-secondary" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="viewMap">Ver en mapa</span></button>
+          <button id="viewEditBtn" class="btn btn-secondary" type="button"><span aria-hidden="true">✎</span> <span data-i18n="edit">Editar</span></button>
+        </div>
+      </section>
+      <div id="editFields" class="edit-fields">
       <label class="field"><span><span data-i18n="nameReference">Nombre o referencia</span> <b aria-hidden="true">*</b></span><input id="visitName" type="text" maxlength="120" required data-i18n-placeholder="namePlaceholder" placeholder="Ej.: Casa azul, familia Pérez"></label>
+      <label class="field"><span data-i18n="reference">Referencia (cómo encontrar la casa)</span><textarea id="visitReference" rows="2" maxlength="300" data-i18n-placeholder="referencePlaceholder" placeholder="Ej.: casa verde frente al colmado, segundo piso"></textarea></label>
       <label class="field"><span data-i18n="approximateAddress">Dirección aproximada</span><div class="field-action-row"><input id="visitAddress" type="text" maxlength="220" data-i18n-placeholder="addressPlaceholder" placeholder="Se puede completar automáticamente"><button id="lookupAddressBtn" class="btn btn-secondary btn-compact" type="button" data-i18n="search">Buscar</button></div></label>
       <label class="field"><span data-i18n="notes">Notas</span><textarea id="visitNotes" rows="4" maxlength="1200" data-i18n-placeholder="notesPlaceholder" placeholder="Qué hablaron, qué recordar, mejor horario…"></textarea></label>
       <div class="schedule-grid">
         <label class="field"><span data-i18n="returnDate">Volver el</span><input id="visitDueDate" type="date"></label>
         <label class="field"><span data-i18n="returnTime">Hora de volver</span><input id="visitDueTime" type="time" step="900"></label>
       </div>
-      <section id="historyPanel" class="history-panel card" hidden><strong data-i18n="history">Historial</strong><div id="historyList"></div></section>
-      <div id="existingActions" class="existing-actions" hidden>
-        <button id="markDoneBtn" class="btn btn-secondary" type="button" data-i18n="markDone">Marcar como hecha</button>
-        <button id="rescheduleBtn" class="btn btn-secondary" type="button" data-i18n="reschedule">Reprogramar</button>
-        <button id="showOnMapBtn" class="btn btn-secondary" type="button" data-i18n="viewMap">Ver en mapa</button>
-        <button id="googleMapsBtn" class="btn btn-secondary" type="button" data-i18n="googleMaps">Google Maps</button>
-        <button id="shareBtn" class="btn btn-secondary" type="button" data-i18n="share">Compartir</button>
+      <div class="quick-dates" role="group" aria-label="Fechas rápidas" data-i18n-aria="quickDates">
+        <button class="filter-chip" type="button" data-edit-preset="w1" data-i18n="inOneWeek">+1 semana</button>
+        <button class="filter-chip" type="button" data-edit-preset="w2" data-i18n="inTwoWeeks">+2 semanas</button>
+        <button class="filter-chip" type="button" data-edit-preset="m1" data-i18n="inOneMonth">+1 mes</button>
       </div>
-      <div class="sheet-footer"><button id="deleteVisitBtn" class="btn btn-danger btn-delete" type="button" hidden data-i18n="deleteVisit">Eliminar revisita</button><button class="btn btn-primary" type="submit" data-i18n="saveVisit">Guardar revisita</button></div>
+      <details class="more-details">
+        <summary data-i18n="moreDetails">Más detalles (opcional)</summary>
+        <label class="field"><span data-i18n="phone">Teléfono / WhatsApp</span><input id="visitPhone" type="tel" inputmode="tel" maxlength="40" autocomplete="off" data-i18n-placeholder="phonePlaceholder" placeholder="Ej.: 809-555-1234"></label>
+        <label class="field"><span data-i18n="leftWith">Qué le dejaste</span><input id="visitLeftWith" type="text" maxlength="160" data-i18n-placeholder="leftWithPlaceholder" placeholder="Ej.: revista, folleto, video"></label>
+        <label class="field"><span data-i18n="nextTopic">Tema para la próxima vez</span><input id="visitNextTopic" type="text" maxlength="200" data-i18n-placeholder="nextTopicPlaceholder" placeholder="Pregunta o tema pendiente"></label>
+      </details>
+      <p class="calendar-hint muted" id="calendarHint" data-i18n="calendarHint">Al guardar con fecha se añadirá a tu calendario con recordatorio.</p>
+      </div>
+      <div class="sheet-footer"><button id="deleteVisitBtn" class="btn btn-danger btn-delete" type="button" hidden data-i18n="deleteVisit">Eliminar revisita</button><button id="cancelEditBtn" class="btn btn-secondary" type="button" hidden data-i18n="cancel">Cancelar</button><button id="saveVisitBtn" class="btn btn-primary" type="submit" data-i18n="saveVisit">Guardar revisita</button></div>
     </form>
   </dialog>
 
@@ -200,11 +246,48 @@
     </div>
   </dialog>
 
+  <dialog id="logDialog" class="sheet-dialog">
+    <form id="logForm" class="sheet" method="dialog">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-header"><div><h2 data-i18n="logVisit">Registrar visita</h2><p id="logVisitName" class="muted"></p></div><button id="closeLogBtn" class="icon-btn" type="button" aria-label="Cerrar" data-i18n-aria="close">×</button></div>
+      <label class="field"><span data-i18n="logNote">¿Qué conversaron?</span><textarea id="logNote" rows="3" maxlength="1200" data-i18n-placeholder="logNotePlaceholder" placeholder="Tema, reacción, qué quedó pendiente…"></textarea></label>
+      <label class="field"><span data-i18n="leftWith">Qué le dejaste</span><input id="logLeftWith" type="text" maxlength="160" data-i18n-placeholder="leftWithPlaceholder" placeholder="Ej.: revista, folleto, video"></label>
+      <label class="field"><span data-i18n="nextTopic">Tema para la próxima vez</span><input id="logNextTopic" type="text" maxlength="200" data-i18n-placeholder="nextTopicPlaceholder" placeholder="Pregunta o tema pendiente"></label>
+      <fieldset class="log-next">
+        <legend data-i18n="whenReturn">¿Cuándo vuelves?</legend>
+        <div class="quick-dates" role="group">
+          <button class="filter-chip" type="button" data-log-preset="w1" data-i18n="inOneWeek">+1 semana</button>
+          <button class="filter-chip" type="button" data-log-preset="w2" data-i18n="inTwoWeeks">+2 semanas</button>
+          <button class="filter-chip" type="button" data-log-preset="m1" data-i18n="inOneMonth">+1 mes</button>
+        </div>
+        <div class="schedule-grid">
+          <label class="field"><span data-i18n="returnDate">Volver el</span><input id="logDueDate" type="date"></label>
+          <label class="field"><span data-i18n="returnTime">Hora de volver</span><input id="logDueTime" type="time" step="900"></label>
+        </div>
+        <label class="check-row"><input id="logEnd" type="checkbox"> <span data-i18n="endVisit">No volver — pasar al historial</span></label>
+      </fieldset>
+      <div class="sheet-footer"><button id="cancelLogBtn" class="btn btn-secondary" type="button" data-i18n="cancel">Cancelar</button><button class="btn btn-primary" type="submit" data-i18n="saveLog">Guardar visita</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="directionsDialog" class="sheet-dialog small-sheet">
+    <div class="sheet">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-header"><div><h2 data-i18n="directions">Cómo llegar</h2><p data-i18n="chooseNavApp">Elige la app de navegación.</p></div><button id="closeDirectionsBtn" class="icon-btn" type="button" aria-label="Cerrar" data-i18n-aria="close">×</button></div>
+      <div class="nav-choices">
+        <button class="btn btn-secondary nav-choice" type="button" data-nav-app="google">Google Maps</button>
+        <button class="btn btn-secondary nav-choice" type="button" data-nav-app="waze">Waze</button>
+        <button class="btn btn-secondary nav-choice" type="button" data-nav-app="apple" hidden>Apple Maps</button>
+      </div>
+      <label class="check-row"><input id="rememberNavApp" type="checkbox"> <span data-i18n="rememberChoice">Recordar mi elección</span></label>
+    </div>
+  </dialog>
+
   <dialog id="importDialog" class="sheet-dialog">
     <div class="sheet"><div class="sheet-handle" aria-hidden="true"></div><div class="sheet-header"><div><h2 data-i18n="importReview">Revisar importación</h2><p data-i18n="importReviewText">Confirma antes de cambiar tus datos.</p></div><button id="closeImportBtn" class="icon-btn" type="button" aria-label="Cerrar" data-i18n-aria="close">×</button></div><div id="importPreview" class="import-preview"></div><div class="alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong data-i18n="importPolicyTitle">Política:</strong> <span data-i18n="importPolicy">se combinan registros por ID. Si un ID ya existe, la copia importada lo reemplaza. Antes de aplicar, se crea una copia local de recuperación.</span></span></div><div class="sheet-footer"><button id="cancelImportBtn" class="btn btn-secondary" type="button" data-i18n="cancel">Cancelar</button><button id="confirmImportBtn" class="btn btn-primary" type="button" data-i18n="importVisits">Importar revisitas</button></div></div>
   </dialog>
 
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.3.4"></script>
+  <script type="module" src="js/app.js?v=1.4.0"></script>
 </body>
 </html>

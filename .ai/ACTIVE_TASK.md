@@ -455,7 +455,7 @@ Fix:
 
 ## v1.4.0 — Approved batch (Supervisor: "let's get it all done", 2026-09-23 06:24)
 
-Status: **IN PROGRESS**
+Status: **READY FOR REVIEW** (see result below)
 
 1. **Icons** — rebuild every size in true color from the supplied artwork (blue panel + wordmark, no double bezel); native 180px Apple touch icon; Android maskable with safe-zone padding; versioned icon URLs.
 2. **Visit card** — opening a saved visit shows a read-first card (no keyboard): Cómo llegar · Registrar visita · Editar; call/WhatsApp when a phone exists.
@@ -469,3 +469,22 @@ Status: **IN PROGRESS**
 10. **Cloud sync** — optional KHub account (same Firebase project `khub-apps`, path `backups/revisita/users/{uid}` already allowed by rules); merge by visit id + `updatedAt` with deletion tombstones; Firebase SDK lazy-loaded only when used, so the app stays fully offline-capable.
 
 Deferred (not in this batch): house photo (needs IndexedDB + sync size planning); push notifications (replaced by calendar reminders per Supervisor).
+
+
+## v1.4.0 result — READY FOR REVIEW
+
+All 10 items implemented. Verification:
+- `npm run check`: encoding clean · syntax PASS (incl. visit-tools.js, cloud-sync.js) · **41/41 tests PASS** (new: visit-tools 13, i18n parity + HTML-key coverage, v1.4 storage fields, zone-cache SW assertions) · KHub ship check PASS.
+- Icons: built in two independent environments from the same source; all 9 files **byte-identical** (git blob match).
+- Headless phone (iPhone 13 + Pixel 7) and tablet (1024×768), dark + light: create → confirm → save (compact address, reference, phone) → .ics generated on iPhone (DTSTART local, TRIGGER -PT30M) / Google Calendar link on Android → Hoy → card opens with no keyboard → Registrar visita (+1 semana) → history + next date → directions chooser (Apple hidden on Android, Waze remembered) → Guardar zona cached tiles → zero page errors. Older v2 data migrated and displayed correctly.
+- Firebase: loads only after opening Más (0 requests before). Sign-in could not be completed from the test server because the API key is referrer-restricted (`requests-from-referer-http://localhost-are-blocked`) — expected; production origin is the same as Ministry Tracker.
+
+Supervisor acceptance (real devices):
+1. iPhone: delete old Home Screen icon → Safari → Añadir a pantalla de inicio → new full-color icon.
+2. iPhone: save a dated visit → confirm the Calendar "Añadir" sheet appears and the alarm is set. If iOS standalone does not show it, switch Más → Recordatorios → Calendario → Google Calendar.
+3. Android: save a dated visit → Google Calendar opens pre-filled → Guardar.
+4. Registrar visita → +1 semana → check Hoy / Revisitas / history.
+5. Más → Sincronizar: sign in with the KHub account on phone and tablet; add a visit on one, open the other.
+6. Mapa → Guardar zona while on Wi-Fi → airplane mode → map still shows that area.
+
+Deferred: house photo (IndexedDB + sync size); push notifications (replaced by calendar per Supervisor).

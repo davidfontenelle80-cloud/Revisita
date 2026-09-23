@@ -39,7 +39,9 @@ test('import validation rejects foreign payloads', () => {
 
 test('legacy v1 visits migrate to active visits with optional time fields', () => {
   const state = normalizeState({ version: 1, visits: [{ id: 'old', name: 'Casa', lat: 18.5, lng: -69.9, dueDate: '2026-09-22' }] });
-  assert.equal(state.version, 2);
+  assert.equal(state.version, 3);
+  assert.equal(state.visits[0].reference, '');
+  assert.deepEqual(state.deleted, {});
   assert.equal(state.visits[0].status, 'active');
   assert.equal(state.visits[0].dueTime, '');
   assert.deepEqual(state.visits[0].history, []);
@@ -49,4 +51,19 @@ test('completed history survives normalization', () => {
   const state = normalizeState({ visits: [{ id: 'done', name: 'Familia', lat: 18.5, lng: -69.9, status: 'completed', completedAt: '2026-09-22T15:00:00Z', history: [{ completedAt: '2026-09-22T15:00:00Z', dueDate: '2026-09-22', dueTime: '14:30' }] }] });
   assert.equal(state.visits[0].status, 'completed');
   assert.equal(state.visits[0].history[0].dueTime, '14:30');
+});
+
+test('v1.4 fields and settings normalize with safe defaults', () => {
+  const state = normalizeState({ settings: { navApp: 'bogus', reminderMinutes: 'x', calendarOnSave: false }, deleted: { a: '2026-09-23T00:00:00Z', b: 5 }, visits: [{ id: 'n', name: 'N', lat: 18, lng: -70, reference: 'Casa verde', phone: '809', leftWith: 'Revista', nextTopic: 'Salmo 37', history: [{ completedAt: '2026-09-23T10:00:00Z', note: 'Buena charla', ended: true }] }] });
+  const v = state.visits[0];
+  assert.equal(v.reference, 'Casa verde');
+  assert.equal(v.phone, '809');
+  assert.equal(v.leftWith, 'Revista');
+  assert.equal(v.nextTopic, 'Salmo 37');
+  assert.equal(v.history[0].note, 'Buena charla');
+  assert.equal(v.history[0].ended, true);
+  assert.equal(state.settings.navApp, 'ask');
+  assert.equal(state.settings.reminderMinutes, 30);
+  assert.equal(state.settings.calendarOnSave, false);
+  assert.deepEqual(state.deleted, { a: '2026-09-23T00:00:00Z' });
 });
