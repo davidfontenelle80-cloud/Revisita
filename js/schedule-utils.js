@@ -20,3 +20,14 @@ export function formatTime(time, locale='es-DO') {
   const [h,m]=time.split(':').map(Number);
   return new Intl.DateTimeFormat(locale,{hour:'numeric',minute:'2-digit'}).format(new Date(2000,0,1,h,m));
 }
+
+export function selectNextVisit(visits, now=new Date()) {
+  const today=dateKey(now);
+  const active=(Array.isArray(visits)?visits:[]).filter(v=>v.status!=='completed');
+  const due=active.filter(v=>visitBucket(v,today)==='today').sort(compareSchedule);
+  const overdue=active.filter(v=>visitBucket(v,today)==='overdue').sort(compareSchedule);
+  const upcoming=active.filter(v=>visitBucket(v,today)==='upcoming').sort(compareSchedule);
+  const hhmm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const futureToday=due.filter(v=>!v.dueTime||v.dueTime>=hhmm);
+  return futureToday[0]||due[0]||overdue[0]||upcoming[0]||null;
+}
