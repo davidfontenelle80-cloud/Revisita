@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.4.0 implementada — READY FOR REVIEW.**
+**v1.4.1 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -158,3 +158,15 @@ Prueba visual/funcional en:
 - **Sincronización opcional** con cuenta KHub (Firebase `khub-apps`), fusión por revisita + `updatedAt` con registros de borrado. Firebase solo se carga al abrir Más o si la sincronización está activa.
 - Datos: esquema lógico **3** (campos `reference`, `phone`, `leftWith`, `nextTopic`; historial con `note`, `leftWith`, `ended`; `deleted`). Migración automática desde v1/v2.
 - Versión app **1.4.0** · shell cache **revisita-shell-v12-workflow** · tiles **revisita-tiles-v1** · zonas **revisita-zones-v1**.
+
+
+## Ajustes de flujo v1.4.1
+
+- **+ Nueva** pregunta primero: **Aquí — mi ubicación** o **Elegir en el mapa**.
+- Formulario: **Nombre** → Referencia → **¿Cuándo vuelves?** (chips antes de la fecha) → Más detalles (teléfono, dirección, notas, qué le dejaste, tema).
+- **Hoy**: sin contadores; la Próxima revisita no se repite abajo y tiene **Registrar visita**; nueva sección **Próximos días** (7 días).
+- **Revisitas**: filtros Activas · Sin fecha · Historial · Todas.
+- **Calendario**: apagado por defecto y se pregunta una vez. UID fijo por revisita + SEQUENCE. Al reprogramar, terminar o borrar una revisita que ya estaba en el calendario, aparece **Borra el aviso anterior** (una web app no puede borrar eventos del calendario).
+- **Privacidad**: el texto cambia cuando la sincronización está activa.
+- Datos: campos de visita `calendarSlot`, `calendarSeq`; ajustes `calendarAsked`.
+- Versión **1.4.1** · shell cache **revisita-shell-v13-workflow-tweaks**.
