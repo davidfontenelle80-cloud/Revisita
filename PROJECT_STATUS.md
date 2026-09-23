@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.3.3 implementada — READY FOR REVIEW.**
+**v1.3.4 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -46,8 +46,8 @@
 
 ## PWA
 
-- Versión app: **1.3.3**.
-- Cache del service worker: **v10-map-smooth**.
+- Versión app: **1.3.4**.
+- Cache del service worker: **v11-map-viewport**.
 - `js/i18n.js` se incluye en el precache.
 - GitHub Pages despliega desde `main`.
 
@@ -132,3 +132,14 @@ Prueba visual/funcional en:
 - Wheel zoom ligeramente limitado para evitar saltos múltiples.
 - Pruebas específicas impiden volver al patrón `replaceChildren()` durante paneo.
 - GitHub Check: **22/22 PASS**; encoding 28 archivos; KHub ship check PASS.
+
+
+## Apertura del mapa v1.3.4
+
+- Se corrigió el caso donde iOS/PWA restauraba una posición vertical antigua y abría Mapa con los filtros fuera de pantalla.
+- `history.scrollRestoration` se fuerza a `manual`.
+- Entrar en **Mapa** ahora reinicia el scroll de página a la parte superior de forma inmediata.
+- `pageshow` y el regreso desde background vuelven a asegurar la posición correcta cuando Mapa está activo.
+- En teléfono, los filtros de Mapa quedan sticky debajo del encabezado para que sigan visibles aunque el usuario desplace la página.
+- En tablet/escritorio, el toolbar vuelve a layout normal.
+- Se añadieron pruebas de regresión específicas del viewport del mapa.
