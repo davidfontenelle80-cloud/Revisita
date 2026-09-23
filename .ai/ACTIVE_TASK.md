@@ -8,7 +8,7 @@
 
 ## Status
 
-- **Status:** IN PROGRESS
+- **Status:** READY FOR REVIEW
 - **% complete:** 100% — responsive + tema + bilingüe implementado y verificado
 - **Confidence:** 95%
 
@@ -191,3 +191,25 @@ Plan:
 - Keep manual “Use my location” behavior for creating a provisional visit pin.
 - Move the confirmation panel to a viewport-fixed safe position above the bottom navigation.
 - Preserve phone/tablet/landscape responsiveness and EN/ES behavior.
+
+
+## Auto-location + confirmation visibility result
+
+- Revisita now requests current location automatically when the app opens.
+- Opening **Mapa / Map** centers the map on the current device location when available.
+- Automatic locating only updates the current-position dot/map center; it never creates or saves a revisita.
+- **Usar mi ubicación / Use my location** still creates a provisional pin that must be confirmed.
+- The confirmation panel is now fixed to the viewport above the persistent bottom navigation.
+- The panel has a safe max height and internal scrolling on short/landscape screens so Confirm/Adjust/Cancel remain reachable.
+- App version: **1.2.2**.
+- Service worker cache: **v6**.
+- GitHub Actions check: **PASS**.
+- GitHub Pages build/deploy: **PASS**.
+
+## Remaining supervisor acceptance test
+
+On the tablet/phone:
+1. Reload/open Revisita and allow location permission if prompted.
+2. Open Map and confirm it centers on the live position automatically.
+3. Tap a different point and verify the confirmation panel is fully visible above the bottom nav.
+4. Confirm the point and verify the editor opens normally.
