@@ -1,6 +1,6 @@
 // Pure helpers for Revisita v1.4: addresses, dates, directions, calendar, sharing and sync merge.
 // No DOM access here so everything can be unit-tested in Node.
-import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.4.1';
+import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.4.2';
 
 /** Build a short, human address from a Nominatim jsonv2 response. */
 export function compactAddress(result) {
@@ -65,6 +65,12 @@ export function mapLink(v) {
 /** Digits only, for wa.me links. Keeps a leading country code if the user typed one. */
 export function phoneDigits(phone) {
   return String(phone || '').replace(/\D+/g, '');
+}
+/** tel: link for the phone dialer, or '' when the number is too short to be real (under 7 digits). */
+export function telUrl(phone) {
+  const raw = String(phone || '');
+  if (phoneDigits(raw).length < 7) return '';
+  return `tel:${raw.replace(/[^\d+]/g, '')}`;
 }
 export function whatsappUrl(phone, text = '') {
   const digits = phoneDigits(phone);

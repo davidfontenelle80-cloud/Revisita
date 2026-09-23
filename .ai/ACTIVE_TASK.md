@@ -540,3 +540,29 @@ Supervisor acceptance (real phone):
 4. Revisitas: four filters, no swipe hint needed.
 
 Delivery: shell `git push` is blocked for this repo in this session, so the files were pushed through the GitHub connector to branch `v1.4.1`, each file verified byte-for-byte against the tested local copy, then merged to `main` as one squash commit (single deploy).
+
+
+## v1.4.2 — Llamar on Hoy cards (Supervisor: "Ok", 2026-09-23 13:21, to "add a small Llamar button to the cards on Hoy")
+
+Worker: Claude / Opus 5.5 · Status: **READY FOR REVIEW** (see result below)
+
+Repo vs tracker checked before coding: `main` = `cb75986` (v1.4.1), matches tracker.
+Open issue carried over: GitHub Pages still serves **1.4.0** (~1 h 45 min after the v1.4.1 merge). The worker cannot see Pages/Actions logs from this session; Supervisor to check Actions → "pages build and deployment".
+
+Scope:
+1. On every Hoy card (Próxima revisita, Atrasadas, Para hoy, Próximos días), when the visit has a phone number (≥ 7 digits), show a **☎ Llamar** button that opens the phone dialer (`tel:`). No button when there is no number.
+2. Nothing else changes.
+
+
+## v1.4.2 result — READY FOR REVIEW
+
+- **☎ Llamar** now appears on the Próxima revisita card and on every Atrasadas / Para hoy / Próximos días card when the visit has a phone number of 7+ digits; it opens the phone dialer (`tel:`). Cards without a number show nothing extra. English label: **Call**.
+- New helper `telUrl()` in `js/visit-tools.js` (unit-tested). The visit card's existing Llamar/WhatsApp buttons are unchanged.
+- `npm run check`: encoding clean (32) · syntax PASS · **46/46 tests PASS** · KHub ship check PASS.
+- Headless iPhone 13, dark + light + English: 11/11 checks PASS, zero page errors (button present with correct `tel:` for 809-… and +1 829-…; absent for no number and for "809").
+- App version **1.4.2** · shell cache **revisita-shell-v14-call-hoy**.
+- NOT modified: calendar, sync, map, forms, data schema.
+
+Supervisor acceptance (real phone, once Pages is publishing again): open Hoy → a visit with a phone shows ☎ Llamar → tap → dialer opens with the number.
+
+Delivery: same as v1.4.1 (GitHub connector → branch `v1.4.2`, byte-for-byte check, squash-merge to `main`).
