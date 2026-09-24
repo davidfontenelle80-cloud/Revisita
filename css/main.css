@@ -785,6 +785,7 @@ body.location-pending .location-confirm{
 /* New-visit form: "¿Cuándo vuelves?" group with quick chips first */
 .schedule-fieldset { margin-bottom: 13px; }
 .schedule-fieldset .quick-dates { margin: 4px 0 10px; }
+.schedule-fieldset .reminder-actions { margin-top: 10px; }
 /* + Nueva chooser */
 .new-choices { display: grid; gap: 10px; margin: 4px 0 6px; }
 .new-choice { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 12px 14px; text-align: left; font: inherit; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); cursor: pointer; }

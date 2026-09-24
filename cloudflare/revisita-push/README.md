@@ -32,23 +32,17 @@ The spring DST gap is rejected; the fall repeated hour selects its first occurre
 
 For visits with a stored zone, `.ics` exports UTC start/end plus an explicit `TRIGGER:-PT5M` when five minutes is selected. Legacy exports remain floating local time. Calendar application import/notification behavior still needs phone acceptance testing. An untimed calendar event may have its separate morning alarm; untimed visits never get Web Push. Google Calendar links include the saved zone but **do not set an exact five-minute alarm**; the calendar's reminder defaults apply. Existing external calendar events must still be updated/removed by the user.
 
-## Deployment steps (not yet executed)
+## Deployment steps (executed 2026-09-24)
 
-Use this folder and this account only. Do not reuse or change Ministry Tracker secrets, bindings or namespaces.
+Deployed via the Cloudflare API using a scoped token (`revisita-push deploy`: Workers Scripts Edit, Workers KV Storage Edit, Account Settings Read). Wrangler OAuth was not used. Only Revisita resources were created or changed; Ministry Tracker was untouched.
 
-1. Authenticate Wrangler for the account above. The installed Wrangler is 4.105.0. This session's automatic approval review rejected its account-wide Worker/KV OAuth scope; a separate dashboard GitHub-integration step was also rejected. Explicit access approval is still required. No credentials were entered into Git or chat.
-2. Run `npx wrangler kv namespace create PUSH_STORE`. Add the returned **new** namespace ID to this file's `wrangler.toml`:
-
-   ```toml
-   [[kv_namespaces]]
-   binding = "PUSH_STORE"
-   id = "THE_NEW_REVISITA_NAMESPACE_ID"
-   ```
-
-3. Confirm `PUSH_SCHEDULER` binding and `new_sqlite_classes = ["PushScheduler"]` migration. `ALLOWED_ORIGIN` is `https://davidfontenelle80-cloud.github.io`; `VAPID_SUBJECT` is `mailto:davidfontenelle80@gmail.com`; cron is every minute. Run `npx wrangler deploy` to create the isolated service (it rejects API changes while unconfigured).
-4. Run `node provision-vapid.mjs` using the installed Wrangler, or pass the absolute path to its `bin/wrangler.js`. The script generates a new P-256 pair in memory, pipes only the private scalar directly to `wrangler secret put VAPID_PRIVATE_KEY`, suppresses command output, and writes only the public key to `[vars]`. It refuses to overwrite an existing public key. Do not print the private scalar or pass it in command arguments. If the upload fails, no private key file remains.
-5. Run `npx wrangler deploy` again, then inspect `/api/health`: store, scheduler, public/private-key-presence and subject flags must all be true. The health response includes only the public key and presence flags, never a private scalar. Check the actual dashboard cron configuration too; the health cron string describes the expected configuration.
-6. Run a draft app preview against this Worker before merging. A local browser preview is available with `node scripts/serve-preview.mjs`; production CORS deliberately does not allow that local origin. Use an explicitly configured temporary HTTPS preview origin for real push testing and remove it afterward. Do not change production Pages to expose the unfinished feature.
+1. Token verified active; workers.dev subdomain confirmed as `davidfontenelle80`.
+2. Created new isolated KV namespace `revisita-push-PUSH_STORE`, id `0863854e6afe4d87a262043c7d66b037`, and recorded it in `wrangler.toml`.
+3. Worker `revisita-push` uploaded (ES modules: `worker.js` + `web-push.js`). The v1 `new_sqlite_classes` migration for `PushScheduler` applied on first upload; re-uploads omit `migrations` (re-sending is rejected with 10074).
+4. Generated a new P-256 VAPID pair in memory; uploaded only the private scalar as the `VAPID_PRIVATE_KEY` secret; wrote the public key to `[vars] VAPID_PUBLIC_KEY` in `wrangler.toml`. Note: plain-text vars must be sent as `plain_text` bindings in the upload metadata, not a `vars` object.
+5. Set the cron trigger via `PUT .../workers/scripts/revisita-push/schedules` with body `[{"cron": "* * * * *"}]` (an array of `{cron}` objects — the `{"crons": [...]}` shape is rejected with 10026).
+6. `https://revisita-push.davidfontenelle80.workers.dev/api/health` returns all true: `hasStore`, `hasScheduler`, `hasVapidPublicKey`, `hasVapidPrivateKey`, `hasVapidSubject`.
+7. Smoke-tested the Durable Object chain: `POST /api/subscribe` with an invalid body returns the expected 400 from `PushScheduler`, proving edge → Worker → DO → SQLite works.
 
 ## Release gate and actual results
 
@@ -58,6 +52,6 @@ Browser: local v1.4.5 loaded in Chrome; map opened with visible controls and ren
 
 Updated draft CI passed all 58 checks and the Wrangler dry-run bundle on Node 22 ([run 36048763662](https://github.com/davidfontenelle80-cloud/Revisita/actions/runs/36048763662)). This verifies bundling without credentials or deployment. The earlier local Wrangler dry-run could not write outside the workspace sandbox.
 
-Still required: KV creation, VAPID provisioning, successful Worker build/deployment, health/cron checks, then real permission and test-push receipt, timed revisit 6–10 minutes ahead with app closed, reschedule/delete with absence of old alerts, untimed visit, device cleanup, and physical iPhone Home Screen test where practical. Supported devices need Web Push and notification permission; iPhone/iPad require iOS/iPadOS 16.4+ and the installed Home Screen app. Desktop delivery may require the browser's background process to remain running.
+Still required: real permission and test-push receipt on a device, timed revisit 6–10 minutes ahead with app closed, reschedule/delete with absence of old alerts, untimed visit, device cleanup, and physical iPhone Home Screen test where practical. Supported devices need Web Push and notification permission; iPhone/iPad require iOS/iPadOS 16.4+ and the installed Home Screen app. Desktop delivery may require the browser's background process to remain running.
 
 Only after receiving and recording a closed-app notification: update these results, mark PR #5 ready, merge, wait for Pages, verify published v1.4.5 and the service-worker update, and recheck map opening/zoom. Never treat a push-service 201/202 acceptance as device receipt.
