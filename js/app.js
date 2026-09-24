@@ -1,12 +1,12 @@
-import{SimpleMap}from'./map.js?v=1.4.7';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.7';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.7';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.7';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.7';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.7';
-import{createCloudSync}from'./cloud-sync.js?v=1.4.7';
-import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow}from'./push.js?v=1.4.7';
-import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.4.7';
+import{SimpleMap}from'./map.js?v=1.4.8';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.8';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.8';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.8';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.8';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.8';
+import{createCloudSync}from'./cloud-sync.js?v=1.4.8';
+import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow}from'./push.js?v=1.4.8';
+import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.4.8';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -326,20 +326,27 @@ function bindEditor(){
  $('addCalendarBtn').addEventListener('click',()=>{const v=storeFormKeepEditor();if(!v)return;if(!v.dueDate){toast(t('noDateForCalendar'));return;}runCalendarFlow(v,{force:true});});
  $('setReminderBtn').addEventListener('click',async()=>{
   const btn=$('setReminderBtn');btn.disabled=true;
-  try{
-   const v=storeFormKeepEditor();if(!v)return;
-   if(!v.dueDate||!v.dueTime||!visitInstant(v)){toast(t('needDateTimeForReminder'));return;}
-   if(reminderWindow(v)!=='ok'){toast(t('reminderTooSoon'));return;}
-   if(!pushEnabled()){
-    try{await enablePush();}
-    catch(error){console.warn('[Revisita] Push setup failed',error);toast(t(({unsupported:'pushUnsupported','home-screen':'pushHomeScreen',permission:'pushPermission',unavailable:'pushUnavailable'})[error.message]||'pushFailed'));return;}
-    renderPushSettings();
-   }
-   await syncPushReminders(state.visits);
-   toast(t('reminderSet'));
-  }catch(error){console.warn('[Revisita] Reminder sync failed',error);toast(t('pushSyncFailed'));}
+  try{const v=storeFormKeepEditor();if(!v)return;await ensureReminderForVisit(v);}
+  catch(error){console.warn('[Revisita] Reminder sync failed',error);toast(t('pushSyncFailed'));}
   finally{btn.disabled=false;}
  });
+ $('viewReminderBtn').addEventListener('click',async()=>{
+  const btn=$('viewReminderBtn');btn.disabled=true;
+  try{const v=currentVisit();if(!v)return;await ensureReminderForVisit(v);}
+  catch(error){console.warn('[Revisita] Reminder sync failed',error);toast(t('pushSyncFailed'));}
+  finally{btn.disabled=false;}
+ });
+async function ensureReminderForVisit(v){
+ if(!v.dueDate||!v.dueTime||!visitInstant(v)){toast(t('needDateTimeForReminder'));return;}
+ if(reminderWindow(v)!=='ok'){toast(t('reminderTooSoon'));return;}
+ if(!pushEnabled()){
+  try{await enablePush();}
+  catch(error){console.warn('[Revisita] Push setup failed',error);toast(t(({unsupported:'pushUnsupported','home-screen':'pushHomeScreen',permission:'pushPermission',unavailable:'pushUnavailable'})[error.message]||'pushFailed'));return;}
+  renderPushSettings();
+ }
+ await syncPushReminders(state.visits);
+ toast(t('reminderSet'));
+}
  els.cancelEdit.addEventListener('click',()=>{const v=currentVisit();if(v)openEditor(v.id);else closeEditor();});
  document.querySelectorAll('[data-edit-preset]').forEach(b=>b.addEventListener('click',()=>{const p=nextDatePresets(dateKey()).find(x=>x.id===b.dataset.editPreset);if(p)els.due.value=p.date;markPreset('[data-edit-preset]',b);}));
  els.due.addEventListener('input',()=>markPreset('[data-edit-preset]',null));
@@ -794,7 +801,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.7',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.8',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();

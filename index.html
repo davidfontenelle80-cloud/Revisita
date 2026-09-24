@@ -7,9 +7,9 @@
   <meta name="description" content="Revisita: organiza revisitas por ubicación, fecha y hora.">
   <title>Revisita</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/favicon.png?v=1.4.7" type="image/png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.4.7">
-  <link rel="stylesheet" href="css/main.css?v=1.4.7">
+  <link rel="icon" href="icons/favicon.png?v=1.4.8" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.4.8">
+  <link rel="stylesheet" href="css/main.css?v=1.4.8">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -17,7 +17,7 @@
   <div id="updateNotice" class="update-notice" hidden><span data-i18n="updateAvailable">Hay una actualización disponible.</span><button id="reloadAppBtn" type="button" data-i18n="update">Actualizar</button></div>
 
   <header class="app-header">
-    <div class="brand"><img src="icons/icon-72.png?v=1.4.7" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
+    <div class="brand"><img src="icons/icon-72.png?v=1.4.8" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
     <span id="saveStatus" class="status-chip" role="status" aria-live="polite" data-i18n="savedCheck">Guardado ✓</span>
   </header>
 
@@ -136,7 +136,7 @@
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p id="privacyText" data-i18n="privacyText">Las revisitas y notas se guardan en este dispositivo (y en tu cuenta solo si activas la sincronización). El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.4.7</p>
+        <p class="app-version">Revisita v1.4.8</p>
       </div>
     </section>
   </main>
@@ -173,6 +173,7 @@
         <section id="historyPanel" class="history-panel card" hidden><strong data-i18n="history">Historial</strong><div id="historyList"></div><button id="historyMoreBtn" class="btn btn-secondary btn-small history-more" type="button" hidden></button></section>
         <div class="view-secondary-actions">
           <button id="viewCalendarBtn" class="btn btn-secondary" type="button"><span aria-hidden="true">📅</span> <span data-i18n="addToCalendar">Calendario</span></button>
+          <button id="viewReminderBtn" class="btn btn-secondary" type="button"><span aria-hidden="true">🔔</span> <span data-i18n="setReminderBtn">Poner aviso</span></button>
           <button id="shareBtn" class="btn btn-secondary" type="button"><span aria-hidden="true">↗</span> <span data-i18n="share">Compartir</span></button>
           <button id="showOnMapBtn" class="btn btn-secondary" type="button"><span aria-hidden="true">⌖</span> <span data-i18n="viewMap">Ver en mapa</span></button>
           <button id="viewEditBtn" class="btn btn-secondary" type="button"><span aria-hidden="true">✎</span> <span data-i18n="edit">Editar</span></button>
@@ -324,6 +325,6 @@
   </dialog>
 
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.4.7"></script>
+  <script type="module" src="js/app.js?v=1.4.8"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
-const APP_BUILD = '1.4.7';
+const APP_BUILD = '1.4.8';
 const CACHE_PREFIX = 'revisita-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v19-reminder-window`;
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v20-view-reminder`;
 const TILE_CACHE = 'revisita-tiles-v1';
 // Areas the user saved on purpose with "Guardar zona"; never trimmed, survives shell updates.
 const ZONE_CACHE = 'revisita-zones-v1';
@@ -9,24 +9,24 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.json',
-  './css/main.css?v=1.4.7',
-  './js/app.js?v=1.4.7',
-  './js/map.js?v=1.4.7',
-  './js/map-utils.js?v=1.4.7',
-  './js/storage.js?v=1.4.7',
-  './js/schedule-utils.js?v=1.4.7',
-  './js/i18n.js?v=1.4.7',
-  './js/visit-tools.js?v=1.4.7',
-  './js/cloud-sync.js?v=1.4.7',
-  './js/push.js?v=1.4.7',
-  './js/visit-time.js?v=1.4.7',
-  './icons/icon-72.png?v=1.4.7',
-  './icons/icon-192.png?v=1.4.7',
-  './icons/icon-512.png?v=1.4.7',
-  './icons/icon-192-maskable.png?v=1.4.7',
-  './icons/icon-512-maskable.png?v=1.4.7',
-  './icons/apple-touch-icon.png?v=1.4.7',
-  './icons/favicon.png?v=1.4.7'
+  './css/main.css?v=1.4.8',
+  './js/app.js?v=1.4.8',
+  './js/map.js?v=1.4.8',
+  './js/map-utils.js?v=1.4.8',
+  './js/storage.js?v=1.4.8',
+  './js/schedule-utils.js?v=1.4.8',
+  './js/i18n.js?v=1.4.8',
+  './js/visit-tools.js?v=1.4.8',
+  './js/cloud-sync.js?v=1.4.8',
+  './js/push.js?v=1.4.8',
+  './js/visit-time.js?v=1.4.8',
+  './icons/icon-72.png?v=1.4.8',
+  './icons/icon-192.png?v=1.4.8',
+  './icons/icon-512.png?v=1.4.8',
+  './icons/icon-192-maskable.png?v=1.4.8',
+  './icons/icon-512-maskable.png?v=1.4.8',
+  './icons/apple-touch-icon.png?v=1.4.8',
+  './icons/favicon.png?v=1.4.8'
 ];
 
 function pathFor(value) {
