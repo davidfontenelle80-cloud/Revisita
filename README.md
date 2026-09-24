@@ -43,7 +43,7 @@ PWA bilingüe (**Español / English**) para organizar revisitas por **ubicación
 
 ## Compatibility
 
-Version 1.3.3 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
+Version 1.4.3 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
 
 ## Privacy
 
@@ -118,3 +118,10 @@ The map now:
 - slightly throttles wheel zoom on desktop.
 
 This keeps existing tap-to-pin, GPS, marker, fit-to-visits and offline tile behavior while substantially reducing DOM/image churn.
+
+## Rural map workflow in 1.4.3
+
+- The map keeps the last viewed area when switching tabs. Automatic GPS centering happens only on first opening and does not override map interaction.
+- Enter latitude and longitude to jump to a rural area. Then tap the house and confirm its provisional pin.
+- Saving an offline area at too wide a zoom asks you to zoom in; an empty tile selection cannot be reported as a saved area.
+- Older visit history can be expanded past the eight most recent entries.
