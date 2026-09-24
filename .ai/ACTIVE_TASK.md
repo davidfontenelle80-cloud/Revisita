@@ -6,7 +6,7 @@ Worker: Codex · Status: **READY FOR REVIEW**.
 
 Scope: fix empty offline zone result, preserve map viewport across tab changes, add coordinate jump, show older history, and correct singular map summary. Keep local data schema and privacy behavior unchanged.
 
-Verification: `npm run check` PASS (47/47 tests, encoding, syntax, KHub ship check). Browser check of the published build follows deployment. Supervisor should check GPS and saved offline tiles on an actual phone in the target area. Supervisor Review remains with David.
+Verification: `npm run check` PASS (47/47 tests, encoding, syntax, KHub ship check). GitHub Check and Pages deployment PASS. Published v1.4.3 browser check PASS: coordinate jump to 19.330927, -70.168193; broad offline save asks to zoom in; map position holds across tabs; one-visit label reads correctly; nine logged visits expand from eight to all nine. Disposable test visit removed. Supervisor should check GPS and saved offline tiles on an actual phone in the target area. Supervisor Review remains with David.
 
 
 ## Session / worker identity
