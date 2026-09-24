@@ -12,3 +12,5 @@ jobs:
         with:
           node-version: 20
       - run: npm run check
+      - name: Bundle Revisita Worker without deployment or credentials
+        run: npx --yes wrangler@4.105.0 deploy --dry-run --config cloudflare/revisita-push/wrangler.toml

@@ -1,6 +1,16 @@
 name = "revisita-push"
+account_id = "3df617adc3ddf2b3ed89cedbbb917fab"
 main = "worker.js"
 compatibility_date = "2026-09-24"
+workers_dev = true
+
+[[durable_objects.bindings]]
+name = "PUSH_SCHEDULER"
+class_name = "PushScheduler"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["PushScheduler"]
 
 [vars]
 ALLOWED_ORIGIN = "https://davidfontenelle80-cloud.github.io"

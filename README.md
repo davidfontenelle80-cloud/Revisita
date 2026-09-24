@@ -134,3 +134,7 @@ This keeps existing tap-to-pin, GPS, marker, fit-to-visits and offline tile beha
 ## Five-minute push reminders (v1.4.5 draft)
 
 The pending implementation adds an opt-in push toggle on each device and schedules alerts five minutes before timed active visits. See `cloudflare/revisita-push/README.md` for the separate Worker deployment. This feature is not live until Cloudflare credentials, KV, VAPID keys, and device delivery verification are available. The five-minute `.ics` calendar option is included in the same draft.
+
+The 2026-09-24 audit passes 58 automated tests and a local Chrome map-opening/zoom check. Scheduling now uses a separate Revisita Durable Object for atomic cancellation and KV only for short-lived delivery receipts. New/rescheduled visits retain the device's time zone, including date-specific daylight-saving offsets. Existing floating schedules retain their old interpretation until rescheduled. Google Calendar links use calendar reminder defaults; only `.ics` explicitly requests five minutes.
+
+Cloudflare account and subdomain were confirmed, but authorization was blocked before infrastructure creation. No Worker deployment or closed-app receipt has been verified; PR #5 remains draft and the published app remains v1.4.4. Delivery timing can vary, offline changes require reconnection, and another device updates only when its visits next sync. The Worker README records the complete remaining release gate.

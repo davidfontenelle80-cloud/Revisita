@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.4.3 implementada — READY FOR REVIEW.**
+**Publicada: v1.4.4. v1.4.5: borrador, BLOCKED por acceso Cloudflare y prueba real de entrega.**
 
 ## Flujo actual
 
@@ -192,8 +192,12 @@ Prueba visual/funcional en:
 - Se retira el campo de latitud/longitud de la interfaz; el pin se sigue colocando en el mapa o por GPS.
 - Versión **1.4.4** · shell cache **revisita-shell-v16-map-speed**.
 
-## Avisos v1.4.5 (borrador; despliegue bloqueado)
+## Avisos v1.4.5 (borrador; despliegue bloqueado, auditoría 2026-09-24)
 
 - Avisos Web Push opcionales por dispositivo, cinco minutos antes de revisitas con hora. Reprogramar o borrar sincroniza con el Worker.
 - El Worker programado requiere KV, claves VAPID y despliegue Cloudflare. No está activo en GitHub Pages hasta comprobar entrega real con la app cerrada.
 - Calendario `.ics` admite alarma de cinco minutos; el enlace de Google Calendar usa las preferencias del calendario.
+- Auditoría corregida: propiedad de tokens, límites/validación, sincronización atómica por dispositivo con Durable Object, KV para recibos operativos, permisos por acción directa, limpieza de suscripciones caducadas y zona horaria persistente con DST.
+- `npm run check`: 58/58 PASS; prueba local en Chrome abre y acerca el mapa. Pruebas criptográficas descifran el payload y verifican VAPID; no equivalen a recepción real.
+- Cuenta/subdominio confirmados: `3df617adc3ddf2b3ed89cedbbb917fab`, `davidfontenelle80.workers.dev`. Worker previsto: `revisita-push`; no desplegado. Revisión automática bloqueó OAuth de Wrangler y conexión GitHub desde Cloudflare.
+- Faltan KV, claves VAPID, despliegue, salud/cron y recepción con app cerrada. PR #5 sigue borrador; no hay merge. Ministry Tracker y datos de usuarios no modificados.

@@ -19,6 +19,7 @@ const PRECACHE_URLS = [
   './js/visit-tools.js?v=1.4.5',
   './js/cloud-sync.js?v=1.4.5',
   './js/push.js?v=1.4.5',
+  './js/visit-time.js?v=1.4.5',
   './icons/icon-72.png?v=1.4.5',
   './icons/icon-192.png?v=1.4.5',
   './icons/icon-512.png?v=1.4.5',

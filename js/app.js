@@ -6,6 +6,7 @@ import{loadState,saveState,exportPayload,validateImportPayload,previewImport,app
 import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.5';
 import{createCloudSync}from'./cloud-sync.js?v=1.4.5';
 import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush}from'./push.js?v=1.4.5';
+import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.4.5';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -35,7 +36,7 @@ function init(){
  renderAll();renderSettings();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();maybeShowOnboarding();cloud.init();queuePushSync();
  addEventListener('online',()=>{updateOnline();cloud?.schedule(1000);queuePushSync();});addEventListener('offline',updateOnline);
  addEventListener('pageshow',()=>{if(isMapViewActive())resetPageScroll(true);});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isMapViewActive())resetPageScroll(true);if(!document.hidden)cloud?.schedule(1500);});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isMapViewActive())resetPageScroll(true);if(!document.hidden){cloud?.schedule(1500);queuePushSync();}});
  addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();renderSettings();updateOnline();updateInstallUI();});
  addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;updateInstallUI();});
  addEventListener('appinstalled',()=>{installPrompt=null;updateInstallUI();toast(t('appInstalled'));});
@@ -345,7 +346,7 @@ function renderVisitView(v){
  els.viewPlace.textContent=placeLine(v)||t('noAddress');
  const bucket=visitBucket(v);
  els.viewSchedule.className=`view-schedule${bucket==='overdue'?' is-overdue':''}${v.status==='completed'?' is-done':''}`;
- els.viewSchedule.textContent=v.status==='completed'?t('done'):v.dueDate?t('scheduledFor',{value:scheduleText(v)}):t('noSchedule');
+ els.viewSchedule.textContent=v.status==='completed'?t('done'):v.dueDate?t('scheduledFor',{value:scheduleText(v)+(v.dueTimeZone?' · '+v.dueTimeZone:'')}):t('noSchedule');
  els.viewLog.querySelector('[data-i18n]')?.removeAttribute('data-i18n');
  const logLabel=els.viewLog.querySelector('span:last-child');if(logLabel)logLabel.textContent=v.status==='completed'?t('reactivate'):t('logVisit');
  const rows=[[t('detailNotes'),v.notes],[t('leftWith'),v.leftWith],[t('nextTopic'),v.nextTopic],[t('phone'),v.phone]];
@@ -376,6 +377,8 @@ function saveVisit(e){
  const rec={id,name,reference:els.reference.value.trim(),address:els.address.value.trim(),notes:els.notes.value.trim(),phone:els.phone.value.trim(),leftWith:els.leftWith.value.trim(),nextTopic:els.nextTopic.value.trim(),dueDate:els.due.value||'',dueTime:els.dueTime.value||'',status,completedAt:status==='completed'?(old?.completedAt||now):null,history:old?.history||[],calendarSlot:old?.calendarSlot||'',calendarSeq:old?.calendarSeq||0,lat:Number(els.lat.value),lng:Number(els.lng.value),createdAt:old?.createdAt||now,updatedAt:now};
  if(rec.dueDate&&rec.status==='completed'){rec.status='active';rec.completedAt=null;}
  const scheduleChanged=Boolean(rec.dueDate)&&(!old||old.dueDate!==rec.dueDate||old.dueTime!==rec.dueTime);
+ rec.dueTimeZone=scheduleChanged?deviceTimeZone():(old?.dueTimeZone||'');
+ if(rec.dueDate&&rec.dueTime&&!visitInstant(rec))return toast(t('invalidVisitTime'));
  state.visits=old?state.visits.map(v=>v.id===id?rec:v):[...state.visits,rec];persist();closeEditor();clearPendingLocation();renderAll();toast(old?t('visitUpdated'):t('visitSaved'));
  queuePushSync();
  runCalendarFlow(rec,{changed:scheduleChanged});
@@ -409,6 +412,8 @@ function saveLog(e){
  const next={...v,history:[...(v.history||[]),entry],leftWith:left||v.leftWith,nextTopic:els.logNextTopic.value.trim(),updatedAt:now};
  if(ended){Object.assign(next,{status:'completed',completedAt:now,dueDate:'',dueTime:''});}
  else{Object.assign(next,{status:'active',completedAt:null,dueDate:els.logDue.value||'',dueTime:els.logDue.value?(els.logTime.value||''):''});}
+ next.dueTimeZone=deviceTimeZone();
+ if(next.dueDate&&next.dueTime&&!visitInstant(next))return toast(t('invalidVisitTime'));
  state.visits=state.visits.map(x=>x.id===v.id?next:x);persist();closeLog();closeEditor();renderAll();
  queuePushSync();
  if(ended)toast(t('visitEnded'));else if(next.dueDate)toast(t('visitLoggedNext',{when:`${shortDate(next.dueDate)}${next.dueTime?' '+formatTime(next.dueTime,locale()):''}`}));else toast(t('visitLogged'));
@@ -579,14 +584,14 @@ function renderPushSettings(){
  button.textContent=t(on?'disablePush':'enablePush');
  $('pushTestBtn').hidden=!on;
  button.disabled=!pushSupported()||pushNeedsHomeScreen()||(!on&&Notification.permission==='denied');
- if(!pushSupported())$('pushStatus').textContent=t('pushUnsupported');
- else if(pushNeedsHomeScreen())$('pushStatus').textContent=t('pushHomeScreen');
+ if(pushNeedsHomeScreen())$('pushStatus').textContent=t('pushHomeScreen');
+ else if(!pushSupported())$('pushStatus').textContent=t('pushUnsupported');
  else if(!on&&Notification.permission==='denied')$('pushStatus').textContent=t('pushPermission');
 }
 function queuePushSync(){
  if(!pushEnabled())return;
  clearTimeout(pushSyncTimer);
- pushSyncTimer=setTimeout(()=>syncPushReminders(state.visits).catch(error=>console.warn('[Revisita] Push sync failed',error)),500);
+ pushSyncTimer=setTimeout(()=>{ $('pushStatus').textContent=t('pushSyncing');syncPushReminders(state.visits).then(()=>{$('pushStatus').textContent=t('pushSynced');}).catch(()=>{$('pushStatus').textContent=t('pushSyncFailed');toast(t('pushSyncFailed'));});},0);
 }
 
 // ---------- Cloud sync ----------
@@ -694,9 +699,9 @@ function syncThemeButtons(){document.querySelectorAll('[data-theme-choice]').for
 function exportBackup(){const blob=new Blob([JSON.stringify(exportPayload(state),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`revisita-copia-${dateKey()}.json`;document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);toast(t('backupExported'));}
 async function importFile(){const f=els.importFile.files?.[0];els.importFile.value='';if(!f)return;try{pendingImport=validateImportPayload(JSON.parse(await f.text()));const p=previewImport(state,pendingImport);els.importPreview.replaceChildren(row(t('importCount'),p.imported),row(t('newRecords'),p.newRecords),row(t('conflicts'),p.conflicts),row(t('currentSaved'),p.localBefore));els.importDialog.showModal();}catch(e){showError(t('importFailed'),e.message||String(e));}}
 function row(label,value){const r=document.createElement('div');r.className='preview-row';const l=document.createElement('span');l.textContent=label;const v=document.createElement('strong');v.className='num';v.textContent=value;r.append(l,v);return r;}
-function confirmImport(){if(!pendingImport)return;try{state=applyImport(state,pendingImport);pendingImport=null;closeImport();applyTheme(state.settings.theme);renderAll();toast(t('importFinished'));}catch(e){showError(t('importApplyFailed'),e.message||String(e));}}
+function confirmImport(){if(!pendingImport)return;try{state=applyImport(state,pendingImport);pendingImport=null;closeImport();queuePushSync();applyTheme(state.settings.theme);renderAll();toast(t('importFinished'));}catch(e){showError(t('importApplyFailed'),e.message||String(e));}}
 function closeImport(){pendingImport=null;if(els.importDialog.open)els.importDialog.close();}
-function restoreSnapshot(){if(!confirm(t('restoreConfirm')))return;try{state=restoreRecoverySnapshot();applyTheme(state.settings.theme);renderAll();toast(t('restored'));}catch(e){showError(t('restoreFailed'),e.message||String(e));}}
+function restoreSnapshot(){if(!confirm(t('restoreConfirm')))return;try{state=restoreRecoverySnapshot();queuePushSync();applyTheme(state.settings.theme);renderAll();toast(t('restored'));}catch(e){showError(t('restoreFailed'),e.message||String(e));}}
 function deleteAll(){if(!state.visits.length)return toast(t('noVisitsDelete'));if(!confirm(t('deleteAllConfirm',{count:state.visits.length})))return;const now=new Date().toISOString();state.deleted={...(state.deleted||{})};state.visits.forEach(v=>{state.deleted[v.id]=now;});state.visits=[];persist();queuePushSync();renderAll();toast(t('allDeleted'));}
 
 function persist(announce=true){try{saveState(state);setStatus(navigator.onLine?t('savedCheck'):t('offline'),navigator.onLine?'success':'warn',announce);if(announce)cloud?.schedule();}catch(e){setStatus(t('saveFailed'),'danger');showError(t('errorSave'),e.message||String(e));}}
