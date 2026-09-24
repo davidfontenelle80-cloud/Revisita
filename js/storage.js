@@ -1,5 +1,5 @@
 const STORAGE_KEY='revisita.state.v1';
-import { validTimeZone } from './visit-time.js?v=1.4.5';
+import { validTimeZone } from './visit-time.js?v=1.4.6';
 const SNAPSHOT_KEY='revisita.preimport.v1';
 const TIME_RE=/^\d{2}:\d{2}$/;
 const DEFAULT_SETTINGS={theme:'dark',navApp:'ask',calendarOnSave:false,calendarAsked:false,calendarMode:'auto',reminderMinutes:5};
