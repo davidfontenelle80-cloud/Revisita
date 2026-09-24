@@ -1,4 +1,4 @@
-import{TILE_SIZE,clamp,latLngToWorld,worldToLatLng}from'./map-utils.js?v=1.4.3';
+import{TILE_SIZE,clamp,latLngToWorld,worldToLatLng}from'./map-utils.js?v=1.4.4';
 
 export class SimpleMap{
   constructor(el,o={}){
@@ -14,6 +14,7 @@ export class SimpleMap{
     this.onViewChange=()=>{};
     this.drag=null;
     this.tileNodes=new Map();
+    this.fallbackZoom=null;
     this.markerNodes=new Map();
     this.draftNode=null;
     this.userNode=null;
@@ -27,11 +28,13 @@ export class SimpleMap{
   }
 
   buildLayers(){
+    this.fallbackLayer=document.createElement('div');
+    this.fallbackLayer.className='tile-layer map-fallback-layer';
     this.tileLayer=document.createElement('div');
     this.tileLayer.className='tile-layer';
     this.markerLayer=document.createElement('div');
     this.markerLayer.className='marker-layer';
-    this.el.append(this.tileLayer,this.markerLayer);
+    this.el.append(this.fallbackLayer,this.tileLayer,this.markerLayer);
   }
 
   bind(){
@@ -88,7 +91,9 @@ export class SimpleMap{
 
   setView(lat,lng,zoom=this.zoom){
     this.center={lat:clamp(Number(lat),-85,85),lng:nLng(Number(lng))};
-    this.zoom=clamp(Math.round(zoom),2,19);
+    const nextZoom=clamp(Math.round(zoom),2,19);
+    if(nextZoom!==this.zoom)this.keepTilesDuringZoom();
+    this.zoom=nextZoom;
     this.scheduleRender();
     this.onViewChange({...this.center,zoom:this.zoom});
   }
@@ -96,6 +101,7 @@ export class SimpleMap{
   setZoom(z){
     const n=clamp(Math.round(z),2,19);
     if(n===this.zoom)return;
+    this.keepTilesDuringZoom();
     this.zoom=n;
     this.scheduleRender();
     this.onViewChange({...this.center,zoom:this.zoom});
@@ -143,6 +149,17 @@ export class SimpleMap{
     this.scheduleRender();
   }
 
+  keepTilesDuringZoom(){
+    const loaded=[...this.tileNodes.values()].filter(img=>img.complete&&img.naturalWidth>0);
+    // A rapid second zoom may arrive before its tiles load. Keep the earlier image in that case.
+    if(loaded.length&&!this.fallbackLayer.childElementCount){
+      this.fallbackLayer.replaceChildren(...loaded);
+      this.fallbackZoom=this.zoom;
+    }
+    for(const img of this.tileNodes.values())if(img.parentNode===this.tileLayer)img.remove();
+    this.tileNodes.clear();
+  }
+
   scheduleRender(){
     if(this.renderFrame)return;
     this.renderFrame=requestAnimationFrame(()=>{
@@ -153,8 +170,26 @@ export class SimpleMap{
 
   renderNow(){
     if(!this.el.clientWidth||!this.el.clientHeight)return;
+    this.renderFallback();
     this.renderTiles();
     this.renderMarkerPositions();
+  }
+
+  renderFallback(){
+    if(this.fallbackZoom===null)return;
+    const ratio=2**(this.zoom-this.fallbackZoom);
+    const c=latLngToWorld(this.center.lat,this.center.lng,this.zoom);
+    const world=2**this.zoom*TILE_SIZE;
+    const left=c.x-this.el.clientWidth/2,top=c.y-this.el.clientHeight/2;
+    for(const img of this.fallbackLayer.children){
+      const [,x,y]=img.dataset.tileKey.split('/').map(Number);
+      let tileX=x*TILE_SIZE*ratio;
+      const dx=tileX+TILE_SIZE*ratio/2-c.x;
+      if(dx>world/2)tileX-=world;
+      if(dx<-world/2)tileX+=world;
+      img.style.transformOrigin='top left';
+      img.style.transform=`translate3d(${Math.round(tileX-left)}px,${Math.round(y*TILE_SIZE*ratio-top)}px,0) scale(${ratio})`;
+    }
   }
 
   renderTiles(){
@@ -170,12 +205,22 @@ export class SimpleMap{
     const n=2**this.zoom;
     const needed=new Set();
 
+    const tiles=[];
     for(let ty=minTy;ty<=maxTy;ty++){
       if(ty<0||ty>=n)continue;
-      for(let tx=minTx;tx<=maxTx;tx++){
+      for(let tx=minTx;tx<=maxTx;tx++)tiles.push({tx,ty});
+    }
+    // Request visible tiles before the panning buffer, nearest the center first.
+    const isVisible=({tx,ty})=>tx*TILE_SIZE-left<w&&(tx+1)*TILE_SIZE-left>0&&ty*TILE_SIZE-top<h&&(ty+1)*TILE_SIZE-top>0;
+    tiles.sort((a,b)=>Number(isVisible(b))-Number(isVisible(a))||Math.hypot(a.tx*TILE_SIZE+128-c.x,a.ty*TILE_SIZE+128-c.y)-Math.hypot(b.tx*TILE_SIZE+128-c.x,b.ty*TILE_SIZE+128-c.y));
+    let visibleReady=true;
+    for(const {tx,ty} of tiles){
         const wrappedX=((tx%n)+n)%n;
         const key=`${this.zoom}/${tx}/${ty}`;
         needed.add(key);
+        const x=Math.round(tx*TILE_SIZE-left);
+        const y=Math.round(ty*TILE_SIZE-top);
+        const visible=isVisible({tx,ty});
         let img=this.tileNodes.get(key);
         if(!img){
           img=document.createElement('img');
@@ -183,6 +228,8 @@ export class SimpleMap{
           img.alt='';
           img.draggable=false;
           img.decoding='async';
+          img.fetchPriority=visible?'high':'low';
+          img.addEventListener('load',()=>this.scheduleRender());
           img.src=`https://tile.openstreetmap.org/${this.zoom}/${wrappedX}/${ty}.png`;
           img.dataset.tileKey=key;
           img.style.left='0';
@@ -190,16 +237,18 @@ export class SimpleMap{
           this.tileNodes.set(key,img);
           this.tileLayer.append(img);
         }
-        const x=Math.round(tx*TILE_SIZE-left);
-        const y=Math.round(ty*TILE_SIZE-top);
+        if(visible&&!(img.complete&&img.naturalWidth>0))visibleReady=false;
         img.style.transform=`translate3d(${x}px,${y}px,0)`;
-      }
     }
 
     for(const [key,img] of this.tileNodes){
       if(needed.has(key))continue;
       img.remove();
       this.tileNodes.delete(key);
+    }
+    if(this.fallbackZoom!==null&&visibleReady){
+      this.fallbackLayer.replaceChildren();
+      this.fallbackZoom=null;
     }
   }
 

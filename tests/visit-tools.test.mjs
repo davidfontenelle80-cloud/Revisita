@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { compactAddress, shortAddress, placeLine, addDays, addMonths, nextDatePresets, directionsUrl, phoneDigits, whatsappUrl, buildICS, googleCalendarUrl, mergeVisits, visitsFingerprint, calendarSlot, staleCalendarSlot, telUrl, parseCoordinates } from '../js/visit-tools.js';
+import { compactAddress, shortAddress, placeLine, addDays, addMonths, nextDatePresets, directionsUrl, phoneDigits, whatsappUrl, buildICS, googleCalendarUrl, mergeVisits, visitsFingerprint, calendarSlot, staleCalendarSlot, telUrl } from '../js/visit-tools.js';
 
 const visit = { id: 'abc', name: 'Familia Pérez', reference: 'Casa verde, frente al colmado', address: 'Calle Luis E. Pérez García, La Agustina, Santo Domingo de Guzmán, Distrito Nacional, 03201, República Dominicana', lat: 18.4869, lng: -69.9304, dueDate: '2026-09-26', dueTime: '10:00', updatedAt: '2026-09-23T10:00:00.000Z' };
 
@@ -93,14 +93,6 @@ test('offline zone tiles stay under the OSM bulk-download cap', async () => {
   assert.match(small[0], /^https:\/\/tile\.openstreetmap\.org\/15\/\d+\/\d+\.png$/);
   const huge = zoneTileUrls({ north: 19.9, west: -72, south: 17.5, east: -68.3 }, [14, 15, 16]);
   assert.equal(huge.length, 0); // Caller must ask to zoom in; no false "saved" message.
-});
-
-test('coordinate jump accepts rural coordinates and rejects invalid values', () => {
-  assert.deepEqual(parseCoordinates('19.330927, -70.168193'), { lat: 19.330927, lng: -70.168193 });
-  assert.deepEqual(parseCoordinates('41.76 -72.52'), { lat: 41.76, lng: -72.52 });
-  assert.equal(parseCoordinates('86, -70'), null);
-  assert.equal(parseCoordinates('19.3, -181'), null);
-  assert.equal(parseCoordinates('San Francisco de Macorís'), null);
 });
 
 test('ICS uses one UID per visit plus SEQUENCE, so a reschedule updates instead of duplicating', () => {

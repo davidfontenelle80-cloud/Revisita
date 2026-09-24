@@ -1,5 +1,12 @@
 # ACTIVE_TASK — Revisita
 
+## v1.4.4 — Fluidez del mapa
+
+Worker: Codex · Status: **READY FOR REVIEW**.
+
+Scope: mantener mosaicos visibles durante el zoom, priorizar carga de los visibles y retirar la entrada manual de coordenadas. `npm run check` PASS (46/46 tests, encoding, syntax, KHub ship check). Publicación y verificación en navegador en curso.
+
+
 ## v1.4.3 — Rural map and history (Supervisor: "go ahead and make the changes")
 
 Worker: Codex · Status: **READY FOR REVIEW**.

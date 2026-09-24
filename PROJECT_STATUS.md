@@ -185,3 +185,9 @@ Prueba visual/funcional en:
 - La tarjeta muestra las últimas ocho visitas y permite expandir el historial completo.
 - El contador singular del mapa se muestra correctamente en español e inglés.
 - Versión **1.4.3** · shell cache **revisita-shell-v15-rural-map**.
+
+## Fluidez del mapa v1.4.4
+
+- Los mosaicos ya cargados permanecen visibles al acercar o alejar hasta que cargan los nuevos mosaicos visibles. Se priorizan los mosaicos dentro de la pantalla.
+- Se retira el campo de latitud/longitud de la interfaz; el pin se sigue colocando en el mapa o por GPS.
+- Versión **1.4.4** · shell cache **revisita-shell-v16-map-speed**.
