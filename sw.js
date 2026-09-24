@@ -1,6 +1,6 @@
-const APP_BUILD = '1.4.4';
+const APP_BUILD = '1.4.5';
 const CACHE_PREFIX = 'revisita-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v16-map-speed`;
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v17-push-reminders`;
 const TILE_CACHE = 'revisita-tiles-v1';
 // Areas the user saved on purpose with "Guardar zona"; never trimmed, survives shell updates.
 const ZONE_CACHE = 'revisita-zones-v1';
@@ -9,22 +9,23 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.json',
-  './css/main.css?v=1.4.4',
-  './js/app.js?v=1.4.4',
-  './js/map.js?v=1.4.4',
-  './js/map-utils.js?v=1.4.4',
-  './js/storage.js?v=1.4.4',
-  './js/schedule-utils.js?v=1.4.4',
-  './js/i18n.js?v=1.4.4',
-  './js/visit-tools.js?v=1.4.4',
-  './js/cloud-sync.js?v=1.4.4',
-  './icons/icon-72.png?v=1.4.4',
-  './icons/icon-192.png?v=1.4.4',
-  './icons/icon-512.png?v=1.4.4',
-  './icons/icon-192-maskable.png?v=1.4.4',
-  './icons/icon-512-maskable.png?v=1.4.4',
-  './icons/apple-touch-icon.png?v=1.4.4',
-  './icons/favicon.png?v=1.4.4'
+  './css/main.css?v=1.4.5',
+  './js/app.js?v=1.4.5',
+  './js/map.js?v=1.4.5',
+  './js/map-utils.js?v=1.4.5',
+  './js/storage.js?v=1.4.5',
+  './js/schedule-utils.js?v=1.4.5',
+  './js/i18n.js?v=1.4.5',
+  './js/visit-tools.js?v=1.4.5',
+  './js/cloud-sync.js?v=1.4.5',
+  './js/push.js?v=1.4.5',
+  './icons/icon-72.png?v=1.4.5',
+  './icons/icon-192.png?v=1.4.5',
+  './icons/icon-512.png?v=1.4.5',
+  './icons/icon-192-maskable.png?v=1.4.5',
+  './icons/icon-512-maskable.png?v=1.4.5',
+  './icons/apple-touch-icon.png?v=1.4.5',
+  './icons/favicon.png?v=1.4.5'
 ];
 
 function pathFor(value) {
@@ -125,6 +126,25 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('push', (event) => {
+  let data={};try{data=event.data?.json()||{};}catch{}
+  event.waitUntil(self.registration.showNotification('Revisita',{
+    body:String(data.body||'Tienes una revisita pronto.').slice(0,120),
+    icon:'./icons/icon-192.png',badge:'./icons/icon-72.png',
+    tag:`revisita-${data.sourceId||'reminder'}`,
+    data:{url:'./'},
+  }));
+});
+
+self.addEventListener('notificationclick',(event)=>{
+  event.notification.close();
+  event.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(async clients=>{
+    const existing=clients.find(client=>new URL(client.url).pathname.startsWith(new URL('./',self.location).pathname));
+    if(existing)return existing.focus();
+    return self.clients.openWindow('./');
+  }));
 });
 
 self.addEventListener('fetch', (event) => {

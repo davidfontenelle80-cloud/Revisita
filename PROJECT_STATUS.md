@@ -191,3 +191,9 @@ Prueba visual/funcional en:
 - Los mosaicos ya cargados permanecen visibles al acercar o alejar hasta que cargan los nuevos mosaicos visibles. Se priorizan los mosaicos dentro de la pantalla.
 - Se retira el campo de latitud/longitud de la interfaz; el pin se sigue colocando en el mapa o por GPS.
 - Versión **1.4.4** · shell cache **revisita-shell-v16-map-speed**.
+
+## Avisos v1.4.5 (borrador; despliegue bloqueado)
+
+- Avisos Web Push opcionales por dispositivo, cinco minutos antes de revisitas con hora. Reprogramar o borrar sincroniza con el Worker.
+- El Worker programado requiere KV, claves VAPID y despliegue Cloudflare. No está activo en GitHub Pages hasta comprobar entrega real con la app cerrada.
+- Calendario `.ics` admite alarma de cinco minutos; el enlace de Google Calendar usa las preferencias del calendario.

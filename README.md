@@ -130,3 +130,7 @@ This keeps existing tap-to-pin, GPS, marker, fit-to-visits and offline tile beha
 
 - Zoom keeps previously loaded map tiles visible at the new scale until the visible tiles finish loading. New visible tiles load before the panning buffer.
 - The latitude/longitude entry has been removed; use the map or GPS to place a pin. Coordinates remain stored internally with each location.
+
+## Five-minute push reminders (v1.4.5 draft)
+
+The pending implementation adds an opt-in push toggle on each device and schedules alerts five minutes before timed active visits. See `cloudflare/revisita-push/README.md` for the separate Worker deployment. This feature is not live until Cloudflare credentials, KV, VAPID keys, and device delivery verification are available. The five-minute `.ics` calendar option is included in the same draft.

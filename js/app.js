@@ -1,12 +1,13 @@
-import{SimpleMap}from'./map.js?v=1.4.4';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.4';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.4';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.4';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.4';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.4';
-import{createCloudSync}from'./cloud-sync.js?v=1.4.4';
+import{SimpleMap}from'./map.js?v=1.4.5';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.5';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.5';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.5';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.5';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.5';
+import{createCloudSync}from'./cloud-sync.js?v=1.4.5';
+import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush}from'./push.js?v=1.4.5';
 
-let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false;
+let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
 const ONBOARDING_KEY='revisita.onboarding.v1';
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 const $=id=>document.getElementById(id);
@@ -31,8 +32,8 @@ function init(){
  applyTheme(state.settings.theme||'dark');
  applyTranslations(document);
  bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindLog();bindDirections();bindAgenda();bindList();bindMore();bindSettings();bindCloud();bindPolishUI();bindKeyboardShortcuts();
- renderAll();renderSettings();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();maybeShowOnboarding();cloud.init();
- addEventListener('online',()=>{updateOnline();cloud?.schedule(1000);});addEventListener('offline',updateOnline);
+ renderAll();renderSettings();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();maybeShowOnboarding();cloud.init();queuePushSync();
+ addEventListener('online',()=>{updateOnline();cloud?.schedule(1000);queuePushSync();});addEventListener('offline',updateOnline);
  addEventListener('pageshow',()=>{if(isMapViewActive())resetPageScroll(true);});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isMapViewActive())resetPageScroll(true);if(!document.hidden)cloud?.schedule(1500);});
  addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();renderSettings();updateOnline();updateInstallUI();});
@@ -376,6 +377,7 @@ function saveVisit(e){
  if(rec.dueDate&&rec.status==='completed'){rec.status='active';rec.completedAt=null;}
  const scheduleChanged=Boolean(rec.dueDate)&&(!old||old.dueDate!==rec.dueDate||old.dueTime!==rec.dueTime);
  state.visits=old?state.visits.map(v=>v.id===id?rec:v):[...state.visits,rec];persist();closeEditor();clearPendingLocation();renderAll();toast(old?t('visitUpdated'):t('visitSaved'));
+ queuePushSync();
  runCalendarFlow(rec,{changed:scheduleChanged});
 }
 function currentVisit(){return state.visits.find(v=>v.id===els.id.value)||null;}
@@ -408,6 +410,7 @@ function saveLog(e){
  if(ended){Object.assign(next,{status:'completed',completedAt:now,dueDate:'',dueTime:''});}
  else{Object.assign(next,{status:'active',completedAt:null,dueDate:els.logDue.value||'',dueTime:els.logDue.value?(els.logTime.value||''):''});}
  state.visits=state.visits.map(x=>x.id===v.id?next:x);persist();closeLog();closeEditor();renderAll();
+ queuePushSync();
  if(ended)toast(t('visitEnded'));else if(next.dueDate)toast(t('visitLoggedNext',{when:`${shortDate(next.dueDate)}${next.dueTime?' '+formatTime(next.dueTime,locale()):''}`}));else toast(t('visitLogged'));
  runCalendarFlow(next,{changed:Boolean(next.dueDate)});
 }
@@ -478,7 +481,7 @@ function openNewVisitChooser(){
  if(!navigator.geolocation){showView('map');toast(t('tapMapOrLocation'));return;}
  if(d&&!d.open)d.showModal();
 }
-function deleteVisit(){const v=currentVisit();if(!v||!confirm(t('deleteVisitConfirm',{name:v.name})))return;state.visits=state.visits.filter(x=>x.id!==v.id);state.deleted={...(state.deleted||{}),[v.id]:new Date().toISOString()};persist();closeEditor();renderAll();toast(t('visitDeleted'));runCalendarFlow({...v,deleted:true});}
+function deleteVisit(){const v=currentVisit();if(!v||!confirm(t('deleteVisitConfirm',{name:v.name})))return;state.visits=state.visits.filter(x=>x.id!==v.id);state.deleted={...(state.deleted||{}),[v.id]:new Date().toISOString()};persist();queuePushSync();closeEditor();renderAll();toast(t('visitDeleted'));runCalendarFlow({...v,deleted:true});}
 function showVisitOnMap(){const v=currentVisit();if(!v)return;closeEditor();mapMovedByUser=true;mapMode=v.status==='completed'?'all':'active';showView('map');syncMapModeButtons();renderMapMode(false);map.setView(v.lat,v.lng,17);}
 async function shareVisit(){const v=currentVisit();if(!v)return;const url=mapLink(v),text=[v.name,placeLine(v),v.dueDate?t('scheduledFor',{value:`${shortDate(v.dueDate)}${v.dueTime?' '+formatTime(v.dueTime,locale()):''}`}):'',url].filter(Boolean).join('\n');try{if(navigator.share)await navigator.share({title:`Revisita: ${v.name}`,text});else window.open(whatsappUrl('',text),'_blank','noopener');}catch(e){if(e?.name!=='AbortError'){try{await navigator.clipboard.writeText(text);toast(t('copiedLocation'));}catch{toast(t('shareFailed'));}}}}
 
@@ -547,19 +550,43 @@ async function saveOfflineZone(){
 
 // ---------- Settings ----------
 function bindSettings(){
+ $('pushToggleBtn').addEventListener('click',async()=>{
+  const btn=$('pushToggleBtn');btn.disabled=true;$('pushStatus').textContent='…';
+  try{
+   if(pushEnabled()){await disablePush();$('pushStatus').textContent=t('pushDisabled');}
+   else{await enablePush();await syncPushReminders(state.visits);$('pushStatus').textContent=t('pushEnabled');}
+  }catch(error){console.warn('[Revisita] Push setup failed',error);$('pushStatus').textContent=t(({unsupported:'pushUnsupported','home-screen':'pushHomeScreen',permission:'pushPermission',unavailable:'pushUnavailable'})[error.message]||'pushFailed');}
+  finally{btn.disabled=false;renderPushSettings();}
+ });
+ $('pushTestBtn').addEventListener('click',async()=>{try{await testPush();$('pushStatus').textContent=t('pushTestSent');}catch(error){console.warn('[Revisita] Test push failed',error);$('pushStatus').textContent=t('pushFailed');}});
  $('calendarOnSaveToggle')?.addEventListener('change',e=>{state.settings.calendarOnSave=e.target.checked;state.settings.calendarAsked=true;persist(false);});
  $('reminderMinutesSelect')?.addEventListener('change',e=>{state.settings.reminderMinutes=Number(e.target.value)||0;persist(false);});
  $('calendarModeSelect')?.addEventListener('change',e=>{state.settings.calendarMode=e.target.value;persist(false);});
  $('navAppSelect')?.addEventListener('change',e=>{state.settings.navApp=e.target.value;persist(false);});
 }
 function renderSettings(){
+ renderPushSettings();
  const s=state.settings;
  const set=(id,prop,val)=>{const el=$(id);if(el)el[prop]=val;};
  set('calendarOnSaveToggle','checked',s.calendarOnSave===true);
- set('reminderMinutesSelect','value',String(s.reminderMinutes??30));
+ set('reminderMinutesSelect','value',String(s.reminderMinutes??5));
  set('calendarModeSelect','value',s.calendarMode||'auto');
  set('navAppSelect','value',s.navApp||'ask');
  const apple=document.querySelector('#navAppSelect option[value="apple"]');if(apple)apple.hidden=!isIOSDevice();
+}
+function renderPushSettings(){
+ const on=pushEnabled(),button=$('pushToggleBtn');
+ button.textContent=t(on?'disablePush':'enablePush');
+ $('pushTestBtn').hidden=!on;
+ button.disabled=!pushSupported()||pushNeedsHomeScreen()||(!on&&Notification.permission==='denied');
+ if(!pushSupported())$('pushStatus').textContent=t('pushUnsupported');
+ else if(pushNeedsHomeScreen())$('pushStatus').textContent=t('pushHomeScreen');
+ else if(!on&&Notification.permission==='denied')$('pushStatus').textContent=t('pushPermission');
+}
+function queuePushSync(){
+ if(!pushEnabled())return;
+ clearTimeout(pushSyncTimer);
+ pushSyncTimer=setTimeout(()=>syncPushReminders(state.visits).catch(error=>console.warn('[Revisita] Push sync failed',error)),500);
 }
 
 // ---------- Cloud sync ----------
@@ -567,7 +594,7 @@ function bindCloud(){
  cloud=createCloudSync({
    getState:()=>state,
    normalizeVisit,
-   applyMerged:(visits,deleted)=>{state.visits=visits.map(normalizeVisit).filter(Boolean);state.deleted=deleted||{};persist(false);renderAll();},
+   applyMerged:(visits,deleted)=>{state.visits=visits.map(normalizeVisit).filter(Boolean);state.deleted=deleted||{};persist(false);queuePushSync();renderAll();},
    onChange:renderCloud,
  });
  const email=$('cloudEmail'),pass=$('cloudPassword');
@@ -670,7 +697,7 @@ function row(label,value){const r=document.createElement('div');r.className='pre
 function confirmImport(){if(!pendingImport)return;try{state=applyImport(state,pendingImport);pendingImport=null;closeImport();applyTheme(state.settings.theme);renderAll();toast(t('importFinished'));}catch(e){showError(t('importApplyFailed'),e.message||String(e));}}
 function closeImport(){pendingImport=null;if(els.importDialog.open)els.importDialog.close();}
 function restoreSnapshot(){if(!confirm(t('restoreConfirm')))return;try{state=restoreRecoverySnapshot();applyTheme(state.settings.theme);renderAll();toast(t('restored'));}catch(e){showError(t('restoreFailed'),e.message||String(e));}}
-function deleteAll(){if(!state.visits.length)return toast(t('noVisitsDelete'));if(!confirm(t('deleteAllConfirm',{count:state.visits.length})))return;const now=new Date().toISOString();state.deleted={...(state.deleted||{})};state.visits.forEach(v=>{state.deleted[v.id]=now;});state.visits=[];persist();renderAll();toast(t('allDeleted'));}
+function deleteAll(){if(!state.visits.length)return toast(t('noVisitsDelete'));if(!confirm(t('deleteAllConfirm',{count:state.visits.length})))return;const now=new Date().toISOString();state.deleted={...(state.deleted||{})};state.visits.forEach(v=>{state.deleted[v.id]=now;});state.visits=[];persist();queuePushSync();renderAll();toast(t('allDeleted'));}
 
 function persist(announce=true){try{saveState(state);setStatus(navigator.onLine?t('savedCheck'):t('offline'),navigator.onLine?'success':'warn',announce);if(announce)cloud?.schedule();}catch(e){setStatus(t('saveFailed'),'danger');showError(t('errorSave'),e.message||String(e));}}
 function setStatus(text,kind='success',announce=true){els.status.textContent=text;const c=kind==='danger'?'error':kind==='warn'?'warning':kind==='info'?'info':'success';els.status.style.color=`var(--color-${c})`;els.status.style.borderColor=`var(--border-${c}-soft)`;els.status.style.background=`var(--color-${c}-soft)`;els.status.setAttribute('aria-live',announce?'polite':'off');}
@@ -717,7 +744,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.4',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.5',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();

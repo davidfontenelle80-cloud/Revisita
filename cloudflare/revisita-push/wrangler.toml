@@ -1,0 +1,13 @@
+name = "revisita-push"
+main = "worker.js"
+compatibility_date = "2026-09-24"
+
+[vars]
+ALLOWED_ORIGIN = "https://davidfontenelle80-cloud.github.io"
+VAPID_SUBJECT = "mailto:davidfontenelle80@gmail.com"
+
+[triggers]
+crons = ["* * * * *"]
+
+# Add PUSH_STORE KV binding and VAPID_PUBLIC_KEY before deployment.
+# Set VAPID_PRIVATE_KEY with `wrangler secret put VAPID_PRIVATE_KEY`.

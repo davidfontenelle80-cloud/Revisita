@@ -63,7 +63,7 @@ test('v1.4 fields and settings normalize with safe defaults', () => {
   assert.equal(v.history[0].note, 'Buena charla');
   assert.equal(v.history[0].ended, true);
   assert.equal(state.settings.navApp, 'ask');
-  assert.equal(state.settings.reminderMinutes, 30);
+  assert.equal(state.settings.reminderMinutes, 5);
   assert.equal(state.settings.calendarOnSave, false);
   assert.deepEqual(state.deleted, { a: '2026-09-23T00:00:00Z' });
 });

@@ -57,6 +57,10 @@ test('ICS without a time is an all-day event with a morning alarm', () => {
   assert.throws(() => buildICS({ ...visit, dueDate: '' }));
 });
 
+test('a timed visit can request a five-minute calendar alarm', () => {
+  assert.match(buildICS(visit, { alarmMinutes: 5 }), /TRIGGER:-PT5M\r\n/);
+});
+
 test('Google Calendar link carries title, dates and location', () => {
   const url = new URL(googleCalendarUrl(visit));
   assert.equal(url.searchParams.get('action'), 'TEMPLATE');

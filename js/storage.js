@@ -1,7 +1,7 @@
 const STORAGE_KEY='revisita.state.v1';
 const SNAPSHOT_KEY='revisita.preimport.v1';
 const TIME_RE=/^\d{2}:\d{2}$/;
-const DEFAULT_SETTINGS={theme:'dark',navApp:'ask',calendarOnSave:false,calendarAsked:false,calendarMode:'auto',reminderMinutes:30};
+const DEFAULT_SETTINGS={theme:'dark',navApp:'ask',calendarOnSave:false,calendarAsked:false,calendarMode:'auto',reminderMinutes:5};
 export function createDefaultState(){return{version:3,visits:[],deleted:{},settings:{...DEFAULT_SETTINGS},map:{lat:18.7357,lng:-70.1627,zoom:8},lastSavedAt:null};}
 export function loadState(){const f=createDefaultState();try{const r=localStorage.getItem(STORAGE_KEY);return r?normalizeState(JSON.parse(r)):f;}catch(e){console.warn('No se pudo leer el estado local.',e);return f;}}
 export function normalizeSettings(value){
@@ -10,7 +10,7 @@ export function normalizeSettings(value){
  if(!['auto','ics','google'].includes(s.calendarMode))s.calendarMode='auto';
  s.calendarOnSave=s.calendarOnSave===true;
  s.calendarAsked=s.calendarAsked===true;
- const m=Number(s.reminderMinutes);s.reminderMinutes=Number.isFinite(m)&&m>=0&&m<=1440?Math.round(m):30;
+ const m=Number(s.reminderMinutes);s.reminderMinutes=Number.isFinite(m)&&m>=0&&m<=1440?Math.round(m):5;
  s.theme=s.theme==='light'?'light':'dark';
  return s;
 }

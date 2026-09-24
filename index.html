@@ -7,9 +7,9 @@
   <meta name="description" content="Revisita: organiza revisitas por ubicación, fecha y hora.">
   <title>Revisita</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/favicon.png?v=1.4.4" type="image/png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.4.4">
-  <link rel="stylesheet" href="css/main.css?v=1.4.4">
+  <link rel="icon" href="icons/favicon.png?v=1.4.5" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.4.5">
+  <link rel="stylesheet" href="css/main.css?v=1.4.5">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -17,7 +17,7 @@
   <div id="updateNotice" class="update-notice" hidden><span data-i18n="updateAvailable">Hay una actualización disponible.</span><button id="reloadAppBtn" type="button" data-i18n="update">Actualizar</button></div>
 
   <header class="app-header">
-    <div class="brand"><img src="icons/icon-72.png?v=1.4.4" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
+    <div class="brand"><img src="icons/icon-72.png?v=1.4.5" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
     <span id="saveStatus" class="status-chip" role="status" aria-live="polite" data-i18n="savedCheck">Guardado ✓</span>
   </header>
 
@@ -109,8 +109,11 @@
         <section class="card settings-card"><h3 data-i18n="installApp">Instalar la app</h3><p data-i18n="installText">Úsala como una app normal desde la pantalla de inicio.</p><button id="installBtn" class="btn btn-primary" type="button" disabled data-i18n="installRevisita">Instalar Revisita</button><p id="installHint" class="muted" data-i18n="installHint">Si ya está instalada, este botón puede no aparecer disponible.</p></section>
         <section class="card settings-card"><h3 data-i18n="appearance">Apariencia</h3><div><strong data-i18n="theme">Tema</strong><p class="muted" data-i18n="themeHelp">Elige cómo quieres ver Revisita.</p></div><div class="segmented-control" role="group" aria-label="Tema" data-i18n-aria="themeAria"><button class="segment-btn" type="button" data-theme-choice="dark" data-i18n="dark">Oscuro</button><button class="segment-btn" type="button" data-theme-choice="light" data-i18n="light">Claro</button></div></section>
         <section class="card settings-card"><h3 data-i18n="remindersTitle">Recordatorios</h3><p data-i18n="remindersText">Revisita usa el calendario de tu teléfono para avisarte. Al guardar una revisita con fecha, se abre el calendario para añadirla con una alarma.</p>
+          <p data-i18n="pushDescription">Activa avisos en este dispositivo para recibir una notificación 5 minutos antes de cada revisita con hora, incluso con la app cerrada. Se envían el nombre y la hora al servicio de avisos.</p>
+          <div class="button-stack"><button id="pushToggleBtn" class="btn btn-secondary" type="button" data-i18n="enablePush">Activar avisos</button><button id="pushTestBtn" class="btn btn-secondary btn-small" type="button" hidden data-i18n="testPush">Probar aviso</button></div>
+          <p id="pushStatus" class="muted" role="status" aria-live="polite"></p>
           <label class="check-row"><input id="calendarOnSaveToggle" type="checkbox"> <span data-i18n="calendarOnSave">Añadir al calendario al guardar</span></label>
-          <label class="field"><span data-i18n="reminderLead">Avisarme antes</span><select id="reminderMinutesSelect"><option value="0" data-i18n="atTime">A la hora</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option><option value="120">2 h</option></select></label>
+          <label class="field"><span data-i18n="reminderLead">Avisarme antes</span><select id="reminderMinutesSelect"><option value="0" data-i18n="atTime">A la hora</option><option value="5">5 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option><option value="120">2 h</option></select></label>
           <label class="field"><span data-i18n="calendarApp">Calendario</span><select id="calendarModeSelect"><option value="auto" data-i18n="calendarAuto">Automático (iPhone: Calendario · Android: Google Calendar)</option><option value="ics" data-i18n="calendarIcs">Archivo de calendario (.ics)</option><option value="google">Google Calendar</option></select></label>
         </section>
         <section class="card settings-card"><h3 data-i18n="navAppTitle">Navegación</h3><label class="field"><span data-i18n="navAppLabel">Abrir “Cómo llegar” con</span><select id="navAppSelect"><option value="ask" data-i18n="askEachTime">Preguntar cada vez</option><option value="google">Google Maps</option><option value="waze">Waze</option><option value="apple">Apple Maps</option></select></label></section>
@@ -133,7 +136,7 @@
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p id="privacyText" data-i18n="privacyText">Las revisitas y notas se guardan en este dispositivo (y en tu cuenta solo si activas la sincronización). El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.4.4</p>
+        <p class="app-version">Revisita v1.4.5</p>
       </div>
     </section>
   </main>
@@ -315,6 +318,6 @@
   </dialog>
 
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.4.4"></script>
+  <script type="module" src="js/app.js?v=1.4.5"></script>
 </body>
 </html>

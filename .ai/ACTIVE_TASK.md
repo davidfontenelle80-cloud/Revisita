@@ -1,5 +1,12 @@
 # ACTIVE_TASK — Revisita
 
+## v1.4.5 — Avisos cinco minutos antes
+
+Worker: Codex · Status: **BLOCKED** (Cloudflare deployment access).
+
+Scope: cinco minutos en calendario y sistema push con Worker programado. `npm run check` PASS (49/49 tests). The Worker needs a Cloudflare KV binding, VAPID keys, deployment, and a closed-app device delivery test before enabling the live UI.
+
+
 ## v1.4.4 — Fluidez del mapa
 
 Worker: Codex · Status: **READY FOR REVIEW**.
