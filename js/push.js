@@ -1,5 +1,5 @@
 // Optional closed-app reminders. A separate scheduled Worker sends Web Push.
-import { visitInstant } from './visit-time.js?v=1.4.6';
+import { visitInstant } from './visit-time.js?v=1.4.7';
 const WORKER_URL='https://revisita-push.davidfontenelle80.workers.dev';
 const SUB_KEY='revisita.push.subscription.v1';
 const TOKEN_KEY='revisita.push.token.v1';
@@ -57,6 +57,13 @@ export function fireAtForVisit(visit){
  if(visit.status!=='active'||visit.deleted)return null;
  const date=visitInstant(visit);if(!date)return null;
  return new Date(date.getTime()-5*60000);
+}
+// 'ok' when the five-minute reminder can still be scheduled, 'missed' when
+// its fire time already passed, 'none' when the visit has no usable date/time.
+export function reminderWindow(visit){
+ const fire=fireAtForVisit(visit);
+ if(!fire)return 'none';
+ return fire.getTime()>Date.now()?'ok':'missed';
 }
 
 let syncTail=Promise.resolve();
