@@ -56,7 +56,7 @@ Automated: `npm run check` PASS, 58 tests. Includes independent RFC 8291 decrypt
 
 Browser: local v1.4.5 loaded in Chrome; map opened with visible controls and rendered tiles after zoom. Existing map code is unchanged. No production user visits were modified.
 
-Original PR head `e1ff11628733810c6c344d31e615a9b86a08b73a`: GitHub Check passed ([run 35949762702](https://github.com/davidfontenelle80-cloud/Revisita/actions/runs/35949762702)). Updated-head CI must also pass before release. Wrangler dry-run did not complete because local build access required an escalation and automatic approval review was unavailable at that point.
+Updated draft CI passed all 58 checks and the Wrangler dry-run bundle on Node 22 ([run 36048763662](https://github.com/davidfontenelle80-cloud/Revisita/actions/runs/36048763662)). This verifies bundling without credentials or deployment. The earlier local Wrangler dry-run could not write outside the workspace sandbox.
 
 Still required: KV creation, VAPID provisioning, successful Worker build/deployment, health/cron checks, then real permission and test-push receipt, timed revisit 6–10 minutes ahead with app closed, reschedule/delete with absence of old alerts, untimed visit, device cleanup, and physical iPhone Home Screen test where practical. Supported devices need Web Push and notification permission; iPhone/iPad require iOS/iPadOS 16.4+ and the installed Home Screen app. Desktop delivery may require the browser's background process to remain running.
 
