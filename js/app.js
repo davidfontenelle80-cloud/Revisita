@@ -308,6 +308,22 @@ function bindEditor(){
  els.viewLog.addEventListener('click',()=>{const v=currentVisit();if(v)openLog(v.id);});
  $('viewEditBtn').addEventListener('click',()=>{const v=currentVisit();if(v)openEditor(v.id,null,{edit:true});});
  $('viewCalendarBtn').addEventListener('click',()=>{const v=currentVisit();if(!v)return;if(!v.dueDate){toast(t('noDateForCalendar'));return;}runCalendarFlow(v,{force:true});});
+ $('addCalendarBtn').addEventListener('click',()=>{const v=storeFormKeepEditor();if(!v)return;if(!v.dueDate){toast(t('noDateForCalendar'));return;}runCalendarFlow(v,{force:true});});
+ $('setReminderBtn').addEventListener('click',async()=>{
+  const btn=$('setReminderBtn');btn.disabled=true;
+  try{
+   const v=storeFormKeepEditor();if(!v)return;
+   if(!v.dueDate||!v.dueTime||!visitInstant(v)){toast(t('needDateTimeForReminder'));return;}
+   if(!pushEnabled()){
+    try{await enablePush();}
+    catch(error){console.warn('[Revisita] Push setup failed',error);toast(t(({unsupported:'pushUnsupported','home-screen':'pushHomeScreen',permission:'pushPermission',unavailable:'pushUnavailable'})[error.message]||'pushFailed'));return;}
+    renderPushSettings();
+   }
+   await syncPushReminders(state.visits);
+   toast(t('reminderSet'));
+  }catch(error){console.warn('[Revisita] Reminder sync failed',error);toast(t('pushSyncFailed'));}
+  finally{btn.disabled=false;}
+ });
  els.cancelEdit.addEventListener('click',()=>{const v=currentVisit();if(v)openEditor(v.id);else closeEditor();});
  document.querySelectorAll('[data-edit-preset]').forEach(b=>b.addEventListener('click',()=>{const p=nextDatePresets(dateKey()).find(x=>x.id===b.dataset.editPreset);if(p)els.due.value=p.date;markPreset('[data-edit-preset]',b);}));
  els.due.addEventListener('input',()=>markPreset('[data-edit-preset]',null));
@@ -372,16 +388,29 @@ function renderHistory(v){
  if(!els.historyMore.hidden)els.historyMore.textContent=historyExpanded?t('showRecentVisits'):t('showAllVisits',{count:history.length});
 }
 function closeEditor(){if(!els.id.value)map.setDraft(null,null);if(els.dialog.open)els.dialog.close();}
-function saveVisit(e){
- e.preventDefault();const name=els.name.value.trim();if(!name){els.name.focus();return toast(t('nameRequired'));}const now=new Date().toISOString(),id=els.id.value||crypto.randomUUID(),old=state.visits.find(v=>v.id===id),status=els.visitStatus.value==='completed'?'completed':'active';
+function collectVisitFromForm(){
+ const name=els.name.value.trim();if(!name){els.name.focus();toast(t('nameRequired'));return null;}
+ const now=new Date().toISOString(),id=els.id.value||crypto.randomUUID(),old=state.visits.find(v=>v.id===id),status=els.visitStatus.value==='completed'?'completed':'active';
  const rec={id,name,reference:els.reference.value.trim(),address:els.address.value.trim(),notes:els.notes.value.trim(),phone:els.phone.value.trim(),leftWith:els.leftWith.value.trim(),nextTopic:els.nextTopic.value.trim(),dueDate:els.due.value||'',dueTime:els.dueTime.value||'',status,completedAt:status==='completed'?(old?.completedAt||now):null,history:old?.history||[],calendarSlot:old?.calendarSlot||'',calendarSeq:old?.calendarSeq||0,lat:Number(els.lat.value),lng:Number(els.lng.value),createdAt:old?.createdAt||now,updatedAt:now};
  if(rec.dueDate&&rec.status==='completed'){rec.status='active';rec.completedAt=null;}
  const scheduleChanged=Boolean(rec.dueDate)&&(!old||old.dueDate!==rec.dueDate||old.dueTime!==rec.dueTime);
  rec.dueTimeZone=scheduleChanged?deviceTimeZone():(old?.dueTimeZone||'');
- if(rec.dueDate&&rec.dueTime&&!visitInstant(rec))return toast(t('invalidVisitTime'));
- state.visits=old?state.visits.map(v=>v.id===id?rec:v):[...state.visits,rec];persist();closeEditor();clearPendingLocation();renderAll();toast(old?t('visitUpdated'):t('visitSaved'));
+ if(rec.dueDate&&rec.dueTime&&!visitInstant(rec)){toast(t('invalidVisitTime'));return null;}
+ return{rec,old,scheduleChanged};
+}
+function saveVisit(e){
+ e.preventDefault();const built=collectVisitFromForm();if(!built)return;const{rec,old,scheduleChanged}=built;
+ state.visits=old?state.visits.map(v=>v.id===rec.id?rec:v):[...state.visits,rec];persist();closeEditor();clearPendingLocation();renderAll();toast(old?t('visitUpdated'):t('visitSaved'));
  queuePushSync();
  runCalendarFlow(rec,{changed:scheduleChanged});
+}
+// Store the editor form without closing it, so per-visit actions (calendar, push)
+// can act on the saved record. Returns the stored visit, or null when invalid.
+function storeFormKeepEditor(){
+ const built=collectVisitFromForm();if(!built)return null;const{rec,old}=built;
+ state.visits=old?state.visits.map(v=>v.id===rec.id?rec:v):[...state.visits,rec];
+ els.id.value=rec.id;persist();renderAll();queuePushSync();
+ return state.visits.find(v=>v.id===rec.id);
 }
 function currentVisit(){return state.visits.find(v=>v.id===els.id.value)||null;}
 

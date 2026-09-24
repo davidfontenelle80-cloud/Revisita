@@ -15,6 +15,11 @@ new_sqlite_classes = ["PushScheduler"]
 [vars]
 ALLOWED_ORIGIN = "https://davidfontenelle80-cloud.github.io"
 VAPID_SUBJECT = "mailto:davidfontenelle80@gmail.com"
+VAPID_PUBLIC_KEY = "BHkQVlmq2_5vFTg5HHqpW0cPqsh1SAhBiHHU3129HhPK0iaarLsWo1elP4ZsDORDgd4aXuWrXhHQImDkQfqbLzc"
+
+[[kv_namespaces]]
+binding = "PUSH_STORE"
+id = "0863854e6afe4d87a262043c7d66b037"
 
 [triggers]
 crons = ["* * * * *"]
