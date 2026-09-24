@@ -43,7 +43,7 @@ PWA bilingüe (**Español / English**) para organizar revisitas por **ubicación
 
 ## Compatibility
 
-Version 1.4.3 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
+Version 1.4.4 keeps the same local data key and migrates older v1 data automatically. Existing return visits keep their date, notes and location; newer fields such as status, history and optional time are added safely.
 
 ## Privacy
 
@@ -125,3 +125,8 @@ This keeps existing tap-to-pin, GPS, marker, fit-to-visits and offline tile beha
 - Enter latitude and longitude to jump to a rural area. Then tap the house and confirm its provisional pin.
 - Saving an offline area at too wide a zoom asks you to zoom in; an empty tile selection cannot be reported as a saved area.
 - Older visit history can be expanded past the eight most recent entries.
+
+## Map responsiveness in 1.4.4
+
+- Zoom keeps previously loaded map tiles visible at the new scale until the visible tiles finish loading. New visible tiles load before the panning buffer.
+- The latitude/longitude entry has been removed; use the map or GPS to place a pin. Coordinates remain stored internally with each location.

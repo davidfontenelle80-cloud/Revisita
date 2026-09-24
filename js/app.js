@@ -1,10 +1,10 @@
-import{SimpleMap}from'./map.js?v=1.4.3';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.3';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.3';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.3';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.3';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,parseCoordinates,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.3';
-import{createCloudSync}from'./cloud-sync.js?v=1.4.3';
+import{SimpleMap}from'./map.js?v=1.4.4';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.4';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.4';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.4';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.4';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.4';
+import{createCloudSync}from'./cloud-sync.js?v=1.4.4';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false;
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -105,11 +105,6 @@ function resetPageScroll(reassert=false){
 function bindMap(){
  els.mapEl.addEventListener('pointerdown',()=>{mapMovedByUser=true;});
  $('zoomInBtn').addEventListener('click',()=>{mapMovedByUser=true;map.setZoom(map.zoom+1);});$('zoomOutBtn').addEventListener('click',()=>{mapMovedByUser=true;map.setZoom(map.zoom-1);});
- $('mapCoordinatesForm').addEventListener('submit',e=>{
-  e.preventDefault();const coords=parseCoordinates($('mapCoordinates').value);
-  if(!coords){toast(t('coordinatesInvalid'));$('mapCoordinates').focus();return;}
-  mapMovedByUser=true;map.setView(coords.lat,coords.lng,16);$('mapCoordinates').blur();toast(t('coordinatesReady'));
- });
  els.locate.addEventListener('click',()=>requestLocation(loc=>beginLocationConfirmation({...loc,source:'gps'}),true));
  document.querySelectorAll('[data-map-mode]').forEach(b=>b.addEventListener('click',()=>selectMapMode(b.dataset.mapMode)));
  $('mapSidebarList')?.addEventListener('click',handleMapSidebarAction);
@@ -722,7 +717,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.3',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.4',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();
