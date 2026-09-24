@@ -1,12 +1,12 @@
-import{SimpleMap}from'./map.js?v=1.4.6';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.6';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.6';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.6';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.6';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.6';
-import{createCloudSync}from'./cloud-sync.js?v=1.4.6';
-import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush}from'./push.js?v=1.4.6';
-import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.4.6';
+import{SimpleMap}from'./map.js?v=1.4.7';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.7';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.7';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.7';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.7';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.7';
+import{createCloudSync}from'./cloud-sync.js?v=1.4.7';
+import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow}from'./push.js?v=1.4.7';
+import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.4.7';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -329,6 +329,7 @@ function bindEditor(){
   try{
    const v=storeFormKeepEditor();if(!v)return;
    if(!v.dueDate||!v.dueTime||!visitInstant(v)){toast(t('needDateTimeForReminder'));return;}
+   if(reminderWindow(v)!=='ok'){toast(t('reminderTooSoon'));return;}
    if(!pushEnabled()){
     try{await enablePush();}
     catch(error){console.warn('[Revisita] Push setup failed',error);toast(t(({unsupported:'pushUnsupported','home-screen':'pushHomeScreen',permission:'pushPermission',unavailable:'pushUnavailable'})[error.message]||'pushFailed'));return;}
@@ -793,7 +794,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.6',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.7',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();

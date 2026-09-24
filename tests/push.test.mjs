@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hkdfSync,createDecipheriv } from 'node:crypto';
-import { fireAtForVisit } from '../js/push.js';
+import { fireAtForVisit,reminderWindow } from '../js/push.js';
 import { visitInstant } from '../js/visit-time.js';
 import { normalizeVisit } from '../js/storage.js';
 import { buildICS,googleCalendarUrl } from '../js/visit-tools.js';
@@ -39,6 +39,15 @@ test('five-minute scheduling excludes untimed, completed, deleted and invalid da
  const v={dueDate:'2026-09-26',dueTime:'10:00',status:'active',dueTimeZone:'America/Santo_Domingo'};
  assert.equal(fireAtForVisit(v).toISOString(),'2026-09-26T13:55:00.000Z');
  for(const patch of [{dueTime:''},{status:'completed'},{deleted:true},{dueDate:'2026-02-30'},{dueTime:'24:00'}])assert.equal(fireAtForVisit({...v,...patch}),null);
+});
+test('reminder window flags visits whose five-minute fire time already passed',()=>{
+ // Wall-clock minutes from now in America/Santo_Domingo (UTC-4, no DST).
+ const wallIn=m=>{const wall=new Date(Date.now()+m*60000-4*3600000);return{dueDate:wall.toISOString().slice(0,10),dueTime:wall.toISOString().slice(11,16)};};
+ const base={status:'active',dueTimeZone:'America/Santo_Domingo'};
+ assert.equal(reminderWindow({...base,...wallIn(60)}),'ok');
+ assert.equal(reminderWindow({...base,...wallIn(3)}),'missed');
+ assert.equal(reminderWindow({...base,dueDate:'2026-09-26',dueTime:''}),'none');
+ assert.equal(reminderWindow({...base,...wallIn(60),status:'completed'}),'none');
 });
 test('Connecticut and DR conversion uses visit-date DST, preserves zone across devices',()=>{
  const v={dueDate:'2026-12-01',dueTime:'10:00',dueTimeZone:'America/New_York'};
