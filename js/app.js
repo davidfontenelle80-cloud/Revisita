@@ -1,20 +1,20 @@
-import{SimpleMap}from'./map.js?v=1.4.5';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.5';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.5';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.5';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.5';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.5';
-import{createCloudSync}from'./cloud-sync.js?v=1.4.5';
-import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush}from'./push.js?v=1.4.5';
-import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.4.5';
+import{SimpleMap}from'./map.js?v=1.4.6';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.6';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.6';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.6';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.6';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.6';
+import{createCloudSync}from'./cloud-sync.js?v=1.4.6';
+import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush}from'./push.js?v=1.4.6';
+import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.4.6';
 
-let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
+let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
 const ONBOARDING_KEY='revisita.onboarding.v1';
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 const $=id=>document.getElementById(id);
 const els={
  status:$('saveStatus'),mapEl:$('map'),mapShell:$('mapShell'),locate:$('locateBtn'),confirmPanel:$('locationConfirmPanel'),pendingAddress:$('pendingAddress'),pendingCoords:$('pendingCoords'),pendingAccuracy:$('pendingAccuracy'),mapModeSummary:$('mapModeSummary'),
- dialog:$('visitDialog'),form:$('visitForm'),id:$('visitId'),lat:$('visitLat'),lng:$('visitLng'),visitStatus:$('visitStatus'),name:$('visitName'),reference:$('visitReference'),phone:$('visitPhone'),leftWith:$('visitLeftWith'),nextTopic:$('visitNextTopic'),address:$('visitAddress'),notes:$('visitNotes'),due:$('visitDueDate'),dueTime:$('visitDueTime'),title:$('dialogTitle'),coords:$('dialogCoords'),deleteVisit:$('deleteVisitBtn'),cancelEdit:$('cancelEditBtn'),saveVisitBtn:$('saveVisitBtn'),detailMapSection:$('detailMapSection'),historyPanel:$('historyPanel'),historyList:$('historyList'),historyMore:$('historyMoreBtn'),visitView:$('visitView'),editFields:$('editFields'),viewPlace:$('viewPlace'),viewSchedule:$('viewSchedule'),viewDetails:$('viewDetails'),viewLog:$('viewLogBtn'),viewContact:$('viewContactActions'),viewCall:$('viewCallBtn'),viewWhatsapp:$('viewWhatsappBtn'),calendarHint:$('calendarHint'),
+ dialog:$('visitDialog'),form:$('visitForm'),id:$('visitId'),lat:$('visitLat'),lng:$('visitLng'),visitStatus:$('visitStatus'),name:$('visitName'),reference:$('visitReference'),phone:$('visitPhone'),leftWith:$('visitLeftWith'),nextTopic:$('visitNextTopic'),address:$('visitAddress'),notes:$('visitNotes'),due:$('visitDueDate'),dueTime:$('visitDueTime'),title:$('dialogTitle'),coords:$('dialogCoords'),movePinBtn:$('movePinBtn'),deleteVisit:$('deleteVisitBtn'),cancelEdit:$('cancelEditBtn'),saveVisitBtn:$('saveVisitBtn'),detailMapSection:$('detailMapSection'),historyPanel:$('historyPanel'),historyList:$('historyList'),historyMore:$('historyMoreBtn'),visitView:$('visitView'),editFields:$('editFields'),viewPlace:$('viewPlace'),viewSchedule:$('viewSchedule'),viewDetails:$('viewDetails'),viewLog:$('viewLogBtn'),viewContact:$('viewContactActions'),viewCall:$('viewCallBtn'),viewWhatsapp:$('viewWhatsappBtn'),calendarHint:$('calendarHint'),
  logDialog:$('logDialog'),logForm:$('logForm'),logName:$('logVisitName'),logNote:$('logNote'),logLeftWith:$('logLeftWith'),logNextTopic:$('logNextTopic'),logDue:$('logDueDate'),logTime:$('logDueTime'),logEnd:$('logEnd'),directionsDialog:$('directionsDialog'),mapTip:$('mapTip'),zoneBtn:$('saveZoneBtn'),
  list:$('visitList'),empty:$('emptyList'),summary:$('listSummary'),search:$('searchInput'),
  todayDate:$('todayDate'),upcomingSection:$('upcomingSection'),upcomingList:$('upcomingList'),overdueSection:$('overdueSection'),todaySection:$('todaySection'),overdueList:$('overdueList'),todayList:$('todayList'),todayEmpty:$('todayEmpty'),todayBadge:$('todayBadge'),nextVisitCard:$('nextVisitCard'),nextVisitName:$('nextVisitName'),nextVisitMeta:$('nextVisitMeta'),nextVisitTime:$('nextVisitTime'),
@@ -110,10 +110,25 @@ function bindMap(){
  els.locate.addEventListener('click',()=>requestLocation(loc=>beginLocationConfirmation({...loc,source:'gps'}),true));
  document.querySelectorAll('[data-map-mode]').forEach(b=>b.addEventListener('click',()=>selectMapMode(b.dataset.mapMode)));
  $('mapSidebarList')?.addEventListener('click',handleMapSidebarAction);
- $('cancelLocationBtn').addEventListener('click',()=>clearPendingLocation());
+ $('cancelLocationBtn').addEventListener('click',()=>{const moveId=movePinVisitId;clearPendingLocation();if(moveId)openEditor(moveId,null,{edit:true});});
  $('adjustLocationBtn').addEventListener('click',()=>{if(!pendingLocation)return;map.setView(pendingLocation.lat,pendingLocation.lng,19);toast(t('tapAnother'));});
  els.zoneBtn?.addEventListener('click',saveOfflineZone);
- $('confirmLocationBtn').addEventListener('click',()=>{if(!pendingLocation)return;const p={...pendingLocation};clearPendingLocation(false);openEditor(null,p);});
+ $('confirmLocationBtn').addEventListener('click',()=>{if(!pendingLocation)return;const p={...pendingLocation};const moveId=movePinVisitId;clearPendingLocation(false);if(moveId)applyMovedPin(moveId,p);else openEditor(null,p);});
+ els.movePinBtn.addEventListener('click',()=>{
+  const visit=state.visits.find(v=>v.id===els.id.value);if(!visit)return;
+  movePinVisitId=visit.id;els.dialog.close();showView('map');
+  beginLocationConfirmation({lat:visit.lat,lng:visit.lng,source:'map'});
+  toast(t('tapAnother'));
+ });
+function applyMovedPin(visitId,p){
+ const visit=state.visits.find(v=>v.id===visitId);if(!visit)return;
+ openEditor(visitId,null,{edit:true});
+ els.lat.value=p.lat;els.lng.value=p.lng;
+ els.coords.textContent=`${Number(p.lat).toFixed(6)}, ${Number(p.lng).toFixed(6)}`;
+ if(p.address)els.address.value=p.address;
+ requestAnimationFrame(()=>{detailMap.setMarkers([{...visit,lat:p.lat,lng:p.lng}]);detailMap.setView(p.lat,p.lng,17);detailMap.render();});
+ toast(t('pinMoved'));
+}
 }
 function selectMapMode(mode){
  mapMovedByUser=true;mapMode=mode;syncMapModeButtons();
@@ -247,7 +262,7 @@ async function beginLocationConfirmation(loc){
  els.pendingAddress.textContent=navigator.onLine?t('searchingAddress'):t('offlineVerifyPin');
  const token=++lookupToken;if(navigator.onLine){const address=await reverseGeocode(pendingLocation.lat,pendingLocation.lng);if(token===lookupToken&&pendingLocation){pendingLocation.address=address;els.pendingAddress.textContent=address||t('locationNoAddress');}}
 }
-function clearPendingLocation(clearDraft=true){lookupToken++;pendingLocation=null;els.confirmPanel.hidden=true;els.mapShell.classList.remove('has-pending');document.body.classList.remove('location-pending');if(clearDraft)map.setDraft(null,null);}
+function clearPendingLocation(clearDraft=true){lookupToken++;pendingLocation=null;movePinVisitId=null;els.confirmPanel.hidden=true;els.mapShell.classList.remove('has-pending');document.body.classList.remove('location-pending');if(clearDraft)map.setDraft(null,null);}
 async function reverseGeocode(lat,lng){
  try{const q=new URLSearchParams({format:'jsonv2',addressdetails:'1',lat:String(lat),lon:String(lng),zoom:'18','accept-language':getLanguage()});const r=await fetch(`https://nominatim.openstreetmap.org/reverse?${q}`,{headers:{Accept:'application/json'}});if(!r.ok)throw new Error(`HTTP ${r.status}`);return compactAddress(await r.json());}catch(e){console.warn('Geocodificación no disponible.',e);return'';}
 }
@@ -333,7 +348,7 @@ function setEditorMode(mode,visit){
  const viewing=mode==='view';
  els.visitView.hidden=!viewing;els.editFields.hidden=viewing;
  els.form.querySelector('.sheet-footer').hidden=viewing;
- els.deleteVisit.hidden=mode!=='edit';els.cancelEdit.hidden=mode!=='edit';
+ els.deleteVisit.hidden=mode!=='edit';els.cancelEdit.hidden=mode!=='edit';els.movePinBtn.hidden=mode!=='edit';
  els.detailMapSection.hidden=!visit;
  els.calendarHint.hidden=!state.settings.calendarOnSave;
  els.coords.hidden=viewing;
@@ -778,7 +793,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.5',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.6',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();
