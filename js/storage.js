@@ -1,7 +1,8 @@
 const STORAGE_KEY='revisita.state.v1';
+import { validTimeZone } from './visit-time.js?v=1.4.5';
 const SNAPSHOT_KEY='revisita.preimport.v1';
 const TIME_RE=/^\d{2}:\d{2}$/;
-const DEFAULT_SETTINGS={theme:'dark',navApp:'ask',calendarOnSave:false,calendarAsked:false,calendarMode:'auto',reminderMinutes:30};
+const DEFAULT_SETTINGS={theme:'dark',navApp:'ask',calendarOnSave:false,calendarAsked:false,calendarMode:'auto',reminderMinutes:5};
 export function createDefaultState(){return{version:3,visits:[],deleted:{},settings:{...DEFAULT_SETTINGS},map:{lat:18.7357,lng:-70.1627,zoom:8},lastSavedAt:null};}
 export function loadState(){const f=createDefaultState();try{const r=localStorage.getItem(STORAGE_KEY);return r?normalizeState(JSON.parse(r)):f;}catch(e){console.warn('No se pudo leer el estado local.',e);return f;}}
 export function normalizeSettings(value){
@@ -10,7 +11,7 @@ export function normalizeSettings(value){
  if(!['auto','ics','google'].includes(s.calendarMode))s.calendarMode='auto';
  s.calendarOnSave=s.calendarOnSave===true;
  s.calendarAsked=s.calendarAsked===true;
- const m=Number(s.reminderMinutes);s.reminderMinutes=Number.isFinite(m)&&m>=0&&m<=1440?Math.round(m):30;
+ const m=Number(s.reminderMinutes);s.reminderMinutes=Number.isFinite(m)&&m>=0&&m<=1440?Math.round(m):5;
  s.theme=s.theme==='light'?'light':'dark';
  return s;
 }
@@ -23,7 +24,7 @@ function normalizeHistoryEntry(h){
 export function normalizeVisit(v){
  if(!v||typeof v!=='object')return null;const lat=Number(v.lat),lng=Number(v.lng);if(!Number.isFinite(lat)||!Number.isFinite(lng))return null;
  const status=v.status==='completed'?'completed':'active';
- return{id:String(v.id||crypto.randomUUID()),name:String(v.name||'Revisita'),reference:String(v.reference||''),address:String(v.address||''),notes:String(v.notes||''),phone:String(v.phone||''),leftWith:String(v.leftWith||''),nextTopic:String(v.nextTopic||''),calendarSlot:typeof v.calendarSlot==='string'?v.calendarSlot:'',calendarSeq:Number.isFinite(Number(v.calendarSeq))?Math.max(0,Math.round(Number(v.calendarSeq))):0,dueDate:typeof v.dueDate==='string'?v.dueDate:'',dueTime:TIME_RE.test(v.dueTime||'')?v.dueTime:'',status,completedAt:status==='completed'?(v.completedAt||null):null,history:Array.isArray(v.history)?v.history.map(normalizeHistoryEntry).filter(Boolean):[],lat,lng,createdAt:v.createdAt||new Date().toISOString(),updatedAt:v.updatedAt||new Date().toISOString()};
+ return{id:String(v.id||crypto.randomUUID()),name:String(v.name||'Revisita'),reference:String(v.reference||''),address:String(v.address||''),notes:String(v.notes||''),phone:String(v.phone||''),leftWith:String(v.leftWith||''),nextTopic:String(v.nextTopic||''),calendarSlot:typeof v.calendarSlot==='string'?v.calendarSlot:'',calendarSeq:Number.isFinite(Number(v.calendarSeq))?Math.max(0,Math.round(Number(v.calendarSeq))):0,dueTimeZone:validTimeZone(v.dueTimeZone)?v.dueTimeZone:'',dueDate:typeof v.dueDate==='string'?v.dueDate:'',dueTime:TIME_RE.test(v.dueTime||'')?v.dueTime:'',status,completedAt:status==='completed'?(v.completedAt||null):null,history:Array.isArray(v.history)?v.history.map(normalizeHistoryEntry).filter(Boolean):[],lat,lng,createdAt:v.createdAt||new Date().toISOString(),updatedAt:v.updatedAt||new Date().toISOString()};
 }
 export function saveState(state){state.version=3;state.lastSavedAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));return state.lastSavedAt;}
 export function exportPayload(state){return{app:'Revisita',schemaVersion:3,exportedAt:new Date().toISOString(),visits:state.visits,deleted:state.deleted||{},settings:state.settings};}

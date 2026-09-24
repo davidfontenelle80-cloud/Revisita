@@ -1,6 +1,7 @@
 // Pure helpers for Revisita v1.4: addresses, dates, directions, calendar, sharing and sync merge.
 // No DOM access here so everything can be unit-tested in Node.
-import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.4.4';
+import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.4.5';
+import { visitInstant } from './visit-time.js?v=1.4.5';
 
 /** Build a short, human address from a Nominatim jsonv2 response. */
 export function compactAddress(result) {
@@ -123,7 +124,9 @@ export function buildICS(v, { alarmMinutes = 30, now = new Date(), title = 'Revi
     `DTSTAMP:${stamp(now)}`,
   ];
   if (v.dueTime) {
-    lines.push(`DTSTART:${localStamp(v.dueDate, v.dueTime)}`, `DTEND:${endOf(v.dueDate, v.dueTime, durationMinutes)}`);
+    const instant=v.dueTimeZone?visitInstant(v):null;
+    if(v.dueTimeZone&&!instant)throw new Error('invalid-visit-time');
+    lines.push(`DTSTART:${instant?stamp(instant):localStamp(v.dueDate, v.dueTime)}`, `DTEND:${instant?stamp(new Date(instant.getTime()+durationMinutes*60000)):endOf(v.dueDate, v.dueTime, durationMinutes)}`);
   } else {
     lines.push(`DTSTART;VALUE=DATE:${v.dueDate.replace(/-/g, '')}`, `DTEND;VALUE=DATE:${addDays(v.dueDate, 1).replace(/-/g, '')}`);
   }
@@ -145,8 +148,10 @@ export function buildICS(v, { alarmMinutes = 30, now = new Date(), title = 'Revi
 /** Google Calendar "create event" link (used on Android, where .ics files open poorly). */
 export function googleCalendarUrl(v, { title = 'Revisita', durationMinutes = 30, description = '' } = {}) {
   if (!v?.dueDate) throw new Error('visit-has-no-date');
+  const instant=v.dueTime&&v.dueTimeZone?visitInstant(v):null;
+  if(v.dueTime&&v.dueTimeZone&&!instant)throw new Error('invalid-visit-time');
   const dates = v.dueTime
-    ? `${localStamp(v.dueDate, v.dueTime)}/${endOf(v.dueDate, v.dueTime, durationMinutes)}`
+    ? instant?`${stamp(instant)}/${stamp(new Date(instant.getTime()+durationMinutes*60000))}`:`${localStamp(v.dueDate, v.dueTime)}/${endOf(v.dueDate, v.dueTime, durationMinutes)}`
     : `${v.dueDate.replace(/-/g, '')}/${addDays(v.dueDate, 1).replace(/-/g, '')}`;
   const q = new URLSearchParams({
     action: 'TEMPLATE',
@@ -155,6 +160,7 @@ export function googleCalendarUrl(v, { title = 'Revisita', durationMinutes = 30,
     details: [description, mapLink(v)].filter(Boolean).join('\n'),
     location: placeLine(v) || `${v.lat}, ${v.lng}`,
   });
+  if(v.dueTimeZone)q.set('ctz',v.dueTimeZone);
   return `https://calendar.google.com/calendar/render?${q}`;
 }
 

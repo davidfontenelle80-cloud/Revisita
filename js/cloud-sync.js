@@ -2,7 +2,7 @@
 // Firebase is loaded lazily from gstatic ONLY when the user has turned sync on (or opens the sync card),
 // so the app shell keeps working fully offline without any third-party script.
 // Firestore path: backups/revisita/users/{uid}/meta/latest  (allowed by the KHub rules for backups/{appId}/users/{uid}/**)
-import { mergeVisits, visitsFingerprint } from './visit-tools.js?v=1.4.4';
+import { mergeVisits, visitsFingerprint } from './visit-tools.js?v=1.4.5';
 
 const FIREBASE_VERSION = '10.12.2';
 const BASE = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
