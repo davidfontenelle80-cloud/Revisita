@@ -1,5 +1,5 @@
 // Optional closed-app reminders. A separate scheduled Worker sends Web Push.
-import { visitInstant } from './visit-time.js?v=1.4.8';
+import { visitInstant } from './visit-time.js?v=1.4.9';
 const WORKER_URL='https://revisita-push.davidfontenelle80.workers.dev';
 const SUB_KEY='revisita.push.subscription.v1';
 const TOKEN_KEY='revisita.push.token.v1';

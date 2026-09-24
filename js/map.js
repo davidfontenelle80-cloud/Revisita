@@ -1,4 +1,4 @@
-import{TILE_SIZE,clamp,latLngToWorld,worldToLatLng}from'./map-utils.js?v=1.4.8';
+import{TILE_SIZE,clamp,latLngToWorld,worldToLatLng}from'./map-utils.js?v=1.4.9';
 
 export class SimpleMap{
   constructor(el,o={}){
