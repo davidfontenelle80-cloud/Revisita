@@ -2,7 +2,7 @@
 
 ## Estado
 
-**v1.4.2 implementada — READY FOR REVIEW.**
+**v1.4.3 implementada — READY FOR REVIEW.**
 
 ## Flujo actual
 
@@ -176,3 +176,12 @@ Prueba visual/funcional en:
 
 - **☎ Llamar** en la tarjeta Próxima revisita y en cada tarjeta de Hoy (Atrasadas, Para hoy, Próximos días) cuando la revisita tiene teléfono (7+ dígitos). Abre el marcador del teléfono.
 - Versión **1.4.2** · shell cache **revisita-shell-v14-call-hoy**.
+
+## Mapa rural y seguimiento v1.4.3
+
+- El mapa conserva su posición al volver a la pestaña. La ubicación automática solo centra la primera apertura, y nunca interrumpe un movimiento o selección del usuario.
+- Se puede saltar a latitud y longitud sin dirección ni conexión de geocodificación; el pin todavía requiere tocar el mapa y confirmarlo.
+- Guardar zona pide acercar el mapa cuando el área visible supera el límite de mosaicos. No informa éxito con cero mosaicos.
+- La tarjeta muestra las últimas ocho visitas y permite expandir el historial completo.
+- El contador singular del mapa se muestra correctamente en español e inglés.
+- Versión **1.4.3** · shell cache **revisita-shell-v15-rural-map**.

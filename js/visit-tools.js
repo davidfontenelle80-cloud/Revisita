@@ -1,6 +1,6 @@
 // Pure helpers for Revisita v1.4: addresses, dates, directions, calendar, sharing and sync merge.
 // No DOM access here so everything can be unit-tested in Node.
-import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.4.2';
+import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.4.3';
 
 /** Build a short, human address from a Nominatim jsonv2 response. */
 export function compactAddress(result) {
@@ -218,5 +218,13 @@ export function zoneTileUrls(bounds,zooms,max=200){
    if(urls.length+level.length>max)break;
    urls.push(...level);
  }
- return urls;
+  return urls;
+}
+
+/** Coordinates are usable without a geocoding service or street address. */
+export function parseCoordinates(value){
+  const match=String(value||'').trim().match(/^([+-]?\d{1,2}(?:\.\d+)?)\s*[,;\s]\s*([+-]?\d{1,3}(?:\.\d+)?)$/);
+  if(!match)return null;
+  const lat=Number(match[1]),lng=Number(match[2]);
+  return Math.abs(lat)<=85&&Math.abs(lng)<=180?{lat,lng}:null;
 }

@@ -1,18 +1,18 @@
-import{SimpleMap}from'./map.js?v=1.4.2';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.2';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.2';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.2';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.2';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.2';
-import{createCloudSync}from'./cloud-sync.js?v=1.4.2';
+import{SimpleMap}from'./map.js?v=1.4.3';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.3';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.3';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.3';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.3';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,parseCoordinates,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.3';
+import{createCloudSync}from'./cloud-sync.js?v=1.4.3';
 
-let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null;
+let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false;
 const ONBOARDING_KEY='revisita.onboarding.v1';
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 const $=id=>document.getElementById(id);
 const els={
  status:$('saveStatus'),mapEl:$('map'),mapShell:$('mapShell'),locate:$('locateBtn'),confirmPanel:$('locationConfirmPanel'),pendingAddress:$('pendingAddress'),pendingCoords:$('pendingCoords'),pendingAccuracy:$('pendingAccuracy'),mapModeSummary:$('mapModeSummary'),
- dialog:$('visitDialog'),form:$('visitForm'),id:$('visitId'),lat:$('visitLat'),lng:$('visitLng'),visitStatus:$('visitStatus'),name:$('visitName'),reference:$('visitReference'),phone:$('visitPhone'),leftWith:$('visitLeftWith'),nextTopic:$('visitNextTopic'),address:$('visitAddress'),notes:$('visitNotes'),due:$('visitDueDate'),dueTime:$('visitDueTime'),title:$('dialogTitle'),coords:$('dialogCoords'),deleteVisit:$('deleteVisitBtn'),cancelEdit:$('cancelEditBtn'),saveVisitBtn:$('saveVisitBtn'),detailMapSection:$('detailMapSection'),historyPanel:$('historyPanel'),historyList:$('historyList'),visitView:$('visitView'),editFields:$('editFields'),viewPlace:$('viewPlace'),viewSchedule:$('viewSchedule'),viewDetails:$('viewDetails'),viewLog:$('viewLogBtn'),viewContact:$('viewContactActions'),viewCall:$('viewCallBtn'),viewWhatsapp:$('viewWhatsappBtn'),calendarHint:$('calendarHint'),
+ dialog:$('visitDialog'),form:$('visitForm'),id:$('visitId'),lat:$('visitLat'),lng:$('visitLng'),visitStatus:$('visitStatus'),name:$('visitName'),reference:$('visitReference'),phone:$('visitPhone'),leftWith:$('visitLeftWith'),nextTopic:$('visitNextTopic'),address:$('visitAddress'),notes:$('visitNotes'),due:$('visitDueDate'),dueTime:$('visitDueTime'),title:$('dialogTitle'),coords:$('dialogCoords'),deleteVisit:$('deleteVisitBtn'),cancelEdit:$('cancelEditBtn'),saveVisitBtn:$('saveVisitBtn'),detailMapSection:$('detailMapSection'),historyPanel:$('historyPanel'),historyList:$('historyList'),historyMore:$('historyMoreBtn'),visitView:$('visitView'),editFields:$('editFields'),viewPlace:$('viewPlace'),viewSchedule:$('viewSchedule'),viewDetails:$('viewDetails'),viewLog:$('viewLogBtn'),viewContact:$('viewContactActions'),viewCall:$('viewCallBtn'),viewWhatsapp:$('viewWhatsappBtn'),calendarHint:$('calendarHint'),
  logDialog:$('logDialog'),logForm:$('logForm'),logName:$('logVisitName'),logNote:$('logNote'),logLeftWith:$('logLeftWith'),logNextTopic:$('logNextTopic'),logDue:$('logDueDate'),logTime:$('logDueTime'),logEnd:$('logEnd'),directionsDialog:$('directionsDialog'),mapTip:$('mapTip'),zoneBtn:$('saveZoneBtn'),
  list:$('visitList'),empty:$('emptyList'),summary:$('listSummary'),search:$('searchInput'),
  todayDate:$('todayDate'),upcomingSection:$('upcomingSection'),upcomingList:$('upcomingList'),overdueSection:$('overdueSection'),todaySection:$('todaySection'),overdueList:$('overdueList'),todayList:$('todayList'),todayEmpty:$('todayEmpty'),todayBadge:$('todayBadge'),nextVisitCard:$('nextVisitCard'),nextVisitName:$('nextVisitName'),nextVisitMeta:$('nextVisitMeta'),nextVisitTime:$('nextVisitTime'),
@@ -20,9 +20,9 @@ const els={
 };
 const map=new SimpleMap(els.mapEl,state.map);
 const detailMap=new SimpleMap($('detailMap'),{...state.map,interactive:false,zoom:17});
-map.onTap=ll=>beginLocationConfirmation({...ll,source:'map'});
+map.onTap=ll=>{mapMovedByUser=true;beginLocationConfirmation({...ll,source:'map'});};
 map.onMarkerTap=id=>{clearPendingLocation();openEditor(id);};
-map.onViewChange=({lat,lng,zoom})=>{state.map={lat,lng,zoom};persist(false);};
+map.onViewChange=({lat,lng,zoom})=>{state.map={lat,lng,zoom,manual:mapMovedByUser};persist(false);};
 
 init();
 
@@ -67,14 +67,17 @@ function bindNav(){
  document.querySelectorAll('[data-destination]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.destination)));
  $('emptyMapBtn').addEventListener('click',()=>showView('map'));
  $('todayNewBtn').addEventListener('click',openNewVisitChooser);
- $('todayMapBtn').addEventListener('click',()=>{mapMode='active';showView('map');syncMapModeButtons();renderMapMode(true);});
+ $('todayMapBtn').addEventListener('click',()=>{mapMovedByUser=true;mapMode='active';showView('map');syncMapModeButtons();renderMapMode(true);});
  $('addFromListBtn').addEventListener('click',openNewVisitChooser);
 }
 function showView(name){
  if(name!=='map'&&pendingLocation)clearPendingLocation();
  document.querySelectorAll('.view').forEach(v=>{const on=v.dataset.view===name;v.hidden=!on;v.classList.toggle('is-active',on);});
  document.querySelectorAll('[data-destination]').forEach(b=>{const on=b.dataset.destination===name;b.classList.toggle('is-active',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
- if(name==='map')requestAnimationFrame(()=>{map.render();renderMapMode(false);centerMapOnCurrentLocation();resetPageScroll(true);});
+ if(name==='map'){
+  const firstOpen=!mapHasOpened;mapHasOpened=true;
+  requestAnimationFrame(()=>{map.render();renderMapMode(false);if(firstOpen&&!mapMovedByUser)centerMapOnCurrentLocation();resetPageScroll(true);});
+ }
  if(name==='today')renderToday();
  if(name==='list')renderList();
  if(els.fab)els.fab.hidden=name==='more';
@@ -100,7 +103,13 @@ function resetPageScroll(reassert=false){
 }
 
 function bindMap(){
- $('zoomInBtn').addEventListener('click',()=>map.setZoom(map.zoom+1));$('zoomOutBtn').addEventListener('click',()=>map.setZoom(map.zoom-1));
+ els.mapEl.addEventListener('pointerdown',()=>{mapMovedByUser=true;});
+ $('zoomInBtn').addEventListener('click',()=>{mapMovedByUser=true;map.setZoom(map.zoom+1);});$('zoomOutBtn').addEventListener('click',()=>{mapMovedByUser=true;map.setZoom(map.zoom-1);});
+ $('mapCoordinatesForm').addEventListener('submit',e=>{
+  e.preventDefault();const coords=parseCoordinates($('mapCoordinates').value);
+  if(!coords){toast(t('coordinatesInvalid'));$('mapCoordinates').focus();return;}
+  mapMovedByUser=true;map.setView(coords.lat,coords.lng,16);$('mapCoordinates').blur();toast(t('coordinatesReady'));
+ });
  els.locate.addEventListener('click',()=>requestLocation(loc=>beginLocationConfirmation({...loc,source:'gps'}),true));
  document.querySelectorAll('[data-map-mode]').forEach(b=>b.addEventListener('click',()=>selectMapMode(b.dataset.mapMode)));
  $('mapSidebarList')?.addEventListener('click',handleMapSidebarAction);
@@ -110,7 +119,7 @@ function bindMap(){
  $('confirmLocationBtn').addEventListener('click',()=>{if(!pendingLocation)return;const p={...pendingLocation};clearPendingLocation(false);openEditor(null,p);});
 }
 function selectMapMode(mode){
- mapMode=mode;syncMapModeButtons();
+ mapMovedByUser=true;mapMode=mode;syncMapModeButtons();
  ensureChipVisible(document.querySelector(`[data-map-mode="${mode}"]`));
  if(mode==='nearby'&&!currentLocation){requestLocation(()=>renderMapMode(true),false);return;}
  renderMapMode(true);
@@ -142,7 +151,8 @@ function mapVisits(){
 function renderMapMode(fit=false){
  syncMapModeButtons();const visits=mapVisits();map.setMarkers(visits);
  const labels={today:t('mapSummaryToday'),active:t('mapSummaryActive'),upcoming:t('mapSummaryUpcoming'),all:t('mapSummaryAll'),nearby:t('mapSummaryNearby')};
- els.mapModeSummary.textContent=`${visits.length} ${visits.length===1?t('visitsSingular'):t('visitsPlural')} ${labels[mapMode]}`;
+ const oneLabels={today:t('mapSummaryOneToday'),active:t('mapSummaryOneActive'),upcoming:t('mapSummaryOneUpcoming'),all:t('mapSummaryOneAll'),nearby:t('mapSummaryOneNearby')};
+ els.mapModeSummary.textContent=visits.length===1?t('mapSummaryOne',{label:oneLabels[mapMode]}):`${visits.length} ${t('visitsPlural')} ${labels[mapMode]}`;
  if(currentLocation)map.setUserLocation(currentLocation.lat,currentLocation.lng);
  renderMapSidebar(visits);
  if(fit){const pts=[...visits];if(mapMode==='nearby'&&currentLocation)pts.push(currentLocation);if(pts.length)requestAnimationFrame(()=>map.fitPoints(pts,mapMode==='nearby'?15:16));}
@@ -218,7 +228,7 @@ function autoLocateOnLaunch(){
    currentLocation={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy};
    map.setUserLocation(currentLocation.lat,currentLocation.lng);
    const mapView=document.querySelector('[data-view="map"]');
-   if(mapView&&!mapView.hidden)centerMapOnCurrentLocation();
+   if(mapView&&!mapView.hidden&&!mapMovedByUser)centerMapOnCurrentLocation();
    renderToday();
    renderList();
    renderMapMode(false);
@@ -317,6 +327,7 @@ function setEditorMode(mode,visit){
 }
 function openEditor(id,coords=null,options={}){
  const visit=id?state.visits.find(v=>v.id===id):null,p=visit||coords;if(!p)return;els.form.reset();markPreset('[data-edit-preset]',null);
+ if(id!==els.id.value)historyExpanded=false;
  els.id.value=visit?.id||'';els.lat.value=p.lat;els.lng.value=p.lng;els.visitStatus.value=visit?.status||'active';els.coords.textContent=`${Number(p.lat).toFixed(6)}, ${Number(p.lng).toFixed(6)}`;
  els.name.value=visit?.name||'';els.reference.value=visit?.reference||'';els.address.value=visit?.address||coords?.address||'';els.notes.value=visit?.notes||'';els.phone.value=visit?.phone||'';els.leftWith.value=visit?.leftWith||'';els.nextTopic.value=visit?.nextTopic||'';els.due.value=visit?.dueDate||'';els.dueTime.value=visit?.dueTime||'';
  const details=els.form.querySelector('.more-details');if(details)details.open=Boolean(visit&&(visit.phone||visit.notes||visit.leftWith||visit.nextTopic));
@@ -353,13 +364,15 @@ function renderVisitView(v){
 function longDate(iso){try{return new Intl.DateTimeFormat(locale(),{day:'numeric',month:'short',year:'numeric'}).format(new Date(iso));}catch{return'';}}
 function renderHistory(v){
  const history=v?.history||[];els.historyPanel.hidden=!history.length;
- els.historyList.replaceChildren(...history.slice().reverse().slice(0,8).map(h=>{
+ els.historyList.replaceChildren(...history.slice().reverse().slice(0,historyExpanded?undefined:8).map(h=>{
    const row=document.createElement('div');row.className='history-entry';
    const a=document.createElement('span');a.className='history-date';a.textContent=longDate(h.completedAt);
    const b=document.createElement('span');
    const bits=[h.ended?t('endedVisit'):t('loggedVisit'),h.note,h.leftWith?t('logLeft',{value:h.leftWith}):''].filter(Boolean);
    b.textContent=bits.join(' · ');row.append(a,b);return row;
  }));
+ els.historyMore.hidden=history.length<=8;
+ if(!els.historyMore.hidden)els.historyMore.textContent=historyExpanded?t('showRecentVisits'):t('showAllVisits',{count:history.length});
 }
 function closeEditor(){if(!els.id.value)map.setDraft(null,null);if(els.dialog.open)els.dialog.close();}
 function saveVisit(e){
@@ -374,6 +387,7 @@ function currentVisit(){return state.visits.find(v=>v.id===els.id.value)||null;}
 
 // ---------- Registrar visita ----------
 function bindLog(){
+ els.historyMore.addEventListener('click',()=>{historyExpanded=!historyExpanded;renderHistory(currentVisit());});
  els.logForm.addEventListener('submit',saveLog);
  $('closeLogBtn').addEventListener('click',closeLog);$('cancelLogBtn').addEventListener('click',closeLog);
  els.logDialog.addEventListener('cancel',e=>{e.preventDefault();closeLog();});
@@ -470,7 +484,7 @@ function openNewVisitChooser(){
  if(d&&!d.open)d.showModal();
 }
 function deleteVisit(){const v=currentVisit();if(!v||!confirm(t('deleteVisitConfirm',{name:v.name})))return;state.visits=state.visits.filter(x=>x.id!==v.id);state.deleted={...(state.deleted||{}),[v.id]:new Date().toISOString()};persist();closeEditor();renderAll();toast(t('visitDeleted'));runCalendarFlow({...v,deleted:true});}
-function showVisitOnMap(){const v=currentVisit();if(!v)return;closeEditor();mapMode=v.status==='completed'?'all':'active';showView('map');syncMapModeButtons();renderMapMode(false);map.setView(v.lat,v.lng,17);}
+function showVisitOnMap(){const v=currentVisit();if(!v)return;closeEditor();mapMovedByUser=true;mapMode=v.status==='completed'?'all':'active';showView('map');syncMapModeButtons();renderMapMode(false);map.setView(v.lat,v.lng,17);}
 async function shareVisit(){const v=currentVisit();if(!v)return;const url=mapLink(v),text=[v.name,placeLine(v),v.dueDate?t('scheduledFor',{value:`${shortDate(v.dueDate)}${v.dueTime?' '+formatTime(v.dueTime,locale()):''}`}):'',url].filter(Boolean).join('\n');try{if(navigator.share)await navigator.share({title:`Revisita: ${v.name}`,text});else window.open(whatsappUrl('',text),'_blank','noopener');}catch(e){if(e?.name!=='AbortError'){try{await navigator.clipboard.writeText(text);toast(t('copiedLocation'));}catch{toast(t('shareFailed'));}}}}
 
 function bindList(){
@@ -523,6 +537,7 @@ async function saveOfflineZone(){
  const nw=map.screenToLatLng(0,0),se=map.screenToLatLng(w,h);
  const base=Math.max(14,Math.min(map.zoom,17));
  const urls=zoneTileUrls({north:nw.lat,west:nw.lng,south:se.lat,east:se.lng},[base,base+1,base+2].filter(z=>z<=18));
+ if(!urls.length){toast(t('zoneZoomIn'));return;}
  zoneSaving=true;updateOnline();const label=els.zoneBtn.querySelector('[data-i18n]')||els.zoneBtn;const original=label.textContent;
  let done=0,failed=0;
  try{
@@ -530,7 +545,7 @@ async function saveOfflineZone(){
    const queue=[...urls];
    const worker=async()=>{while(queue.length){const url=queue.shift();try{if(!(await cache.match(url))){const r=await fetch(url,{mode:'cors'});if(r.ok)await cache.put(url,r);else failed++;}}catch{failed++;}done++;label.textContent=t('zoneSaving',{done,total:urls.length});}};
    await Promise.all([worker(),worker()]);
-   toast(failed?t('zoneFailed'):t('zoneSaved',{count:urls.length-failed}));
+    toast(failed?t('zoneFailed'):t('zoneSaved',{count:urls.length}));
  }catch(e){console.warn('[Revisita] zone cache failed',e);toast(t('zoneFailed'));}
  finally{zoneSaving=false;label.textContent=original;updateOnline();}
 }
@@ -707,7 +722,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.2',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.3',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();

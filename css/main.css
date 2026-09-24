@@ -291,6 +291,10 @@ button, .btn, .nav-item, .filter-chip { transition: transform var(--transition-s
 .agenda-actions .btn{min-height:40px;padding:7px 8px;font-size:.8rem}
 .map-mode-row{margin-bottom:3px}
 .map-mode-summary{margin:0 0 9px;font-size:.82rem}
+.map-coordinates-form{display:flex;align-items:center;gap:8px;margin:0 0 12px;max-width:460px}
+.map-coordinates-form input{min-width:0;flex:1;height:42px;padding:8px 12px;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text)}
+.map-coordinates-form .btn{white-space:nowrap}
+@media(max-width:430px){.map-coordinates-form{flex-wrap:wrap}.map-coordinates-form input{flex-basis:100%}.map-coordinates-form .btn{width:100%}}
 .location-confirm{position:absolute;z-index:12;left:10px;right:10px;bottom:10px;padding:14px;background:color-mix(in srgb,var(--color-surface) 96%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow-md)}
 .location-confirm strong{display:block;font-size:1rem}
 .location-confirm p{margin:4px 0;color:var(--color-text-muted);font-size:.82rem}
@@ -311,6 +315,7 @@ button, .btn, .nav-item, .filter-chip { transition: transform var(--transition-s
 .schedule-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .history-panel{padding:12px;margin-bottom:13px;box-shadow:none}
 .history-panel>strong{display:block;margin-bottom:7px}
+.history-more{width:100%;margin-top:10px}
 .history-entry{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--color-border);color:var(--color-text-muted);font-size:.8rem}
 .existing-actions{grid-template-columns:repeat(2,1fr)}
 .visit-card.completed{opacity:.72}
