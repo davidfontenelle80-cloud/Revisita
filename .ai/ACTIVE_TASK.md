@@ -15,6 +15,7 @@ Implemented:
 - The app does not attempt an undocumented iOS Settings deep link; when iPadOS has already blocked the website/app, Revisita explains how to change it safely in Settings.
 - App build bumped to v1.5.4; shell cache is revisita-shell-v26-location-settings.
 - Regression coverage added for the settings card, user-gesture request, blocked state, and iOS/Android guidance.
+- GitHub Actions Check #238: PASS. `npm run check` PASS; Worker dry bundle PASS.
 
 ## v1.5.3 — Mapa visible en tablet portrait
 
