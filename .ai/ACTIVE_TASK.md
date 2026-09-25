@@ -1,5 +1,18 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.2 — Navegación en iPad/tablet
+
+Worker: ChatGPT / GPT-5.6 Sol · Status: **IN PROGRESS** (2026-09-25).
+
+Supervisor request: fix navigation access/launching on iPad/tablet.
+
+Scope:
+- Make the split map sidebar available on common iPad portrait widths instead of waiting for 800px.
+- Make external directions handoff reliable from iPad/iPadOS PWAs by using direct same-context navigation for the chosen Maps app instead of popup-style new-window navigation.
+- Preserve Google Maps, Waze and Apple Maps choices and remembered preference.
+- Keep saved pin coordinates as the destination source.
+- Add regression coverage, bump app/service-worker asset version, run full checks, then update this task to READY FOR REVIEW.
+
 ## v1.5.1 — Mensajes visibles y guía de hora (Supervisor: "Go ahead, do those")
 
 Worker: Claude · Status: **READY FOR REVIEW** (2026-09-24).
