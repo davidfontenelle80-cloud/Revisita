@@ -625,29 +625,50 @@ body.location-pending .location-confirm{
   .next-visit-time{font-size:1.05rem}
 }
 
-@media(min-width:740px){
+@media(min-width:740px) and (max-width:959px){
   .map-workspace{
     display:grid;
-    grid-template-columns:minmax(240px,300px) minmax(0,1fr);
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"map" "sidebar";
+    gap:14px;
+    align-items:stretch;
+  }
+  .map-workspace .map-shell{
+    grid-area:map;
+    min-width:0;
+    width:100%;
+    height:clamp(500px,62dvh,680px);
+    margin:0;
+  }
+  .map-sidebar{
+    grid-area:sidebar;
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    height:min(280px,34dvh);
+    padding:14px;
+    overflow:hidden;
+  }
+}
+@media(min-width:960px){
+  .map-workspace{
+    display:grid;
+    grid-template-columns:300px minmax(0,1fr);
     gap:14px;
     align-items:stretch;
   }
   .map-sidebar{
     display:flex;
     flex-direction:column;
-    height:clamp(520px,66dvh,720px);
+    height:min(70dvh,760px);
     padding:14px;
     overflow:hidden;
   }
   .map-workspace .map-shell{
     min-width:0;
-    height:clamp(520px,66dvh,720px);
+    height:min(70dvh,760px);
     margin:0;
   }
-}
-@media(min-width:960px){
-  .map-workspace{grid-template-columns:300px minmax(0,1fr)}
-  .map-sidebar,.map-workspace .map-shell{height:min(70dvh,760px)}
 }
 
 
