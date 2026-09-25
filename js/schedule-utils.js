@@ -31,3 +31,17 @@ export function selectNextVisit(visits, now=new Date()) {
   const futureToday=due.filter(v=>!v.dueTime||v.dueTime>=hhmm);
   return futureToday[0]||due[0]||overdue[0]||upcoming[0]||null;
 }
+
+// Closed-app alerts go out 5 minutes before a visit, and the server checks once a minute.
+// A visit needs at least REMINDER_MIN_LEAD minutes of warning; we suggest REMINDER_SUGGEST_LEAD.
+export const REMINDER_MIN_LEAD=10, REMINDER_SUGGEST_LEAD=15;
+export function reminderLead(date,time,now=new Date()){
+  if(!date||!time)return{soon:false};
+  const at=new Date(`${date}T${time}`);
+  if(Number.isNaN(at.getTime())||at.getTime()>=now.getTime()+REMINDER_MIN_LEAD*60000)return{soon:false};
+  if(at.getTime()<=now.getTime()&&date!==dateKey(now))return{soon:false}; // an old date, not a time being chosen now
+  const s=new Date(now.getTime()+REMINDER_SUGGEST_LEAD*60000);
+  if(s.getSeconds()||s.getMilliseconds())s.setMinutes(s.getMinutes()+1);
+  s.setSeconds(0,0);const m=s.getMinutes();if(m%5)s.setMinutes(m+(5-m%5));
+  return{soon:true,past:at.getTime()<=now.getTime(),suggestDate:dateKey(s),suggestTime:`${String(s.getHours()).padStart(2,'0')}:${String(s.getMinutes()).padStart(2,'0')}`};
+}

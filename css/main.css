@@ -825,3 +825,10 @@ body.location-pending .location-confirm{
 .push-setup-banner .btn{flex:none;}
 .setup-steps{margin:var(--space-sm) 0 var(--space-md);padding-left:1.4em;display:grid;gap:var(--space-sm);line-height:1.45;}
 .setup-tip{font-size:.92em;margin-top:0;}
+
+/* Toasts sit in the top layer so they show above open sheets (v1.5.1) */
+.toast-region[popover]{inset:auto;left:50%;bottom:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 12px);margin:0;padding:0;border:0;background:transparent;color:inherit;overflow:visible;}
+.toast-region[popover]:not(:popover-open){display:none;}
+/* Too-soon time guide in the visit and log forms */
+.time-soon{grid-column:1/-1;display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-sm);padding:var(--space-sm) var(--space-md);border:1px solid var(--border-warning-soft);border-radius:var(--radius-md);background:var(--color-warning-soft);}
+.time-soon p{margin:0;line-height:1.4;}

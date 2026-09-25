@@ -1,5 +1,5 @@
 // Optional closed-app reminders. A separate scheduled Worker sends Web Push.
-import { visitInstant } from './visit-time.js?v=1.5.0';
+import { visitInstant } from './visit-time.js?v=1.5.1';
 const WORKER_URL='https://revisita-push.davidfontenelle80.workers.dev';
 const SUB_KEY='revisita.push.subscription.v1';
 const TOKEN_KEY='revisita.push.token.v1';
@@ -16,6 +16,7 @@ async function request(path,options={}){
  // Only a lost ownership check (403 Unauthorized) or an expired subscription (410)
  // means this device is no longer registered. A push-service rejection is not.
  if(response.status===410||(response.status===403&&result.error==='Unauthorized.'))put(SUB_KEY,'');
+ if(response.status===429)throw new Error('rate-limited');
  if(!response.ok||!result.ok)throw new Error(result.error||`Push request failed (${response.status})`);
  return result;
 }

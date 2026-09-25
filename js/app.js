@@ -1,12 +1,12 @@
-import{SimpleMap}from'./map.js?v=1.5.0';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.0';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.5.0';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.0';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.0';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.0';
-import{createCloudSync}from'./cloud-sync.js?v=1.5.0';
-import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow,pushSetupState,pushSetupNeeded,snoozePushPrompt,pushPromptSnoozed}from'./push.js?v=1.5.0';
-import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.0';
+import{SimpleMap}from'./map.js?v=1.5.1';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.1';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit,reminderLead}from'./schedule-utils.js?v=1.5.1';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.1';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.1';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.1';
+import{createCloudSync}from'./cloud-sync.js?v=1.5.1';
+import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow,pushSetupState,pushSetupNeeded,snoozePushPrompt,pushPromptSnoozed}from'./push.js?v=1.5.1';
+import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.1';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -32,7 +32,7 @@ function init(){
  initLanguage();
  applyTheme(state.settings.theme||'dark');
  applyTranslations(document);
- bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindLog();bindDirections();bindAgenda();bindList();bindMore();bindSettings();bindPushSetup();bindCloud();bindPolishUI();bindKeyboardShortcuts();
+ bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindLog();bindDirections();bindAgenda();bindList();bindMore();bindSettings();bindPushSetup();bindTimeGuides();bindCloud();bindPolishUI();bindKeyboardShortcuts();
  renderAll();renderSettings();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();maybeShowOnboarding();cloud.init();queuePushSync();
  addEventListener('online',()=>{updateOnline();cloud?.schedule(1000);queuePushSync();});addEventListener('offline',updateOnline);
  addEventListener('pageshow',()=>{if(isMapViewActive())resetPageScroll(true);});
@@ -623,7 +623,7 @@ function bindSettings(){
   }catch(error){console.warn('[Revisita] Push setup failed',error);$('pushStatus').textContent=t(({unsupported:'pushUnsupported','home-screen':'pushHomeScreen',permission:'pushPermission',unavailable:'pushUnavailable'})[error.message]||'pushFailed');}
   finally{btn.disabled=false;renderPushSettings();renderPushBanner();}
  });
- $('pushTestBtn').addEventListener('click',async()=>{try{await testPush();$('pushStatus').textContent=t('pushTestSent');}catch(error){console.warn('[Revisita] Test push failed',error);$('pushStatus').textContent=t('pushFailed');}});
+ $('pushTestBtn').addEventListener('click',async()=>{try{await testPush();$('pushStatus').textContent=t('pushTestSent');}catch(error){console.warn('[Revisita] Test push failed',error);$('pushStatus').textContent=t(error.message==='rate-limited'?'pushTestWait':'pushFailed');}});
  $('calendarOnSaveToggle')?.addEventListener('change',e=>{state.settings.calendarOnSave=e.target.checked;state.settings.calendarAsked=true;persist(false);});
  $('reminderMinutesSelect')?.addEventListener('change',e=>{state.settings.reminderMinutes=Number(e.target.value)||0;persist(false);});
  $('calendarModeSelect')?.addEventListener('change',e=>{state.settings.calendarMode=e.target.value;persist(false);});
@@ -648,6 +648,26 @@ function renderPushSettings(){
  else if(!pushSupported())$('pushStatus').textContent=t('pushUnsupported');
  else if(!on&&Notification.permission==='denied')$('pushStatus').textContent=t('pushPermission');
 }
+// ---------- Too-soon time guide ----------
+// A function, not a const: bindTimeGuides() runs during startup, before this line is reached.
+function timeGuides(){return[['visitDueDate','visitDueTime','visitTimeSoon'],['logDueDate','logDueTime','logTimeSoon']];}
+function renderTimeGuide([dateId,timeId,boxId]){
+ const box=$(boxId),date=$(dateId),time=$(timeId);if(!box||!date||!time)return;
+ const lead=reminderLead(date.value,time.value);
+ box.hidden=!lead.soon;if(!lead.soon)return;
+ const label=formatTime(lead.suggestTime,locale())+(lead.suggestDate!==dateKey()?` (${shortDate(lead.suggestDate)})`:'');
+ box.querySelector('p').textContent=t(lead.past?'timePast':'timeTooSoon',{time:label});
+ const btn=box.querySelector('button');btn.textContent=t('useSuggestedTime',{time:formatTime(lead.suggestTime,locale())});
+ btn.onclick=()=>{date.value=lead.suggestDate;time.value=lead.suggestTime;date.dispatchEvent(new Event('input',{bubbles:true}));time.dispatchEvent(new Event('input',{bubbles:true}));renderTimeGuide([dateId,timeId,boxId]);};
+}
+function renderTimeGuides(){timeGuides().forEach(renderTimeGuide);}
+function bindTimeGuides(){
+ timeGuides().forEach(g=>g.slice(0,2).forEach(id=>['input','change'].forEach(ev=>$(id)?.addEventListener(ev,()=>renderTimeGuide(g)))));
+ // Presets and editor opening set values without input events; the clock also moves.
+ document.addEventListener('click',()=>setTimeout(renderTimeGuides,0),true);
+ setInterval(()=>{if(document.querySelector('dialog[open]'))renderTimeGuides();},30000);
+}
+
 // ---------- Reminder setup guide ----------
 // Visits that would get a closed-app alert if this device were set up.
 function hasAlertableVisit(){return state.visits.some(v=>v.status==='active'&&!v.deleted&&v.dueTime&&reminderWindow(v)==='ok');}
@@ -832,7 +852,12 @@ function deleteAll(){if(!state.visits.length)return toast(t('noVisitsDelete'));i
 function persist(announce=true){try{saveState(state);setStatus(navigator.onLine?t('savedCheck'):t('offline'),navigator.onLine?'success':'warn',announce);if(announce)cloud?.schedule();}catch(e){setStatus(t('saveFailed'),'danger');showError(t('errorSave'),e.message||String(e));}}
 function setStatus(text,kind='success',announce=true){els.status.textContent=text;const c=kind==='danger'?'error':kind==='warn'?'warning':kind==='info'?'info':'success';els.status.style.color=`var(--color-${c})`;els.status.style.borderColor=`var(--border-${c}-soft)`;els.status.style.background=`var(--color-${c}-soft)`;els.status.setAttribute('aria-live',announce?'polite':'off');}
 function updateOnline(){setStatus(navigator.onLine?t('savedCheck'):t('offline'),navigator.onLine?'success':'warn');if(els.zoneBtn)els.zoneBtn.disabled=!navigator.onLine||zoneSaving;}
-function toast(message){const d=document.createElement('div');d.className='toast';d.textContent=message;els.toast.append(d);setTimeout(()=>d.remove(),3200);}
+function toast(message){
+ const region=els.toast,d=document.createElement('div');d.className='toast';d.textContent=message;region.append(d);
+ // Re-showing the popover puts it above any sheet opened since (top layer order).
+ if(region.showPopover){try{if(region.matches(':popover-open'))region.hidePopover();region.showPopover();}catch{}}
+ setTimeout(()=>{d.remove();if(!region.childElementCount&&region.hidePopover){try{region.hidePopover();}catch{}}},3200);
+}
 function showError(type,message){const box=$('errorBoundary');box.replaceChildren();const s=document.createElement('strong');s.textContent=type,p=document.createElement('div');p.textContent=message;const b=document.createElement('button');b.type='button';b.className='btn btn-secondary';b.textContent=t('close');b.style.marginTop='8px';b.onclick=()=>box.hidden=true;box.append(s,p,b);box.hidden=false;}
 function isSafeForServiceWorkerReload(){
  if(pendingLocation)return false;
@@ -874,7 +899,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.0',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.1',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();

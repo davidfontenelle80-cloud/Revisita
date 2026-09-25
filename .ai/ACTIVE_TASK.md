@@ -1,5 +1,17 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.1 — Mensajes visibles y guía de hora (Supervisor: "Go ahead, do those")
+
+Worker: Claude · Status: **READY FOR REVIEW** (2026-09-24).
+
+- Toasts now live in a top-layer popover, so messages from buttons inside an open sheet (Set Reminder, Calendar, Log visit…) are visible instead of hidden behind the sheet backdrop. This was why "Set Reminder does nothing" on the visit screen.
+- Test alert tapped again within a minute (server 429) now says "Wait a minute before testing again" instead of "Could not set up alerts".
+- Too-soon time guide in the visit editor and the log form: a timed visit today less than 10 minutes away (alerts go out 5 minutes before; the server checks once a minute) shows a note with a suggested time (now + 15 min, rounded up to 5) and a "Use <time>" button. Old dates are not flagged. Helper `reminderLead()` in js/schedule-utils.js.
+
+Live finding (same session): Worker delivery confirmed working after c006e39 was deployed — test pushes accepted by Apple; the iPhone showed nothing because Sleep Focus was on. David confirmed "It's working now."
+
+Verification: `npm run check` PASS (68/68 tests, encoding, syntax, KHub ship check). Headless 390×844: too-soon toast visible above the open visit sheet; guide shows and "Use 9:35 PM" fills the field; no page errors.
+
 ## v1.5.0 — Guía de avisos (Supervisor: "go ahead and do it. Build it.")
 
 Worker: Claude · Status: **READY FOR REVIEW** (2026-09-24).

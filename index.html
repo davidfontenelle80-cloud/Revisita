@@ -7,9 +7,9 @@
   <meta name="description" content="Revisita: organiza revisitas por ubicación, fecha y hora.">
   <title>Revisita</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/favicon.png?v=1.5.0" type="image/png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.5.0">
-  <link rel="stylesheet" href="css/main.css?v=1.5.0">
+  <link rel="icon" href="icons/favicon.png?v=1.5.1" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.5.1">
+  <link rel="stylesheet" href="css/main.css?v=1.5.1">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -17,7 +17,7 @@
   <div id="updateNotice" class="update-notice" hidden><span data-i18n="updateAvailable">Hay una actualización disponible.</span><button id="reloadAppBtn" type="button" data-i18n="update">Actualizar</button></div>
 
   <header class="app-header">
-    <div class="brand"><img src="icons/icon-72.png?v=1.5.0" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
+    <div class="brand"><img src="icons/icon-72.png?v=1.5.1" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
     <span id="saveStatus" class="status-chip" role="status" aria-live="polite" data-i18n="savedCheck">Guardado ✓</span>
   </header>
 
@@ -140,7 +140,7 @@
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p id="privacyText" data-i18n="privacyText">Las revisitas y notas se guardan en este dispositivo (y en tu cuenta solo si activas la sincronización). El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.5.0</p>
+        <p class="app-version">Revisita v1.5.1</p>
       </div>
     </section>
   </main>
@@ -196,6 +196,7 @@
         <div class="schedule-grid">
           <label class="field"><span data-i18n="returnDate">Volver el</span><input id="visitDueDate" type="date"></label>
           <label class="field"><span data-i18n="returnTime">Hora de volver</span><input id="visitDueTime" type="time" step="60"></label>
+          <div id="visitTimeSoon" class="time-soon" role="status" hidden><p></p><button class="btn btn-secondary btn-small" type="button"></button></div>
           <p class="muted" data-i18n="visitTimeZoneHint">La fecha y hora nuevas usan la zona horaria de este dispositivo.</p>
         </div>
         <div class="button-stack reminder-actions">
@@ -274,6 +275,7 @@
         <div class="schedule-grid">
           <label class="field"><span data-i18n="returnDate">Volver el</span><input id="logDueDate" type="date"></label>
           <label class="field"><span data-i18n="returnTime">Hora de volver</span><input id="logDueTime" type="time" step="60"></label>
+          <div id="logTimeSoon" class="time-soon" role="status" hidden><p></p><button class="btn btn-secondary btn-small" type="button"></button></div>
           <p class="muted" data-i18n="visitTimeZoneHint">La fecha y hora nuevas usan la zona horaria de este dispositivo.</p>
         </div>
         <label class="check-row"><input id="logEnd" type="checkbox"> <span data-i18n="endVisit">No volver — pasar al historial</span></label>
@@ -339,7 +341,7 @@
     <div class="sheet"><div class="sheet-handle" aria-hidden="true"></div><div class="sheet-header"><div><h2 data-i18n="importReview">Revisar importación</h2><p data-i18n="importReviewText">Confirma antes de cambiar tus datos.</p></div><button id="closeImportBtn" class="icon-btn" type="button" aria-label="Cerrar" data-i18n-aria="close">×</button></div><div id="importPreview" class="import-preview"></div><div class="alert alert-info"><span aria-hidden="true">ⓘ</span><span><strong data-i18n="importPolicyTitle">Política:</strong> <span data-i18n="importPolicy">se combinan registros por ID. Si un ID ya existe, la copia importada lo reemplaza. Antes de aplicar, se crea una copia local de recuperación.</span></span></div><div class="sheet-footer"><button id="cancelImportBtn" class="btn btn-secondary" type="button" data-i18n="cancel">Cancelar</button><button id="confirmImportBtn" class="btn btn-primary" type="button" data-i18n="importVisits">Importar revisitas</button></div></div>
   </dialog>
 
-  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.5.0"></script>
+  <div id="toastRegion" class="toast-region" popover="manual" aria-live="polite" aria-atomic="true"></div>
+  <script type="module" src="js/app.js?v=1.5.1"></script>
 </body>
 </html>
