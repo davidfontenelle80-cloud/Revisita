@@ -1,5 +1,19 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.3 — Mapa visible en tablet portrait
+
+Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
+
+Supervisor observation: after v1.5.2, the map could disappear on a tablet because the split two-column layout started too early at 740px.
+
+Fix:
+- 740–959px now uses a one-column tablet layout with the map first at full width and the visit/navigation list underneath.
+- 960px+ keeps the side-by-side visit list + map layout.
+- The iOS/iPadOS navigation handoff from v1.5.2 remains unchanged.
+- App build bumped to v1.5.3; shell cache is revisita-shell-v25-tablet-map-visibility.
+- Regression test now requires full-width portrait tablet map plus side-by-side layout only at 960px+.
+- Automated verification pending/then recorded in GitHub Actions before merge.
+
 ## v1.5.2 — Navegación en iPad/tablet
 
 Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
