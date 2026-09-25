@@ -106,9 +106,9 @@ export class PushScheduler {
    // At most one submission: persist before sending. Ambiguous network failures
    // are not retried; this favors avoiding duplicates over guaranteed delivery.
    await this.storage.put(key,{...r,attemptedAt:now});attempts++;
-   let status='accepted';
-   try{await sendWebPush(sub.subscription,{body:r.body,sourceId:r.sourceId,url:PATH},this.env);}catch(e){status=e.status?`rejected-${e.status}`:'network-error';if(e.status===404||e.status===410)await this.remove(r.subscriptionId);}
-   await this.env.PUSH_STORE.put(`delivery:${crypto.randomUUID()}`,JSON.stringify({scheduledAt:r.fireAt,attemptedAt:new Date(now).toISOString(),status}),{expirationTtl:86400}).catch(()=>{});
+   let status='accepted',sendError='';
+   try{await sendWebPush(sub.subscription,{body:r.body,sourceId:r.sourceId,url:PATH},this.env);}catch(e){status=e.status?`rejected-${e.status}`:'network-error';sendError=String((e&&e.message)||e).slice(0,160);if(e.status===404||e.status===410)await this.remove(r.subscriptionId);console.error('[revisita-push] send failed',status,sendError);}
+   await this.env.PUSH_STORE.put(`delivery:${crypto.randomUUID()}`,JSON.stringify({scheduledAt:r.fireAt,attemptedAt:new Date(now).toISOString(),status,error:sendError}),{expirationTtl:86400}).catch(()=>{});
   }
   for(const [key,r] of await this.storage.list({prefix:'rate:'}))if(r.until<=now)await this.storage.delete(key);
   for(const [key,s] of await this.storage.list({prefix:'sub:'}))if(now-s.lastSeen>366*86400000)await this.remove(key.slice(4));
