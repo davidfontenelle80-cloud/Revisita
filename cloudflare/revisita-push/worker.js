@@ -28,7 +28,7 @@ async function validateSubscription(sub){
 function health(env){return reply({ok:true,app:'revisita',hasStore:!!env.PUSH_STORE,hasScheduler:!!env.PUSH_SCHEDULER,hasVapidPublicKey:!!env.VAPID_PUBLIC_KEY,vapidPublicKey:env.VAPID_PUBLIC_KEY||'',hasVapidPrivateKey:!!env.VAPID_PRIVATE_KEY,hasVapidSubject:!!env.VAPID_SUBJECT,cron:'* * * * *'});}
 export async function sendWebPush(subscription,payload,env){
  const jwt=await createVapidJwt(subscription.endpoint,env),encrypted=await encryptPushPayload(subscription,payload);
- const response=await fetch(subscription.endpoint,{method:'POST',redirect:'error',signal:AbortSignal.timeout(10000),headers:{TTL:'300',Urgency:'high','Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream',Authorization:`vapid t=${jwt}, k=${env.VAPID_PUBLIC_KEY}`},body:encrypted});
+ const response=await fetch(subscription.endpoint,{method:'POST',redirect:'manual',signal:AbortSignal.timeout(10000),headers:{TTL:'300',Urgency:'high','Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream',Authorization:`vapid t=${jwt}, k=${env.VAPID_PUBLIC_KEY}`},body:encrypted});
  if(!response.ok)fail(response.status,'Push service rejected notification.');return response.status;
 }
 
