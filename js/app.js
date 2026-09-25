@@ -8,7 +8,7 @@ import{createCloudSync}from'./cloud-sync.js?v=1.5.2';
 import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow,pushSetupState,pushSetupNeeded,snoozePushPrompt,pushPromptSnoozed}from'./push.js?v=1.5.2';
 import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.2';
 
-let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer,locationPermissionState='unknown',locationHelpVisible=false;
+let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer,locationPermissionState='unknown',locationHelpVisible=false,locationLastError='';
 const ONBOARDING_KEY='revisita.onboarding.v1';
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 const $=id=>document.getElementById(id);
@@ -650,6 +650,8 @@ function renderLocationSettings(){
    status.textContent=t('locationSettingsDenied');btn.textContent=t('locationSettingsCheckAgain');locationHelpVisible=true;
  }else if(currentLocation){
    status.textContent=t('locationSettingsWorking',{meters:Math.max(1,Math.round(currentLocation.accuracy||1))});btn.textContent=t('locationSettingsTestAgain');locationHelpVisible=false;
+ }else if(locationLastError){
+   status.textContent=t(locationLastError);btn.textContent=t('locationSettingsCheckAgain');
  }else if(locationPermissionState==='granted'){
    status.textContent=t('locationSettingsGranted');btn.textContent=t('locationSettingsGetLocation');
  }else{
@@ -661,13 +663,14 @@ function renderLocationSettings(){
 function requestLocationFromSettings(){
  const btn=$('locationAccessBtn'),status=$('locationAccessStatus');
  if(!navigator.geolocation){locationPermissionState='unsupported';renderLocationSettings();return;}
- locationHelpVisible=false;renderLocationHelp();btn.disabled=true;status.textContent=t('locationSettingsSearching');
+ locationHelpVisible=false;locationLastError='';renderLocationHelp();btn.disabled=true;status.textContent=t('locationSettingsSearching');
  navigator.geolocation.getCurrentPosition(p=>{
    currentLocation={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy};
-   locationPermissionState='granted';locationHelpVisible=false;
+   locationPermissionState='granted';locationHelpVisible=false;locationLastError='';
    map.setUserLocation(currentLocation.lat,currentLocation.lng);updateOnline();renderToday();renderList();renderMapMode(false);renderLocationSettings();
  },e=>{
-   if(e.code===1){locationPermissionState='denied';currentLocation=null;locationHelpVisible=true;}
+   if(e.code===1){locationPermissionState='denied';currentLocation=null;locationHelpVisible=true;locationLastError='';}
+   else locationLastError='locationSettingsFailed';
    status.textContent=e.code===1?t('locationSettingsDenied'):t('locationSettingsFailed');
    btn.disabled=false;renderLocationSettings();
  },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
