@@ -11,6 +11,7 @@
 - Si el permiso está bloqueado, muestra instrucciones específicas para iPad/iPhone o Android y vuelve a comprobar el estado al regresar a la app.
 - En iPad/iPhone: Ajustes → Privacidad y seguridad → Localización → Revisita (si aparece) o Sitios web de Safari → Mientras se usa la app + Ubicación precisa.
 - Versión **1.5.4** · shell cache **revisita-shell-v26-location-settings**.
+- GitHub Actions **Check #238 PASS**: `npm run check` + bundle seco del Worker.
 
 ## Mapa visible en tablet portrait v1.5.3
 
