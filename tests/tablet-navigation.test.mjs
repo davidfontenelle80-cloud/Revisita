@@ -12,8 +12,10 @@ test('iOS directions use a same-context handoff instead of a popup', () => {
   assert.match(app, /if\(v\)launchDirections\(app,v\)/);
 });
 
-test('iPad portrait widths get the split map sidebar and non-sticky map toolbar', () => {
-  assert.match(css, /@media\(min-width:740px\)\{\s*\.map-workspace\{/);
+test('iPad portrait keeps the map full width with navigation below it', () => {
+  assert.match(css, /@media\(min-width:740px\) and \(max-width:959px\)\{[\s\S]*grid-template-areas:"map" "sidebar"/);
+  assert.match(css, /@media\(min-width:740px\) and \(max-width:959px\)\{[\s\S]*\.map-workspace \.map-shell\{[\s\S]*width:100%/);
+  assert.match(css, /@media\(min-width:960px\)\{[\s\S]*grid-template-columns:300px minmax\(0,1fr\)/);
   assert.match(css, /@media\(min-width:740px\)\{\s*#view-map \.horizontal-options\{/);
 });
 
