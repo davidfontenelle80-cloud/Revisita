@@ -2,7 +2,15 @@
 
 ## Estado
 
-**Publicada: v1.5.2. v1.5.3: READY FOR REVIEW — mapa visible en tablet portrait.**
+**Publicada: v1.5.3. v1.5.4: READY FOR REVIEW — ajustes de ubicación / GPS.**
+
+## Ajustes de ubicación / GPS v1.5.4
+
+- **Más** incluye una tarjeta **Ubicación / GPS** con estado y botón para solicitar/probar la ubicación desde una acción directa del usuario.
+- Si GPS funciona, muestra precisión aproximada y actualiza la posición actual usada por mapa/distancias.
+- Si el permiso está bloqueado, muestra instrucciones específicas para iPad/iPhone o Android y vuelve a comprobar el estado al regresar a la app.
+- En iPad/iPhone: Ajustes → Privacidad y seguridad → Localización → Revisita (si aparece) o Sitios web de Safari → Mientras se usa la app + Ubicación precisa.
+- Versión **1.5.4** · shell cache **revisita-shell-v26-location-settings**.
 
 ## Mapa visible en tablet portrait v1.5.3
 
