@@ -2,7 +2,15 @@
 
 ## Estado
 
-**Publicada: v1.5.1. v1.5.2: READY FOR REVIEW — navegación iPad/tablet.**
+**Publicada: v1.5.2. v1.5.3: READY FOR REVIEW — mapa visible en tablet portrait.**
+
+## Mapa visible en tablet portrait v1.5.3
+
+- Corrige la regresión de v1.5.2 donde el layout lateral podía comprimir/ocultar el mapa en tablets de ~744–768 px.
+- Entre 740 y 959 px: mapa primero a ancho completo; lista de revisitas con **Abrir / Cómo llegar** debajo.
+- Desde 960 px: vuelve el layout dividido lista + mapa.
+- Se conserva el traspaso de navegación iOS/iPadOS de v1.5.2.
+- Versión **1.5.3** · shell cache **revisita-shell-v25-tablet-map-visibility**.
 
 ## Navegación iPad/tablet v1.5.2
 
