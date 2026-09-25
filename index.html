@@ -7,9 +7,9 @@
   <meta name="description" content="Revisita: organiza revisitas por ubicación, fecha y hora.">
   <title>Revisita</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/favicon.png?v=1.4.9" type="image/png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.4.9">
-  <link rel="stylesheet" href="css/main.css?v=1.4.9">
+  <link rel="icon" href="icons/favicon.png?v=1.5.0" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.5.0">
+  <link rel="stylesheet" href="css/main.css?v=1.5.0">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -17,13 +17,17 @@
   <div id="updateNotice" class="update-notice" hidden><span data-i18n="updateAvailable">Hay una actualización disponible.</span><button id="reloadAppBtn" type="button" data-i18n="update">Actualizar</button></div>
 
   <header class="app-header">
-    <div class="brand"><img src="icons/icon-72.png?v=1.4.9" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
+    <div class="brand"><img src="icons/icon-72.png?v=1.5.0" width="38" height="38" alt="" aria-hidden="true"><div><h1>Revisita</h1><p data-i18n="brandSubtitle">Mapa de revisitas</p></div></div>
     <span id="saveStatus" class="status-chip" role="status" aria-live="polite" data-i18n="savedCheck">Guardado ✓</span>
   </header>
 
   <main id="main" class="app-main">
     <section id="view-today" class="view is-active" data-view="today" aria-labelledby="todayTitle">
       <div class="view-heading"><div><h2 id="todayTitle" data-i18n="today">Hoy</h2><p id="todayDate"></p></div><button id="todayNewBtn" class="btn btn-primary btn-small" type="button" data-i18n="newVisit">Nueva</button></div>
+      <section id="pushSetupBanner" class="push-setup-banner card" hidden>
+        <div><strong id="pushBannerTitle"></strong><p id="pushBannerText" class="muted"></p></div>
+        <button id="pushBannerBtn" class="btn btn-primary btn-small" type="button" data-i18n="pushSetupOpen">Configurar</button>
+      </section>
       <section id="nextVisitCard" class="next-visit-card card" hidden>
         <div class="next-visit-kicker" data-i18n="nextVisit">Próxima revisita</div>
         <div class="next-visit-main">
@@ -136,7 +140,7 @@
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p id="privacyText" data-i18n="privacyText">Las revisitas y notas se guardan en este dispositivo (y en tu cuenta solo si activas la sincronización). El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.4.9</p>
+        <p class="app-version">Revisita v1.5.0</p>
       </div>
     </section>
   </main>
@@ -298,6 +302,17 @@
     </div>
   </dialog>
 
+  <dialog id="pushSetupDialog" class="sheet-dialog small-sheet">
+    <div class="sheet">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-header"><div><h2 id="pushSetupTitle"></h2></div></div>
+      <p id="pushSetupText"></p>
+      <ol id="pushSetupSteps" class="setup-steps" hidden></ol>
+      <p id="pushSetupTip" class="muted setup-tip" hidden></p>
+      <div class="sheet-footer"><button id="pushSetupLaterBtn" class="btn btn-secondary" type="button"></button><button id="pushSetupActionBtn" class="btn btn-primary" type="button"></button></div>
+    </div>
+  </dialog>
+
   <dialog id="calendarStaleDialog" class="sheet-dialog small-sheet">
     <div class="sheet">
       <div class="sheet-handle" aria-hidden="true"></div>
@@ -325,6 +340,6 @@
   </dialog>
 
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.4.9"></script>
+  <script type="module" src="js/app.js?v=1.5.0"></script>
 </body>
 </html>

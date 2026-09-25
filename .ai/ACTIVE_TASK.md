@@ -1,5 +1,19 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.0 — Guía de avisos (Supervisor: "go ahead and do it. Build it.")
+
+Worker: Claude · Status: **READY FOR REVIEW** (2026-09-24).
+
+Scope: the app detects what a device still needs for closed-app alerts (`pushSetupState()` in `js/push.js`: home-screen / denied / ask / register / off / unsupported / ready).
+- Saving a visit with a date+time that can still get its 5-minute alert opens a setup sheet if the device is not ready: "Turn on alerts" (permission prompt from the tap), iPhone Home Screen install steps (with the Safari→app data tip), or blocked-in-settings steps (iOS or Android) with "Check again". "Not now" snoozes the save-time sheet 3 days; the calendar step continues after the sheet.
+- Today shows a banner while any timed visit lacks alerts; hidden once ready, on unsupported browsers, or after the user turns alerts off.
+- Settings "Enable alerts" opens the guide when blocked or not installed (no longer a dead disabled button). Re-checks on return from Settings (visibilitychange).
+- Fix: client cleared its registration on ANY 403. Now only 410 or 403 "Unauthorized." clear it. Worker test-push maps a push-service rejection to 424 `push-rejected-<status>` (was passed through as 403).
+
+Verification: `npm run check` PASS (66/66 tests, encoding, syntax, KHub ship check); new tests/push-setup.test.mjs + worker 424 test. Headless 390×844: Android blocked path (EN) and iPhone Safari path (ES) render with no page errors.
+
+NOT verified: real iPhone/Android permission prompt and delivery. Worker change (424 mapping) and the earlier c006e39 redirect fix are CODE IN GITHUB — NOT LIVE until the Worker is redeployed to Cloudflare.
+
 ## v1.4.5 — Avisos cinco minutos antes
 
 Worker: Codex · Status: **BLOCKED** (2026-09-24: Cloudflare authorization; deployment and physical delivery unverified).

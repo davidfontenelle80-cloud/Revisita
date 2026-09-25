@@ -1,22 +1,41 @@
 // Optional closed-app reminders. A separate scheduled Worker sends Web Push.
-import { visitInstant } from './visit-time.js?v=1.4.9';
+import { visitInstant } from './visit-time.js?v=1.5.0';
 const WORKER_URL='https://revisita-push.davidfontenelle80.workers.dev';
 const SUB_KEY='revisita.push.subscription.v1';
 const TOKEN_KEY='revisita.push.token.v1';
 const SENT_KEY='revisita.push.scheduled.v1';
+const OPTOUT_KEY='revisita.push.optout.v1';
+const SNOOZE_KEY='revisita.push.prompt.snooze.v1';
 
 function get(key){try{return localStorage.getItem(key)||'';}catch{return'';}}
 function put(key,value){localStorage.setItem(key,value);}
 function bytes(base64){const raw=atob(base64.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-base64.length%4)%4));return Uint8Array.from(raw,c=>c.charCodeAt(0));}
 async function request(path,options={}){
  const response=await fetch(WORKER_URL+path,{signal:AbortSignal.timeout(15000),...options,headers:{'content-type':'application/json',...(get(TOKEN_KEY)?{authorization:`Bearer ${get(TOKEN_KEY)}`} : {}),...options.headers}});
- const result=await response.json();
- if(response.status===403||response.status===410)put(SUB_KEY,'');
+ let result={};try{result=await response.json();}catch{}
+ // Only a lost ownership check (403 Unauthorized) or an expired subscription (410)
+ // means this device is no longer registered. A push-service rejection is not.
+ if(response.status===410||(response.status===403&&result.error==='Unauthorized.'))put(SUB_KEY,'');
  if(!response.ok||!result.ok)throw new Error(result.error||`Push request failed (${response.status})`);
  return result;
 }
 export function pushSupported(){return 'serviceWorker'in navigator&&'PushManager'in window&&'Notification'in window;}
 export function pushEnabled(){return Boolean(get(SUB_KEY))&&pushSupported()&&Notification.permission==='granted';}
+// What this device still needs before closed-app reminders can work:
+// 'ready' | 'home-screen' (iPhone/iPad not installed) | 'unsupported' |
+// 'denied' (blocked in settings) | 'off' (user turned alerts off) |
+// 'ask' (never asked) | 'register' (allowed, not signed up yet).
+export function pushSetupState(){
+ if(pushNeedsHomeScreen())return 'home-screen';
+ if(!pushSupported())return 'unsupported';
+ if(pushEnabled())return 'ready';
+ if(Notification.permission==='denied')return 'denied';
+ if(get(OPTOUT_KEY)==='1')return 'off';
+ return Notification.permission==='granted'?'register':'ask';
+}
+export function pushSetupNeeded(){return ['home-screen','denied','ask','register'].includes(pushSetupState());}
+export function snoozePushPrompt(ms=3*86400000){try{put(SNOOZE_KEY,String(Date.now()+ms));}catch{}}
+export function pushPromptSnoozed(){return Number(get(SNOOZE_KEY))>Date.now();}
 export function pushNeedsHomeScreen(){return (/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))&&!matchMedia('(display-mode: standalone)').matches&&!navigator.standalone;}
 
 export async function enablePush(){
@@ -40,7 +59,7 @@ export async function enablePush(){
  // Persist first so a lost registration response can be retried with ownership.
  if(!get(TOKEN_KEY))put(TOKEN_KEY,Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join(''));
  const result=await request('/api/subscribe',{method:'POST',body:JSON.stringify({app:'revisita',subscription:subscription.toJSON(),token:get(TOKEN_KEY)})});
- put(SUB_KEY,result.subscriptionId);
+ put(SUB_KEY,result.subscriptionId);put(OPTOUT_KEY,'');
  return result;
 }
 
@@ -50,7 +69,7 @@ export async function disablePush(){
  if(id)try{await request('/api/unsubscribe',{method:'POST',body:JSON.stringify({app:'revisita',subscriptionId:id})});}catch(e){if(get(SUB_KEY))throw e;}
  const registration=await navigator.serviceWorker.ready;
  await (await registration.pushManager.getSubscription())?.unsubscribe();
- put(SUB_KEY,'');put(TOKEN_KEY,'');put(SENT_KEY,'[]');
+ put(SUB_KEY,'');put(TOKEN_KEY,'');put(SENT_KEY,'[]');put(OPTOUT_KEY,'1');
 }
 
 export function fireAtForVisit(visit){

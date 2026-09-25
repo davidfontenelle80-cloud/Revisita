@@ -808,3 +808,20 @@ body.location-pending .location-confirm{
 .call-link[hidden] { display: none; }
 .next-visit-main .call-link { margin-top: 8px; }
 .visit-card-meta { align-items: center; }
+
+/* Reminder setup: Today banner + setup sheet (v1.5.0) */
+.push-setup-banner{
+  display:flex;
+  align-items:center;
+  gap:var(--space-md);
+  padding:var(--space-md);
+  margin-bottom:var(--space-md);
+  border-color:var(--border-warning-soft);
+  background:linear-gradient(135deg,var(--color-warning-soft),var(--color-surface));
+}
+.push-setup-banner > div{flex:1;min-width:0;}
+.push-setup-banner strong{display:block;}
+.push-setup-banner p{margin:var(--space-xs) 0 0;}
+.push-setup-banner .btn{flex:none;}
+.setup-steps{margin:var(--space-sm) 0 var(--space-md);padding-left:1.4em;display:grid;gap:var(--space-sm);line-height:1.45;}
+.setup-tip{font-size:.92em;margin-top:0;}

@@ -134,3 +134,9 @@ test('test push is rate limited and unsubscribe removes all device state',async 
  await h.sync([reminder()]);assert.equal((await h.send('/api/unsubscribe',{subscriptionId:h.subscriptionId},h.token)).status,200);
  assert.equal((await h.store.list({prefix:'rem:'})).size,0);assert.equal((await h.store.list({prefix:'sub:'})).size,0);
 });
+test('a push-service rejection on test push is 424, not an ownership 403',async t=>{
+ const h=await setup();t.mock.method(globalThis,'fetch',async()=>new Response(null,{status:403}));
+ const res=await h.send('/api/test-push',{subscriptionId:h.subscriptionId},h.token);
+ assert.equal(res.status,424);assert.equal((await res.json()).error,'push-rejected-403');
+ assert.equal((await h.store.list({prefix:'sub:'})).size,1);
+});

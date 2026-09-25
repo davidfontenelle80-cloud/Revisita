@@ -91,7 +91,7 @@ export class PushScheduler {
   }
   if(path==='/api/test-push'&&request.method==='POST'){
    await this.rate(`rate:test:${id}`,1,60);
-   try{await sendWebPush(sub.subscription,{body:'Notificación de prueba',sourceId:'test-push',url:PATH},this.env);}catch(e){if(e.status===404||e.status===410){await this.remove(id);fail(410,'subscription-expired');}throw e;}
+   try{await sendWebPush(sub.subscription,{body:'Notificación de prueba',sourceId:'test-push',url:PATH},this.env);}catch(e){if(e.status===404||e.status===410){await this.remove(id);fail(410,'subscription-expired');}if(e.status)fail(424,`push-rejected-${e.status}`);throw e;}
    return reply({ok:true,accepted:true});
   }
   fail(404,'Not found.');

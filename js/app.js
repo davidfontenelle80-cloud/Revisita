@@ -1,12 +1,12 @@
-import{SimpleMap}from'./map.js?v=1.4.9';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.4.9';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.4.9';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.4.9';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.4.9';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.4.9';
-import{createCloudSync}from'./cloud-sync.js?v=1.4.9';
-import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow}from'./push.js?v=1.4.9';
-import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.4.9';
+import{SimpleMap}from'./map.js?v=1.5.0';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.0';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit}from'./schedule-utils.js?v=1.5.0';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.0';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.0';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.0';
+import{createCloudSync}from'./cloud-sync.js?v=1.5.0';
+import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow,pushSetupState,pushSetupNeeded,snoozePushPrompt,pushPromptSnoozed}from'./push.js?v=1.5.0';
+import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.0';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -32,11 +32,11 @@ function init(){
  initLanguage();
  applyTheme(state.settings.theme||'dark');
  applyTranslations(document);
- bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindLog();bindDirections();bindAgenda();bindList();bindMore();bindSettings();bindCloud();bindPolishUI();bindKeyboardShortcuts();
+ bindHeader();bindHorizontalHints();bindNav();bindMap();bindEditor();bindLog();bindDirections();bindAgenda();bindList();bindMore();bindSettings();bindPushSetup();bindCloud();bindPolishUI();bindKeyboardShortcuts();
  renderAll();renderSettings();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();maybeShowOnboarding();cloud.init();queuePushSync();
  addEventListener('online',()=>{updateOnline();cloud?.schedule(1000);queuePushSync();});addEventListener('offline',updateOnline);
  addEventListener('pageshow',()=>{if(isMapViewActive())resetPageScroll(true);});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isMapViewActive())resetPageScroll(true);if(!document.hidden){cloud?.schedule(1500);queuePushSync();}});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isMapViewActive())resetPageScroll(true);if(!document.hidden){cloud?.schedule(1500);queuePushSync();renderPushBanner();renderPushSettings();}});
  addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();renderSettings();updateOnline();updateInstallUI();});
  addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;updateInstallUI();});
  addEventListener('appinstalled',()=>{installPrompt=null;updateInstallUI();toast(t('appInstalled'));});
@@ -283,6 +283,7 @@ function renderToday(){
  els.todaySection.hidden=!dueRest.length;els.todayList.replaceChildren(...dueRest.map(v=>agendaCard(v,'today')));
  els.upcomingSection.hidden=!upcomingRest.length;els.upcomingList.replaceChildren(...upcomingRest.map(v=>agendaCard(v,'upcoming')));
  els.todayEmpty.hidden=actionCount!==0;
+ renderPushBanner();
 }
 function renderNextVisit(overdue,due){
  if(!els.nextVisitCard)return;
@@ -343,8 +344,8 @@ async function ensureReminderForVisit(v){
  if(reminderWindow(v)!=='ok'){toast(t('reminderTooSoon'));return 'need-time';}
  if(!pushEnabled()){
   try{await enablePush();}
-  catch(error){console.warn('[Revisita] Push setup failed',error);toast(t(({unsupported:'pushUnsupported','home-screen':'pushHomeScreen',permission:'pushPermission',unavailable:'pushUnavailable'})[error.message]||'pushFailed'));return 'failed';}
-  renderPushSettings();
+  catch(error){console.warn('[Revisita] Push setup failed',error);if(error.message==='home-screen'||error.message==='permission')openPushSetup();else toast(t(({unsupported:'pushUnsupported',unavailable:'pushUnavailable'})[error.message]||'pushFailed'));return 'failed';}
+  renderPushSettings();renderPushBanner();
  }
  await syncPushReminders(state.visits);
  toast(t('reminderSet'));
@@ -428,7 +429,9 @@ function saveVisit(e){
  e.preventDefault();const built=collectVisitFromForm();if(!built)return;const{rec,old,scheduleChanged}=built;
  state.visits=old?state.visits.map(v=>v.id===rec.id?rec:v):[...state.visits,rec];persist();closeEditor();clearPendingLocation();renderAll();toast(old?t('visitUpdated'):t('visitSaved'));
  queuePushSync();
- runCalendarFlow(rec,{changed:scheduleChanged});
+ const calendarStep=()=>runCalendarFlow(rec,{changed:scheduleChanged});
+ if(scheduleChanged&&shouldPromptPushSetup(rec))openPushSetup({onDone:calendarStep});
+ else calendarStep();
 }
 // Store the editor form without closing it, so per-visit actions (calendar, push)
 // can act on the saved record. Returns the stored visit, or null when invalid.
@@ -611,12 +614,14 @@ async function saveOfflineZone(){
 // ---------- Settings ----------
 function bindSettings(){
  $('pushToggleBtn').addEventListener('click',async()=>{
+  const setup=pushSetupState();
+  if(setup==='home-screen'||setup==='denied'){openPushSetup();return;}
   const btn=$('pushToggleBtn');btn.disabled=true;$('pushStatus').textContent='…';
   try{
    if(pushEnabled()){await disablePush();$('pushStatus').textContent=t('pushDisabled');}
    else{await enablePush();await syncPushReminders(state.visits);$('pushStatus').textContent=t('pushEnabled');}
   }catch(error){console.warn('[Revisita] Push setup failed',error);$('pushStatus').textContent=t(({unsupported:'pushUnsupported','home-screen':'pushHomeScreen',permission:'pushPermission',unavailable:'pushUnavailable'})[error.message]||'pushFailed');}
-  finally{btn.disabled=false;renderPushSettings();}
+  finally{btn.disabled=false;renderPushSettings();renderPushBanner();}
  });
  $('pushTestBtn').addEventListener('click',async()=>{try{await testPush();$('pushStatus').textContent=t('pushTestSent');}catch(error){console.warn('[Revisita] Test push failed',error);$('pushStatus').textContent=t('pushFailed');}});
  $('calendarOnSaveToggle')?.addEventListener('change',e=>{state.settings.calendarOnSave=e.target.checked;state.settings.calendarAsked=true;persist(false);});
@@ -638,10 +643,75 @@ function renderPushSettings(){
  const on=pushEnabled(),button=$('pushToggleBtn');
  button.textContent=t(on?'disablePush':'enablePush');
  $('pushTestBtn').hidden=!on;
- button.disabled=!pushSupported()||pushNeedsHomeScreen()||(!on&&Notification.permission==='denied');
+ button.disabled=pushSetupState()==='unsupported';
  if(pushNeedsHomeScreen())$('pushStatus').textContent=t('pushHomeScreen');
  else if(!pushSupported())$('pushStatus').textContent=t('pushUnsupported');
  else if(!on&&Notification.permission==='denied')$('pushStatus').textContent=t('pushPermission');
+}
+// ---------- Reminder setup guide ----------
+// Visits that would get a closed-app alert if this device were set up.
+function hasAlertableVisit(){return state.visits.some(v=>v.status==='active'&&!v.deleted&&v.dueTime&&reminderWindow(v)==='ok');}
+function shouldPromptPushSetup(v){return v?.status==='active'&&Boolean(v.dueTime)&&reminderWindow(v)==='ok'&&pushSetupNeeded()&&!pushPromptSnoozed();}
+function renderPushBanner(){
+ const el=$('pushSetupBanner');if(!el)return;
+ const setup=pushSetupState(),show=pushSetupNeeded()&&hasAlertableVisit();
+ el.hidden=!show;if(!show)return;
+ $('pushBannerTitle').textContent=t('pushBannerTitle');
+ $('pushBannerText').textContent=t(setup==='home-screen'?'pushBannerHome':setup==='denied'?'pushBannerDenied':'pushBannerAsk');
+}
+let pushSetupDone=null;
+function openPushSetup({onDone}={}){
+ const d=$('pushSetupDialog');
+ if(pushSetupDone&&pushSetupDone!==onDone){const prev=pushSetupDone;pushSetupDone=null;prev();}
+ pushSetupDone=onDone||null;
+ if(!renderPushSetupDialog()){finishPushSetup();return;}
+ if(!d.open)d.showModal();
+}
+// Fills the sheet for the device's current state; false when nothing is left to do.
+function renderPushSetupDialog(){
+ const setup=pushSetupState(),steps=$('pushSetupSteps'),tip=$('pushSetupTip'),action=$('pushSetupActionBtn'),later=$('pushSetupLaterBtn');
+ const list=keys=>{steps.replaceChildren(...keys.map(k=>{const li=document.createElement('li');li.textContent=t(k);return li;}));steps.hidden=!keys.length;};
+ tip.hidden=true;action.hidden=false;later.textContent=t('pushSetupLater');
+ if(setup==='home-screen'){
+  $('pushSetupTitle').textContent=t('pushSetupHomeTitle');$('pushSetupText').textContent=t('pushSetupHomeText');
+  list(['pushSetupHomeStep1','pushSetupHomeStep2','pushSetupHomeStep3']);tip.textContent=t('pushSetupHomeTip');tip.hidden=false;
+  action.hidden=true;later.textContent=t('pushSetupGotIt');
+ }else if(setup==='denied'){
+  $('pushSetupTitle').textContent=t('pushSetupDeniedTitle');$('pushSetupText').textContent=t('pushSetupDeniedText');
+  list(isIOSDevice()?['pushSetupDeniedIos1','pushSetupDeniedIos2','pushSetupDeniedBack']:['pushSetupDeniedAndroid1','pushSetupDeniedAndroid2','pushSetupDeniedBack']);
+  action.textContent=t('pushSetupCheck');action.dataset.action='check';
+ }else if(setup==='ask'||setup==='register'||setup==='off'){
+  $('pushSetupTitle').textContent=t('pushSetupAskTitle');$('pushSetupText').textContent=t('pushSetupAskText');
+  list([]);action.textContent=t('pushSetupTurnOn');action.dataset.action='enable';
+ }else return false;
+ return true;
+}
+function finishPushSetup(){
+ const d=$('pushSetupDialog');if(d.open)d.close();
+ renderPushBanner();renderPushSettings();
+ const next=pushSetupDone;pushSetupDone=null;if(typeof next==='function')next();
+}
+function bindPushSetup(){
+ const d=$('pushSetupDialog');
+ $('pushBannerBtn').addEventListener('click',()=>openPushSetup());
+ $('pushSetupLaterBtn').addEventListener('click',()=>{if(pushSetupNeeded())snoozePushPrompt();finishPushSetup();});
+ d.addEventListener('cancel',e=>{e.preventDefault();$('pushSetupLaterBtn').click();});
+ $('pushSetupActionBtn').addEventListener('click',async()=>{
+  const btn=$('pushSetupActionBtn');
+  if(btn.dataset.action==='check'){
+   if(pushSetupState()==='denied'){toast(t('pushPermission'));return;}
+   if(!renderPushSetupDialog())finishPushSetup();
+   return;
+  }
+  btn.disabled=true;
+  // enablePush asks for permission before any other await, as Safari requires.
+  try{await enablePush();await syncPushReminders(state.visits);toast(t('pushEnabled'));finishPushSetup();}
+  catch(error){
+   console.warn('[Revisita] Push setup failed',error);
+   if(error.message==='permission'||error.message==='home-screen'){if(!renderPushSetupDialog())finishPushSetup();}
+   else{toast(t(({unsupported:'pushUnsupported',unavailable:'pushUnavailable'})[error.message]||'pushFailed'));}
+  }finally{btn.disabled=false;}
+ });
 }
 function queuePushSync(){
  if(!pushEnabled())return;
@@ -804,7 +874,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.4.9',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.0',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();
