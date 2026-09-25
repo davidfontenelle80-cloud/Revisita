@@ -625,7 +625,7 @@ body.location-pending .location-confirm{
   .next-visit-time{font-size:1.05rem}
 }
 
-@media(min-width:800px){
+@media(min-width:740px){
   .map-workspace{
     display:grid;
     grid-template-columns:minmax(240px,300px) minmax(0,1fr);
@@ -712,7 +712,7 @@ body.location-pending .location-confirm{
   backdrop-filter:blur(14px) saturate(130%);
   -webkit-backdrop-filter:blur(14px) saturate(130%);
 }
-@media(min-width:800px){
+@media(min-width:740px){
   #view-map .horizontal-options{
     position:static;
     padding:0;

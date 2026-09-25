@@ -1,12 +1,12 @@
-import{SimpleMap}from'./map.js?v=1.5.1';
-import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.1';
-import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit,reminderLead}from'./schedule-utils.js?v=1.5.1';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.1';
-import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.1';
-import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.1';
-import{createCloudSync}from'./cloud-sync.js?v=1.5.1';
-import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow,pushSetupState,pushSetupNeeded,snoozePushPrompt,pushPromptSnoozed}from'./push.js?v=1.5.1';
-import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.1';
+import{SimpleMap}from'./map.js?v=1.5.2';
+import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.2';
+import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit,reminderLead}from'./schedule-utils.js?v=1.5.2';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.2';
+import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.2';
+import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.2';
+import{createCloudSync}from'./cloud-sync.js?v=1.5.2';
+import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow,pushSetupState,pushSetupNeeded,snoozePushPrompt,pushPromptSnoozed}from'./push.js?v=1.5.2';
+import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.2';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -209,11 +209,18 @@ function renderMapSidebar(visits){
  });
  els.mapSidebarList.replaceChildren(...cards);
 }
+function launchDirections(app,v){
+ const url=directionsUrl(app,v);
+ // iPad/iPhone installed PWAs hand universal links to native navigation more reliably
+ // when the user gesture navigates the current context instead of opening a new tab.
+ if(isIOSDevice()){window.location.assign(url);return;}
+ window.open(url,'_blank','noopener');
+}
 function openDirectionsForVisit(id){
  const v=state.visits.find(x=>x.id===id);
  if(!v)return;
  const app=state.settings.navApp;
- if(app&&app!=='ask'&&!(app==='apple'&&!isIOSDevice())){window.open(directionsUrl(app,v),'_blank','noopener');return;}
+ if(app&&app!=='ask'&&!(app==='apple'&&!isIOSDevice())){launchDirections(app,v);return;}
  directionsVisitId=id;
  const remember=$('rememberNavApp');if(remember)remember.checked=false;
  const apple=els.directionsDialog.querySelector('[data-nav-app="apple"]');if(apple)apple.hidden=!isIOSDevice();
@@ -224,7 +231,7 @@ function bindDirections(){
    const v=state.visits.find(x=>x.id===directionsVisitId);const app=b.dataset.navApp;
    if($('rememberNavApp')?.checked){state.settings.navApp=app;persist(false);renderSettings();}
    els.directionsDialog.close();
-   if(v)window.open(directionsUrl(app,v),'_blank','noopener');
+   if(v)launchDirections(app,v);
  }));
  $('closeDirectionsBtn').addEventListener('click',()=>els.directionsDialog.close());
  els.directionsDialog.addEventListener('click',e=>{if(e.target===els.directionsDialog)els.directionsDialog.close();});
@@ -899,7 +906,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.1',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.2',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();

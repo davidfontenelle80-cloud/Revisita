@@ -1,5 +1,28 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.2 — Navegación en iPad/tablet
+
+Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
+
+Supervisor request: fix navigation access/launching on iPad/tablet.
+
+Scope:
+- Make the split map sidebar available on common iPad portrait widths instead of waiting for 800px.
+- Make external directions handoff reliable from iPad/iPadOS PWAs by using direct same-context navigation for the chosen Maps app instead of popup-style new-window navigation.
+- Preserve Google Maps, Waze and Apple Maps choices and remembered preference.
+- Keep saved pin coordinates as the destination source.
+- Add regression coverage, bump app/service-worker asset version, run full checks, then update this task to READY FOR REVIEW.
+
+Result:
+- Tablet split Map + visit/sidebar layout now begins at 740px, covering 744px/768px iPad portrait layouts that previously fell back to the phone-only map.
+- On iPhone/iPad, Directions now uses a direct same-context universal-link handoff; desktop/Android retain the existing new-tab behavior.
+- Apple Maps is the first visible navigation choice on iOS/iPadOS; Google Maps and Waze remain available and remembered preferences are unchanged.
+- Destination coordinates still come from the saved visit pin.
+- App/assets bumped to v1.5.2; shell cache is revisita-shell-v24-tablet-navigation.
+- Regression tests added for the iPad breakpoint, iOS handoff, and Apple-first chooser.
+- GitHub Actions Check run 212: PASS. npm run check PASS; Worker dry bundle PASS.
+- Physical iPad handoff remains the supervisor acceptance test.
+
 ## v1.5.1 — Mensajes visibles y guía de hora (Supervisor: "Go ahead, do those")
 
 Worker: Claude · Status: **READY FOR REVIEW** (2026-09-24).

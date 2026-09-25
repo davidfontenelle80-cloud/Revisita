@@ -1,7 +1,7 @@
 // Pure helpers for Revisita v1.4: addresses, dates, directions, calendar, sharing and sync merge.
 // No DOM access here so everything can be unit-tested in Node.
-import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.5.1';
-import { visitInstant } from './visit-time.js?v=1.5.1';
+import { latLngToWorld, TILE_SIZE } from './map-utils.js?v=1.5.2';
+import { visitInstant } from './visit-time.js?v=1.5.2';
 
 /** Build a short, human address from a Nominatim jsonv2 response. */
 export function compactAddress(result) {
