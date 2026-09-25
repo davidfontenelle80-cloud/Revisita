@@ -2,7 +2,17 @@
 
 ## Estado
 
-**Publicada: v1.4.4. v1.4.5: borrador, BLOCKED por acceso Cloudflare y prueba real de entrega.**
+**Publicada: v1.5.1. v1.5.2: READY FOR REVIEW — navegación iPad/tablet.**
+
+## Navegación iPad/tablet v1.5.2
+
+- El layout dividido de Mapa + lista lateral empieza a 740 px, por lo que iPad portrait de 744/768 px ya muestra acciones directas **Abrir / Cómo llegar**.
+- En iPhone/iPad, **Cómo llegar** usa navegación del mismo contexto hacia el universal link para mejorar el traspaso desde la PWA instalada a Apple Maps / Google Maps / Waze.
+- Apple Maps aparece primero cuando iOS/iPadOS está disponible; Google Maps y Waze siguen disponibles.
+- Las coordenadas guardadas del pin siguen siendo el destino; no se cambió el modelo de datos.
+- Versión **1.5.2** · shell cache **revisita-shell-v24-tablet-navigation**.
+- GitHub Actions **Check #212 PASS**: npm run check PASS + bundle seco del Worker PASS.
+- Pendiente de aceptación: tocar **Cómo llegar** desde un iPad físico y confirmar que abre la app de navegación elegida.
 
 ## Flujo actual
 
