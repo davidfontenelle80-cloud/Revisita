@@ -1,6 +1,6 @@
-const APP_BUILD = '1.5.3';
+const APP_BUILD = '1.5.4';
 const CACHE_PREFIX = 'revisita-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v25-tablet-map-visibility`;
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v26-location-settings`;
 const TILE_CACHE = 'revisita-tiles-v1';
 // Areas the user saved on purpose with "Guardar zona"; never trimmed, survives shell updates.
 const ZONE_CACHE = 'revisita-zones-v1';
@@ -9,13 +9,13 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.json',
-  './css/main.css?v=1.5.3',
-  './js/app.js?v=1.5.3',
+  './css/main.css?v=1.5.4',
+  './js/app.js?v=1.5.4',
   './js/map.js?v=1.5.2',
   './js/map-utils.js?v=1.5.2',
   './js/storage.js?v=1.5.2',
   './js/schedule-utils.js?v=1.5.2',
-  './js/i18n.js?v=1.5.2',
+  './js/i18n.js?v=1.5.4',
   './js/visit-tools.js?v=1.5.2',
   './js/cloud-sync.js?v=1.5.2',
   './js/push.js?v=1.5.2',

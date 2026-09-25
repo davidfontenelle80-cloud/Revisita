@@ -213,6 +213,11 @@ button, .btn, .nav-item, .filter-chip { transition: transform var(--transition-s
 .settings-card { padding: 16px; }
 .settings-card h3 { margin: 0 0 6px; }
 .settings-card > p { margin: 0 0 14px; color: var(--color-text-muted); }
+#locationAccessHelp{margin-top:12px;align-items:flex-start}
+#locationAccessHelp > div{min-width:0}
+#locationAccessHelp strong{display:block;margin-bottom:4px}
+#locationAccessHelp .setup-steps{margin-bottom:0}
+
 .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; }
 .setting-row p { margin: 3px 0 0; }
 .button-stack { display: grid; gap: 8px; }

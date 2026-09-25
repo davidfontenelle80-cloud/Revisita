@@ -1,5 +1,22 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.4 — Ajustes de ubicación / GPS
+
+Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
+
+Supervisor request: add an in-app setting because the tablet did not show a GPS permission prompt.
+
+Implemented:
+- Más now has a dedicated **Ubicación / GPS** card.
+- The primary button performs a user-initiated geolocation request, which is the correct moment for iPadOS/browser permission UI when permission is still promptable.
+- The card reports working/granted/prompt/denied/unsupported states and approximate GPS accuracy after success.
+- A **No aparece el permiso** button shows device-specific recovery instructions. On iPad/iPhone it points to Ajustes → Privacidad y seguridad → Localización, then Revisita if listed or Sitios web de Safari, with Mientras se usa la app + Ubicación precisa.
+- Returning to Revisita re-checks the permission state automatically.
+- The app does not attempt an undocumented iOS Settings deep link; when iPadOS has already blocked the website/app, Revisita explains how to change it safely in Settings.
+- App build bumped to v1.5.4; shell cache is revisita-shell-v26-location-settings.
+- Regression coverage added for the settings card, user-gesture request, blocked state, and iOS/Android guidance.
+- GitHub Actions Check #238: PASS. `npm run check` PASS; Worker dry bundle PASS.
+
 ## v1.5.3 — Mapa visible en tablet portrait
 
 Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).

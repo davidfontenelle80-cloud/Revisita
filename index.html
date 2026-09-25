@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/favicon.png?v=1.5.2" type="image/png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.5.2">
-  <link rel="stylesheet" href="css/main.css?v=1.5.3">
+  <link rel="stylesheet" href="css/main.css?v=1.5.4">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -111,6 +111,19 @@
       <div class="view-heading"><div><h2 id="moreTitle" data-i18n="more">Más</h2><p data-i18n="moreSubtitle">Instalación, apariencia, idioma y copias de seguridad.</p></div></div>
       <div class="settings-stack">
         <section class="card settings-card"><h3 data-i18n="installApp">Instalar la app</h3><p data-i18n="installText">Úsala como una app normal desde la pantalla de inicio.</p><button id="installBtn" class="btn btn-primary" type="button" disabled data-i18n="installRevisita">Instalar Revisita</button><p id="installHint" class="muted" data-i18n="installHint">Si ya está instalada, este botón puede no aparecer disponible.</p></section>
+        <section id="locationSettingsCard" class="card settings-card">
+          <h3 data-i18n="locationSettingsTitle">Ubicación / GPS</h3>
+          <p data-i18n="locationSettingsText">Comprueba si Revisita puede usar la ubicación de este dispositivo para centrar el mapa y calcular visitas cercanas.</p>
+          <div class="button-stack">
+            <button id="locationAccessBtn" class="btn btn-primary" type="button" data-i18n="locationSettingsAllow">Permitir / probar GPS</button>
+            <button id="locationHelpBtn" class="btn btn-secondary btn-small" type="button" data-i18n="locationSettingsNoPrompt">No aparece el permiso</button>
+          </div>
+          <p id="locationAccessStatus" class="muted" role="status" aria-live="polite"></p>
+          <div id="locationAccessHelp" class="alert alert-info" hidden>
+            <span aria-hidden="true">ⓘ</span>
+            <div><strong id="locationAccessHelpTitle"></strong><ol id="locationAccessHelpSteps" class="setup-steps"></ol></div>
+          </div>
+        </section>
         <section class="card settings-card"><h3 data-i18n="appearance">Apariencia</h3><div><strong data-i18n="theme">Tema</strong><p class="muted" data-i18n="themeHelp">Elige cómo quieres ver Revisita.</p></div><div class="segmented-control" role="group" aria-label="Tema" data-i18n-aria="themeAria"><button class="segment-btn" type="button" data-theme-choice="dark" data-i18n="dark">Oscuro</button><button class="segment-btn" type="button" data-theme-choice="light" data-i18n="light">Claro</button></div></section>
         <section class="card settings-card"><h3 data-i18n="remindersTitle">Recordatorios</h3><p data-i18n="remindersText">Revisita usa el calendario de tu teléfono para avisarte. Al guardar una revisita con fecha, se abre el calendario para añadirla con una alarma.</p>
           <p data-i18n="pushDescription">Activa avisos en este dispositivo para recibir una notificación 5 minutos antes de cada revisita con hora, incluso con la app cerrada. Se envían el nombre y la hora al servicio de avisos.</p>
@@ -140,7 +153,7 @@
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p id="privacyText" data-i18n="privacyText">Las revisitas y notas se guardan en este dispositivo (y en tu cuenta solo si activas la sincronización). El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.5.3</p>
+        <p class="app-version">Revisita v1.5.4</p>
       </div>
     </section>
   </main>
@@ -342,6 +355,6 @@
   </dialog>
 
   <div id="toastRegion" class="toast-region" popover="manual" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.5.3"></script>
+  <script type="module" src="js/app.js?v=1.5.4"></script>
 </body>
 </html>

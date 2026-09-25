@@ -1,14 +1,14 @@
 import{SimpleMap}from'./map.js?v=1.5.2';
 import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.2';
 import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit,reminderLead}from'./schedule-utils.js?v=1.5.2';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.2';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.4';
 import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.2';
 import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.2';
 import{createCloudSync}from'./cloud-sync.js?v=1.5.2';
 import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow,pushSetupState,pushSetupNeeded,snoozePushPrompt,pushPromptSnoozed}from'./push.js?v=1.5.2';
 import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.2';
 
-let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer;
+let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer,locationPermissionState='unknown',locationHelpVisible=false,locationLastError='';
 const ONBOARDING_KEY='revisita.onboarding.v1';
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 const $=id=>document.getElementById(id);
@@ -36,7 +36,7 @@ function init(){
  renderAll();renderSettings();registerSW();updateOnline();updateInstallUI();autoLocateOnLaunch();maybeShowOnboarding();cloud.init();queuePushSync();
  addEventListener('online',()=>{updateOnline();cloud?.schedule(1000);queuePushSync();});addEventListener('offline',updateOnline);
  addEventListener('pageshow',()=>{if(isMapViewActive())resetPageScroll(true);});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isMapViewActive())resetPageScroll(true);if(!document.hidden){cloud?.schedule(1500);queuePushSync();renderPushBanner();renderPushSettings();}});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isMapViewActive())resetPageScroll(true);if(!document.hidden){cloud?.schedule(1500);queuePushSync();renderPushBanner();renderPushSettings();refreshLocationPermission();}});
  addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();renderSettings();updateOnline();updateInstallUI();});
  addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;updateInstallUI();});
  addEventListener('appinstalled',()=>{installPrompt=null;updateInstallUI();toast(t('appInstalled'));});
@@ -619,7 +619,65 @@ async function saveOfflineZone(){
 }
 
 // ---------- Settings ----------
+async function refreshLocationPermission(){
+ if(!navigator.geolocation){locationPermissionState='unsupported';renderLocationSettings();return;}
+ let next='unknown';
+ try{
+   if(navigator.permissions?.query)next=(await navigator.permissions.query({name:'geolocation'})).state||'unknown';
+ }catch{}
+ locationPermissionState=next;
+ if(next==='denied')currentLocation=null;
+ renderLocationSettings();
+}
+function renderLocationHelp(){
+ const box=$('locationAccessHelp'),title=$('locationAccessHelpTitle'),steps=$('locationAccessHelpSteps');
+ if(!box||!title||!steps)return;
+ box.hidden=!locationHelpVisible;
+ if(!locationHelpVisible)return;
+ const ios=isIOSDevice();
+ title.textContent=t(ios?'locationSettingsIosTitle':'locationSettingsAndroidTitle');
+ const keys=ios?['locationSettingsIosStep1','locationSettingsIosStep2','locationSettingsIosStep3']:['locationSettingsAndroidStep1','locationSettingsAndroidStep2','locationSettingsAndroidStep3'];
+ steps.replaceChildren(...keys.map(key=>{const li=document.createElement('li');li.textContent=t(key);return li;}));
+}
+function renderLocationSettings(){
+ const btn=$('locationAccessBtn'),helpBtn=$('locationHelpBtn'),status=$('locationAccessStatus');
+ if(!btn||!helpBtn||!status)return;
+ if(!navigator.geolocation){
+   btn.disabled=true;helpBtn.disabled=true;status.textContent=t('locationSettingsUnsupported');locationHelpVisible=false;renderLocationHelp();return;
+ }
+ btn.disabled=false;helpBtn.disabled=false;
+ if(locationPermissionState==='denied'){
+   status.textContent=t('locationSettingsDenied');btn.textContent=t('locationSettingsCheckAgain');locationHelpVisible=true;
+ }else if(currentLocation){
+   status.textContent=t('locationSettingsWorking',{meters:Math.max(1,Math.round(currentLocation.accuracy||1))});btn.textContent=t('locationSettingsTestAgain');locationHelpVisible=false;
+ }else if(locationLastError){
+   status.textContent=t(locationLastError);btn.textContent=t('locationSettingsCheckAgain');
+ }else if(locationPermissionState==='granted'){
+   status.textContent=t('locationSettingsGranted');btn.textContent=t('locationSettingsGetLocation');
+ }else{
+   status.textContent=t('locationSettingsPrompt');btn.textContent=t('locationSettingsAllow');
+ }
+ helpBtn.textContent=t('locationSettingsNoPrompt');
+ renderLocationHelp();
+}
+function requestLocationFromSettings(){
+ const btn=$('locationAccessBtn'),status=$('locationAccessStatus');
+ if(!navigator.geolocation){locationPermissionState='unsupported';renderLocationSettings();return;}
+ locationHelpVisible=false;locationLastError='';renderLocationHelp();btn.disabled=true;status.textContent=t('locationSettingsSearching');
+ navigator.geolocation.getCurrentPosition(p=>{
+   currentLocation={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy};
+   locationPermissionState='granted';locationHelpVisible=false;locationLastError='';
+   map.setUserLocation(currentLocation.lat,currentLocation.lng);updateOnline();renderToday();renderList();renderMapMode(false);renderLocationSettings();
+ },e=>{
+   if(e.code===1){locationPermissionState='denied';currentLocation=null;locationHelpVisible=true;locationLastError='';}
+   else locationLastError='locationSettingsFailed';
+   status.textContent=e.code===1?t('locationSettingsDenied'):t('locationSettingsFailed');
+   btn.disabled=false;renderLocationSettings();
+ },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
+}
 function bindSettings(){
+ $('locationAccessBtn')?.addEventListener('click',requestLocationFromSettings);
+ $('locationHelpBtn')?.addEventListener('click',()=>{locationHelpVisible=!locationHelpVisible;renderLocationHelp();});
  $('pushToggleBtn').addEventListener('click',async()=>{
   const setup=pushSetupState();
   if(setup==='home-screen'||setup==='denied'){openPushSetup();return;}
@@ -638,6 +696,8 @@ function bindSettings(){
 }
 function renderSettings(){
  renderPushSettings();
+ renderLocationSettings();
+ refreshLocationPermission();
  const s=state.settings;
  const set=(id,prop,val)=>{const el=$(id);if(el)el[prop]=val;};
  set('calendarOnSaveToggle','checked',s.calendarOnSave===true);
@@ -906,7 +966,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.3',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.4',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();
