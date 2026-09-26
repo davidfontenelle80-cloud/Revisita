@@ -317,7 +317,7 @@ button, .btn, .nav-item, .filter-chip { transition: transform var(--transition-s
 .country-picker-list{display:grid;gap:5px;max-height:min(58dvh,520px);overflow:auto;padding:2px}
 .country-picker-option{width:100%;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 11px;border:1px solid transparent;border-radius:var(--radius-md);background:transparent;color:var(--color-text);font:inherit;text-align:left}
 .country-picker-option:hover,.country-picker-option:focus-visible{background:var(--color-surface-2);border-color:var(--color-border)}
-.country-picker-option[aria-selected="true"]{background:var(--color-primary-soft);border-color:var(--border-primary-soft);font-weight:800}
+.country-picker-option[aria-selected="true"]{background:var(--color-info-soft);border-color:var(--border-info-soft);font-weight:800}
 .country-picker-option small{color:var(--color-text-muted);font-family:var(--font-mono)}
 .country-picker-empty{padding:16px 4px;text-align:center}
 @media(max-width:520px){
