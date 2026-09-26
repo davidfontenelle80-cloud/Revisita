@@ -2,7 +2,7 @@
 
 ## v1.5.9 — Selector compacto y buscable de países
 
-Worker: ChatGPT / GPT-5.6 Sol · Status: **IN PROGRESS** (2026-09-26).
+Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-26).
 
 Supervisor request: make Country a compact first step that does not consume map space; tapping it should open the full country list, with both typing-to-filter and scrolling/tapping.
 
@@ -14,6 +14,14 @@ Scope:
 - Keep specialized U.S. and Dominican Republic address forms; all other selected countries use the flexible address/location field and country-code constrained search.
 - Preserve the one-tap map search behavior and offline-zone workflow.
 - Add regression/unit coverage and bump the PWA build/cache.
+- Country is now a single compact button row; the full list stays hidden until tapped.
+- The picker contains **249 ISO countries/territories**, localized to Spanish/English with `Intl.DisplayNames`.
+- The picker supports both typing-to-filter and scrolling/tapping; search is accent-insensitive and also matches ISO codes/English names.
+- The selected country is remembered locally and the compact button updates when the app language changes.
+- U.S. and Dominican Republic keep their specialized address forms; every other country uses the flexible address/location field while still constraining geocoding to the selected country code.
+- Added `js/countries.js` plus country-list, filtering, and flexible-country query tests.
+- App build **1.5.9** · shell cache **revisita-shell-v31-country-picker**.
+
 
 ## v1.5.8 — Búsqueda por país + formato de dirección
 
