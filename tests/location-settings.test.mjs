@@ -14,9 +14,10 @@ test('More includes a dedicated GPS permission settings card', () => {
   assert.match(html, /id="locationAccessHelp"/);
 });
 
-test('GPS settings actively request geolocation from a user click', () => {
+test('GPS settings actively request a best-effort high-accuracy location from a user click', () => {
   assert.match(app, /locationAccessBtn'\)\?\.addEventListener\('click',requestLocationFromSettings\)/);
-  assert.match(app, /function requestLocationFromSettings\(\)[\s\S]*navigator\.geolocation\.getCurrentPosition/);
+  assert.match(app, /function requestLocationFromSettings\(\)[\s\S]*acquireBestLocation\(\)/);
+  assert.match(app, /function acquireBestLocation[\s\S]*navigator\.geolocation\.watchPosition/);
   assert.match(app, /locationPermissionState='granted'/);
 });
 

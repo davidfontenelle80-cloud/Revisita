@@ -1,12 +1,13 @@
 import{SimpleMap}from'./map.js?v=1.5.2';
 import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.2';
 import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit,reminderLead}from'./schedule-utils.js?v=1.5.2';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.4';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.5';
 import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.2';
 import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.2';
 import{createCloudSync}from'./cloud-sync.js?v=1.5.2';
 import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow,pushSetupState,pushSetupNeeded,snoozePushPrompt,pushPromptSnoozed}from'./push.js?v=1.5.2';
 import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.2';
+import{locationFromPosition,betterLocation,accuracyLevel,formatAccuracy}from'./location-utils.js?v=1.5.5';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer,locationPermissionState='unknown',locationHelpVisible=false,locationLastError='';
 const ONBOARDING_KEY='revisita.onboarding.v1';
@@ -254,18 +255,53 @@ function autoLocateOnLaunch(){
  },()=>{}, {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
 }
 
+function acquireBestLocation({targetAccuracy=80,maxWait=8000}={}){
+ return new Promise((resolve,reject)=>{
+   if(!navigator.geolocation){reject({code:0});return;}
+   let best=null,watchId=null,settled=false,timer=null;
+   const finish=(value,error)=>{
+     if(settled)return;
+     settled=true;
+     if(timer)clearTimeout(timer);
+     if(watchId!==null)navigator.geolocation.clearWatch(watchId);
+     if(value)resolve(value);else reject(error||{code:3});
+   };
+   const onPosition=position=>{
+     const candidate=locationFromPosition(position);
+     if(!candidate)return;
+     best=betterLocation(best,candidate);
+     if(candidate.accuracy<=targetAccuracy)finish(best);
+   };
+   const onError=error=>{
+     if(error?.code===1){finish(null,error);return;}
+     if(error?.code===3){finish(best,best?null:error);}
+   };
+   timer=setTimeout(()=>finish(best,best?null:{code:3}),maxWait);
+   watchId=navigator.geolocation.watchPosition(onPosition,onError,{enableHighAccuracy:true,timeout:Math.min(maxWait+2000,12000),maximumAge:0});
+ });
+}
 function requestLocation(done,forNewVisit){
  if(!navigator.geolocation)return toast(t('gpsUnsupported'));
- setStatus(t('searchingLocation'),'info');if(forNewVisit)els.locate.disabled=true;
- navigator.geolocation.getCurrentPosition(p=>{
-   if(forNewVisit)els.locate.disabled=false;currentLocation={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy};map.setUserLocation(currentLocation.lat,currentLocation.lng);updateOnline();done?.(currentLocation);
- },e=>{if(forNewVisit)els.locate.disabled=false;updateOnline();toast(({1:t('allowLocation'),2:t('locationUnavailable'),3:t('locationTimeout')})[e.code]||t('locationFailed'));},{enableHighAccuracy:true,timeout:12000,maximumAge:30000});
+ setStatus(t('improvingLocation'),'info');if(forNewVisit)els.locate.disabled=true;
+ acquireBestLocation().then(loc=>{
+   if(forNewVisit)els.locate.disabled=false;
+   currentLocation=loc;map.setUserLocation(loc.lat,loc.lng);updateOnline();done?.(loc);
+ }).catch(e=>{
+   if(forNewVisit)els.locate.disabled=false;updateOnline();
+   toast(({1:t('allowLocation'),2:t('locationUnavailable'),3:t('locationTimeout')})[e?.code]||t('locationFailed'));
+ });
 }
 async function beginLocationConfirmation(loc){
  pendingLocation={lat:Number(loc.lat),lng:Number(loc.lng),accuracy:Number.isFinite(loc.accuracy)?loc.accuracy:null,source:loc.source||'map',address:''};
  map.setDraft(pendingLocation.lat,pendingLocation.lng);map.setView(pendingLocation.lat,pendingLocation.lng,Math.max(map.zoom,17));
  els.mapShell.classList.add('has-pending');document.body.classList.add('location-pending');els.confirmPanel.hidden=false;els.pendingCoords.textContent=`${pendingLocation.lat.toFixed(6)}, ${pendingLocation.lng.toFixed(6)}`;
- els.pendingAccuracy.hidden=!pendingLocation.accuracy;els.pendingAccuracy.textContent=pendingLocation.accuracy?t('gpsAccuracy',{meters:Math.round(pendingLocation.accuracy)}):'';
+ const level=pendingLocation.source==='gps'?accuracyLevel(pendingLocation.accuracy):'unknown';
+ els.pendingAccuracy.classList.remove('is-good','is-fair','is-poor');
+ if(level==='unknown'){els.pendingAccuracy.hidden=true;els.pendingAccuracy.textContent='';}
+ else{
+   els.pendingAccuracy.hidden=false;els.pendingAccuracy.classList.add(`is-${level}`);
+   els.pendingAccuracy.textContent=t(level==='good'?'gpsAccuracyGood':level==='fair'?'gpsAccuracyFair':'gpsAccuracyPoor',{distance:formatAccuracy(pendingLocation.accuracy)});
+ }
  els.pendingAddress.textContent=navigator.onLine?t('searchingAddress'):t('offlineVerifyPin');
  const token=++lookupToken;if(navigator.onLine){const address=await reverseGeocode(pendingLocation.lat,pendingLocation.lng);if(token===lookupToken&&pendingLocation){pendingLocation.address=address;els.pendingAddress.textContent=address||t('locationNoAddress');}}
 }
@@ -649,7 +685,7 @@ function renderLocationSettings(){
  if(locationPermissionState==='denied'){
    status.textContent=t('locationSettingsDenied');btn.textContent=t('locationSettingsCheckAgain');locationHelpVisible=true;
  }else if(currentLocation){
-   status.textContent=t('locationSettingsWorking',{meters:Math.max(1,Math.round(currentLocation.accuracy||1))});btn.textContent=t('locationSettingsTestAgain');locationHelpVisible=false;
+   status.textContent=t('locationSettingsWorking',{distance:formatAccuracy(currentLocation.accuracy)});btn.textContent=t('locationSettingsTestAgain');locationHelpVisible=false;
  }else if(locationLastError){
    status.textContent=t(locationLastError);btn.textContent=t('locationSettingsCheckAgain');
  }else if(locationPermissionState==='granted'){
@@ -664,16 +700,16 @@ function requestLocationFromSettings(){
  const btn=$('locationAccessBtn'),status=$('locationAccessStatus');
  if(!navigator.geolocation){locationPermissionState='unsupported';renderLocationSettings();return;}
  locationHelpVisible=false;locationLastError='';renderLocationHelp();btn.disabled=true;status.textContent=t('locationSettingsSearching');
- navigator.geolocation.getCurrentPosition(p=>{
-   currentLocation={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy};
+ acquireBestLocation().then(loc=>{
+   currentLocation=loc;
    locationPermissionState='granted';locationHelpVisible=false;locationLastError='';
    map.setUserLocation(currentLocation.lat,currentLocation.lng);updateOnline();renderToday();renderList();renderMapMode(false);renderLocationSettings();
- },e=>{
-   if(e.code===1){locationPermissionState='denied';currentLocation=null;locationHelpVisible=true;locationLastError='';}
+ }).catch(e=>{
+   if(e?.code===1){locationPermissionState='denied';currentLocation=null;locationHelpVisible=true;locationLastError='';}
    else locationLastError='locationSettingsFailed';
-   status.textContent=e.code===1?t('locationSettingsDenied'):t('locationSettingsFailed');
+   status.textContent=e?.code===1?t('locationSettingsDenied'):t('locationSettingsFailed');
    btn.disabled=false;renderLocationSettings();
- },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
+ });
 }
 function bindSettings(){
  $('locationAccessBtn')?.addEventListener('click',requestLocationFromSettings);
@@ -966,7 +1002,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.4',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.5',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();

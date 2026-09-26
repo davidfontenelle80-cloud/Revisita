@@ -1,5 +1,27 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.5 — Mejor precisión GPS antes de confirmar
+
+Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
+
+Supervisor observation: GPS permission now works, but the tablet returned a very inaccurate point (17.233126, -69.258360) with no approximate address.
+
+Scope:
+- Do not accept the first GPS reading immediately when the user taps **Usar mi ubicación**.
+- Collect high-accuracy readings for up to ~8 seconds, keep the best reading, and stop early when accuracy reaches a useful threshold.
+- Show clear **precisa / aproximada / poco precisa** accuracy guidance before confirmation.
+- Keep manual **Ajustar ubicación** available when the device cannot provide a reliable fix.
+- Reuse the improved acquisition in the Más → Ubicación / GPS test.
+- Add regression tests and bump the PWA shell/build.
+- Implemented high-accuracy `watchPosition` acquisition: waits up to 8 seconds, keeps the best reading, and stops early at ≤80 m.
+- Confirmation sheet labels fixes as precise (≤80 m), approximate (81–250 m), or low accuracy (>250 m).
+- Large accuracy values are formatted in km so a multi-kilometer coarse fix is obvious.
+- Más → Ubicación / GPS now uses the same best-reading acquisition path.
+- Added `js/location-utils.js` plus unit coverage for best-reading selection, accuracy bands, and formatting.
+- App build **1.5.5** · shell cache **revisita-shell-v27-gps-accuracy**.
+- GitHub Actions **Check #254 PASS**: `npm run check` PASS; Worker dry bundle PASS.
+
+
 ## v1.5.4 — Ajustes de ubicación / GPS
 
 Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
