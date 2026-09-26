@@ -1,7 +1,7 @@
 import{SimpleMap}from'./map.js?v=1.5.2';
 import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.2';
 import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit,reminderLead}from'./schedule-utils.js?v=1.5.2';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.8';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.9';
 import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.2';
 import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.2';
 import{createCloudSync}from'./cloud-sync.js?v=1.5.2';
@@ -10,13 +10,14 @@ import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.2';
 import{locationFromPosition,betterLocation,accuracyLevel,formatAccuracy}from'./location-utils.js?v=1.5.5';
 import{normalizeGeocodeResult,geocodeResultIsExact,geocodeResultZoom}from'./geocode-utils.js?v=1.5.6';
 import{buildAddressSearch,hasAddressSearchInput}from'./address-search.js?v=1.5.8';
+import{countryOptions,countryName,filterCountries,isCountryCode}from'./countries.js?v=1.5.9';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer,locationPermissionState='unknown',locationHelpVisible=false,locationLastError='',mapSearchMatches=[],mapSearchToken=0;
 const ONBOARDING_KEY='revisita.onboarding.v1',MAP_SEARCH_COUNTRY_KEY='revisita.mapSearch.country';
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 const $=id=>document.getElementById(id);
 const els={
- status:$('saveStatus'),mapEl:$('map'),mapShell:$('mapShell'),locate:$('locateBtn'),confirmPanel:$('locationConfirmPanel'),pendingAddress:$('pendingAddress'),pendingCoords:$('pendingCoords'),pendingAccuracy:$('pendingAccuracy'),mapModeSummary:$('mapModeSummary'),mapSearchForm:$('mapSearchForm'),mapSearchCountry:$('mapSearchCountry'),mapSearchStatus:$('mapSearchStatus'),mapSearchResults:$('mapSearchResults'),
+ status:$('saveStatus'),mapEl:$('map'),mapShell:$('mapShell'),locate:$('locateBtn'),confirmPanel:$('locationConfirmPanel'),pendingAddress:$('pendingAddress'),pendingCoords:$('pendingCoords'),pendingAccuracy:$('pendingAccuracy'),mapModeSummary:$('mapModeSummary'),mapSearchForm:$('mapSearchForm'),mapSearchCountry:$('mapSearchCountry'),mapSearchStatus:$('mapSearchStatus'),mapSearchResults:$('mapSearchResults'),countryPickerBtn:$('countryPickerBtn'),countryPickerName:$('countryPickerName'),countryPickerDialog:$('countryPickerDialog'),countrySearchInput:$('countrySearchInput'),countryPickerList:$('countryPickerList'),countryPickerEmpty:$('countryPickerEmpty'),
  dialog:$('visitDialog'),form:$('visitForm'),id:$('visitId'),lat:$('visitLat'),lng:$('visitLng'),visitStatus:$('visitStatus'),name:$('visitName'),reference:$('visitReference'),phone:$('visitPhone'),leftWith:$('visitLeftWith'),nextTopic:$('visitNextTopic'),address:$('visitAddress'),notes:$('visitNotes'),due:$('visitDueDate'),dueTime:$('visitDueTime'),title:$('dialogTitle'),coords:$('dialogCoords'),movePinBtn:$('movePinBtn'),deleteVisit:$('deleteVisitBtn'),cancelEdit:$('cancelEditBtn'),saveVisitBtn:$('saveVisitBtn'),detailMapSection:$('detailMapSection'),historyPanel:$('historyPanel'),historyList:$('historyList'),historyMore:$('historyMoreBtn'),visitView:$('visitView'),editFields:$('editFields'),viewPlace:$('viewPlace'),viewSchedule:$('viewSchedule'),viewDetails:$('viewDetails'),viewLog:$('viewLogBtn'),viewContact:$('viewContactActions'),viewCall:$('viewCallBtn'),viewWhatsapp:$('viewWhatsappBtn'),calendarHint:$('calendarHint'),
  logDialog:$('logDialog'),logForm:$('logForm'),logName:$('logVisitName'),logNote:$('logNote'),logLeftWith:$('logLeftWith'),logNextTopic:$('logNextTopic'),logDue:$('logDueDate'),logTime:$('logDueTime'),logEnd:$('logEnd'),directionsDialog:$('directionsDialog'),mapTip:$('mapTip'),zoneBtn:$('saveZoneBtn'),
  list:$('visitList'),empty:$('emptyList'),summary:$('listSummary'),search:$('searchInput'),
@@ -40,7 +41,7 @@ function init(){
  addEventListener('online',()=>{updateOnline();cloud?.schedule(1000);queuePushSync();});addEventListener('offline',updateOnline);
  addEventListener('pageshow',()=>{if(isMapViewActive())resetPageScroll(true);});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isMapViewActive())resetPageScroll(true);if(!document.hidden){cloud?.schedule(1500);queuePushSync();renderPushBanner();renderPushSettings();refreshLocationPermission();}});
- addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();renderSettings();updateOnline();updateInstallUI();});
+ addEventListener('revisita:language',()=>{applyTranslations(document);syncThemeButtons();renderAll();renderSettings();renderMapSearchCountry();if(els.countryPickerDialog?.open)renderCountryPicker();updateOnline();updateInstallUI();});
  addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;updateInstallUI();});
  addEventListener('appinstalled',()=>{installPrompt=null;updateInstallUI();toast(t('appInstalled'));});
  addEventListener('error',e=>showError(t('errorApp'),e.message||t('unknownError')));
@@ -109,7 +110,11 @@ function resetPageScroll(reassert=false){
 
 function bindMap(){
  initMapSearchCountry();
- els.mapSearchCountry?.addEventListener('change',()=>{mapSearchToken++;saveMapSearchCountry(els.mapSearchCountry.value);renderMapSearchCountry();clearMapSearchResults();els.mapSearchStatus.textContent='';const btn=$('mapSearchBtn');if(btn)btn.disabled=false;});
+ els.countryPickerBtn?.addEventListener('click',openCountryPicker);
+ $('closeCountryPickerBtn')?.addEventListener('click',()=>els.countryPickerDialog?.close());
+ els.countrySearchInput?.addEventListener('input',renderCountryPicker);
+ els.countryPickerList?.addEventListener('click',e=>{const b=e.target.closest('[data-country-code]');if(b)selectMapSearchCountry(b.dataset.countryCode);});
+ els.countryPickerDialog?.addEventListener('click',e=>{if(e.target===els.countryPickerDialog)els.countryPickerDialog.close();});
  els.mapSearchForm?.addEventListener('submit',searchMapLocation);
  els.mapSearchResults?.addEventListener('click',e=>{const b=e.target.closest('[data-map-search-index]');if(b)selectMapSearchResult(Number(b.dataset.mapSearchIndex));});
  els.mapEl.addEventListener('pointerdown',()=>{mapMovedByUser=true;});
@@ -138,7 +143,7 @@ function applyMovedPin(visitId,p){
 }
 }
 function savedMapSearchCountry(){
- try{const value=localStorage.getItem(MAP_SEARCH_COUNTRY_KEY);return ['us','do','other'].includes(value)?value:'us';}catch{return'us';}
+ try{const value=localStorage.getItem(MAP_SEARCH_COUNTRY_KEY);return isCountryCode(value)?String(value).toLowerCase():'us';}catch{return'us';}
 }
 function saveMapSearchCountry(value){try{localStorage.setItem(MAP_SEARCH_COUNTRY_KEY,value);}catch{}}
 function initMapSearchCountry(){
@@ -148,12 +153,42 @@ function initMapSearchCountry(){
 }
 function renderMapSearchCountry(){
  const country=els.mapSearchCountry?.value||'us';
- document.querySelectorAll('[data-search-country]').forEach(group=>{group.hidden=group.dataset.searchCountry!==country;});
+ const group=country==='us'||country==='do'?country:'other';
+ document.querySelectorAll('[data-search-country]').forEach(box=>{box.hidden=box.dataset.searchCountry!==group;});
+ if(els.countryPickerName)els.countryPickerName.textContent=countryName(country,getLanguage());
+}
+function openCountryPicker(){
+ if(!els.countryPickerDialog)return;
+ if(els.countrySearchInput)els.countrySearchInput.value='';
+ renderCountryPicker();
+ if(!els.countryPickerDialog.open)els.countryPickerDialog.showModal();
+ requestAnimationFrame(()=>els.countrySearchInput?.focus());
+}
+function renderCountryPicker(){
+ if(!els.countryPickerList)return;
+ const selected=els.mapSearchCountry?.value||'us';
+ const options=filterCountries(countryOptions(getLanguage()),els.countrySearchInput?.value||'');
+ const buttons=options.map(item=>{
+   const b=document.createElement('button');b.type='button';b.className='country-picker-option';b.dataset.countryCode=item.code;b.setAttribute('role','option');b.setAttribute('aria-selected',String(item.code===selected));
+   const name=document.createElement('span');name.textContent=item.name;
+   const code=document.createElement('small');code.textContent=item.code.toUpperCase();
+   b.append(name,code);return b;
+ });
+ els.countryPickerList.replaceChildren(...buttons);
+ if(els.countryPickerEmpty)els.countryPickerEmpty.hidden=buttons.length!==0;
+}
+function selectMapSearchCountry(code){
+ if(!isCountryCode(code)||!els.mapSearchCountry)return;
+ mapSearchToken++;els.mapSearchCountry.value=String(code).toLowerCase();saveMapSearchCountry(els.mapSearchCountry.value);
+ renderMapSearchCountry();clearMapSearchResults();els.mapSearchStatus.textContent='';
+ const btn=$('mapSearchBtn');if(btn)btn.disabled=false;
+ els.countryPickerDialog?.close();
 }
 function mapSearchValues(country){
- if(country==='us')return{street:$('mapSearchUSStreet')?.value,city:$('mapSearchUSCity')?.value,region:$('mapSearchUSState')?.value,postal:$('mapSearchUSZip')?.value};
- if(country==='do')return{street:$('mapSearchDOStreet')?.value,neighborhood:$('mapSearchDOSector')?.value,city:$('mapSearchDOCity')?.value,region:$('mapSearchDOProvince')?.value,postal:$('mapSearchDOPostal')?.value};
- return{countryName:$('mapSearchOtherCountry')?.value,address:$('mapSearchOtherAddress')?.value};
+ const selectedName=countryName(country,getLanguage());
+ if(country==='us')return{street:$('mapSearchUSStreet')?.value,city:$('mapSearchUSCity')?.value,region:$('mapSearchUSState')?.value,postal:$('mapSearchUSZip')?.value,countryName:selectedName};
+ if(country==='do')return{street:$('mapSearchDOStreet')?.value,neighborhood:$('mapSearchDOSector')?.value,city:$('mapSearchDOCity')?.value,region:$('mapSearchDOProvince')?.value,postal:$('mapSearchDOPostal')?.value,countryName:selectedName};
+ return{countryName:selectedName,address:$('mapSearchOtherAddress')?.value};
 }
 function focusFirstMapSearchField(country){
  const id=country==='us'?'mapSearchUSStreet':country==='do'?'mapSearchDOStreet':'mapSearchOtherAddress';
@@ -1122,7 +1157,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.8',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.9',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();
