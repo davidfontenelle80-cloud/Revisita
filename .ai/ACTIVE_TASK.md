@@ -2,7 +2,7 @@
 
 ## v1.5.6 — Buscar dirección / código postal en el mapa
 
-Worker: ChatGPT / GPT-5.6 Sol · Status: **IN PROGRESS** (2026-09-25).
+Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
 
 Supervisor request: allow a Wi‑Fi-only tablet to find a location by typing an address or ZIP/postal code instead of relying on GPS.
 
@@ -13,6 +13,15 @@ Scope:
 - Area/postal-code results center the map but do not pretend to be the exact house; the user taps/adjusts the exact point.
 - Reuse the existing OpenStreetMap/Nominatim address service and existing confirmation workflow.
 - Add bilingual copy, offline/error handling, tests, and a PWA version/cache bump.
+- Added **Buscar dirección o código postal** directly above the map.
+- Search returns up to five matches so ambiguous addresses can be chosen rather than silently taking the first result.
+- Results with a house number create a provisional pin and enter the normal confirmation flow.
+- ZIP/postal code, city, town, neighborhood, and other area-level results center the map without claiming an exact house; the user taps the exact point.
+- Existing Nominatim service is reused for forward search and reverse lookup.
+- Added `js/geocode-utils.js` plus unit/source regression tests.
+- App build **1.5.6** · shell cache **revisita-shell-v28-address-search**.
+- GitHub Actions **Check #271 PASS**: `npm run check` PASS; Worker dry bundle PASS.
+
 
 ## v1.5.5 — Mejor precisión GPS antes de confirmar
 
