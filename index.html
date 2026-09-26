@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/favicon.png?v=1.5.2" type="image/png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.5.2">
-  <link rel="stylesheet" href="css/main.css?v=1.5.7">
+  <link rel="stylesheet" href="css/main.css?v=1.5.8">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -53,11 +53,33 @@
     <section id="view-map" class="view" data-view="map" aria-labelledby="mapTitle" hidden>
       <div class="view-heading map-heading"><div><h2 id="mapTitle" data-i18n="map">Mapa</h2></div><button id="saveZoneBtn" class="btn btn-secondary btn-small zone-btn" type="button"><span aria-hidden="true">⤓</span> <span data-i18n="saveZone">Guardar zona</span></button></div>
       <form id="mapSearchForm" class="map-search card" role="search">
-        <label class="map-search-field">
-          <span class="sr-only" data-i18n="mapSearchLabel">Buscar dirección o código postal</span>
-          <input id="mapSearchInput" type="search" autocomplete="street-address" enterkeyhint="search" data-i18n-placeholder="mapSearchPlaceholder" placeholder="Dirección, sector o código postal">
-        </label>
-        <button id="mapSearchBtn" class="btn btn-primary btn-small" type="submit" data-i18n="search">Buscar</button>
+        <div class="map-search-top">
+          <label class="field map-search-country"><span data-i18n="mapSearchCountry">País</span>
+            <select id="mapSearchCountry">
+              <option value="us" data-i18n="countryUS">Estados Unidos</option>
+              <option value="do" data-i18n="countryDO">República Dominicana</option>
+              <option value="other" data-i18n="countryOther">Otro país</option>
+            </select>
+          </label>
+        </div>
+        <div id="mapSearchFieldsUS" class="map-search-fields" data-search-country="us">
+          <label class="field map-search-wide"><span data-i18n="streetAddress">Dirección</span><input id="mapSearchUSStreet" type="text" autocomplete="street-address" enterkeyhint="next" data-i18n-placeholder="streetAddressPlaceholder" placeholder="Ej.: 123 Main St"></label>
+          <label class="field"><span data-i18n="city">Ciudad</span><input id="mapSearchUSCity" type="text" autocomplete="address-level2" enterkeyhint="next"></label>
+          <label class="field"><span data-i18n="state">Estado</span><input id="mapSearchUSState" type="text" autocomplete="address-level1" enterkeyhint="next" data-i18n-placeholder="statePlaceholder" placeholder="CT"></label>
+          <label class="field"><span data-i18n="zipCode">ZIP</span><input id="mapSearchUSZip" type="text" autocomplete="postal-code" inputmode="numeric" enterkeyhint="search" data-i18n-placeholder="zipPlaceholder" placeholder="06040"></label>
+        </div>
+        <div id="mapSearchFieldsDO" class="map-search-fields" data-search-country="do" hidden>
+          <label class="field map-search-wide"><span data-i18n="streetNumberDO">Calle / número</span><input id="mapSearchDOStreet" type="text" autocomplete="street-address" enterkeyhint="next" data-i18n-placeholder="streetNumberDOPlaceholder" placeholder="Ej.: Calle Duarte 25"></label>
+          <label class="field"><span data-i18n="sectorBarrio">Sector / Barrio</span><input id="mapSearchDOSector" type="text" enterkeyhint="next"></label>
+          <label class="field"><span data-i18n="municipalityCity">Municipio / Ciudad</span><input id="mapSearchDOCity" type="text" autocomplete="address-level2" enterkeyhint="next"></label>
+          <label class="field"><span data-i18n="province">Provincia</span><input id="mapSearchDOProvince" type="text" autocomplete="address-level1" enterkeyhint="next"></label>
+          <label class="field"><span data-i18n="postalCodeOptional">Código postal (opcional)</span><input id="mapSearchDOPostal" type="text" autocomplete="postal-code" inputmode="numeric" enterkeyhint="search"></label>
+        </div>
+        <div id="mapSearchFieldsOther" class="map-search-fields" data-search-country="other" hidden>
+          <label class="field"><span data-i18n="countryName">País</span><input id="mapSearchOtherCountry" type="text" autocomplete="country-name" enterkeyhint="next"></label>
+          <label class="field map-search-wide"><span data-i18n="addressOrPlace">Dirección o lugar</span><input id="mapSearchOtherAddress" type="text" autocomplete="street-address" enterkeyhint="search" data-i18n-placeholder="addressOrPlacePlaceholder" placeholder="Dirección, ciudad, código postal…"></label>
+        </div>
+        <button id="mapSearchBtn" class="btn btn-primary" type="submit" data-i18n="searchMap">Buscar en el mapa</button>
       </form>
       <p id="mapSearchStatus" class="map-search-status muted" role="status" aria-live="polite"></p>
       <div id="mapSearchResults" class="map-search-results" hidden></div>
@@ -162,7 +184,7 @@
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p id="privacyText" data-i18n="privacyText">Las revisitas y notas se guardan en este dispositivo (y en tu cuenta solo si activas la sincronización). El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.5.7</p>
+        <p class="app-version">Revisita v1.5.8</p>
       </div>
     </section>
   </main>
@@ -364,6 +386,6 @@
   </dialog>
 
   <div id="toastRegion" class="toast-region" popover="manual" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.5.7"></script>
+  <script type="module" src="js/app.js?v=1.5.8"></script>
 </body>
 </html>
