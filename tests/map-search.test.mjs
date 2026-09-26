@@ -17,3 +17,9 @@ test('map search queries Nominatim and distinguishes exact from area results',()
   assert.match(app,/beginLocationConfirmation\(\{lat:result\.lat,lng:result\.lng,source:'search'/);
   assert.match(app,/map\.setView\(result\.lat,result\.lng,geocodeResultZoom\(raw\)\)/);
 });
+
+test('successful search immediately applies the best match and reveals the map',()=>{
+  assert.match(app,/renderMapSearchResults\(\);[\s\S]*selectMapSearchResult\(0,\{keepResults:rows\.length>1,automatic:true\}\)/);
+  assert.match(app,/els\.mapSearchInput\?\.blur\(\)/);
+  assert.match(app,/scrollIntoView\(\{behavior:'smooth',block:'center'\}\)/);
+});

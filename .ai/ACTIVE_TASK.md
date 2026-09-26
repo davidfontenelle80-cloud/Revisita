@@ -1,5 +1,27 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.7 — Búsqueda mueve el mapa automáticamente
+
+Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
+
+Supervisor clarification: entering an address or ZIP/postal code and tapping **Buscar** should immediately move/open the map to that result; it should not wait for a second tap on a result.
+
+Scope:
+- After a successful search, automatically apply the best result.
+- Dismiss the phone keyboard and bring the map into view.
+- Full/exact address: immediately place the provisional confirmation pin.
+- ZIP/postal/area result: immediately center the map there and ask the user to tap the exact house.
+- Keep alternate matches visible when several results exist so the user can correct the automatic choice.
+- Add regression coverage and bump the PWA build/cache.
+- Search now automatically applies the best result after one tap.
+- The search field blurs to dismiss the phone keyboard, then the map scrolls into view.
+- Exact/house-level results immediately create a provisional confirmation pin.
+- ZIP/postal/city/area results immediately center the map and ask for the exact house tap.
+- When multiple matches exist, alternatives remain visible so the automatic choice can be corrected.
+- App build **1.5.7** · shell cache **revisita-shell-v29-auto-search-map**.
+- GitHub Actions **Check #284 PASS**: `npm run check` PASS; Worker dry bundle PASS.
+
+
 ## v1.5.6 — Buscar dirección / código postal en el mapa
 
 Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).

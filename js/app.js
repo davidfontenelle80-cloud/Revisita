@@ -1,7 +1,7 @@
 import{SimpleMap}from'./map.js?v=1.5.2';
 import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.2';
 import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit,reminderLead}from'./schedule-utils.js?v=1.5.2';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.6';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.7';
 import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.2';
 import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.2';
 import{createCloudSync}from'./cloud-sync.js?v=1.5.2';
@@ -155,6 +155,10 @@ async function searchMapLocation(e){
    if(token!==mapSearchToken)return;
    mapSearchMatches=rows;
    renderMapSearchResults();
+   if(rows.length){
+     els.mapSearchInput?.blur();
+     selectMapSearchResult(0,{keepResults:rows.length>1,automatic:true});
+   }
  }catch(error){
    console.warn('[Revisita] location search failed',error);
    if(token===mapSearchToken){mapSearchMatches=[];els.mapSearchStatus.textContent=t('mapSearchFailed');}
@@ -175,20 +179,25 @@ function renderMapSearchResults(){
  });
  els.mapSearchResults.replaceChildren(...buttons);els.mapSearchResults.hidden=false;
 }
-function selectMapSearchResult(index){
+function revealSearchedMap(){
+ setTimeout(()=>els.mapShell?.scrollIntoView({behavior:'smooth',block:'center'}),120);
+}
+function selectMapSearchResult(index,{keepResults=false,automatic=false}={}){
  const raw=mapSearchMatches[index],result=normalizeGeocodeResult(raw);if(!result)return;
  mapMovedByUser=true;
  const label=compactAddress(raw)||result.displayName;
- clearMapSearchResults();
+ if(!keepResults)clearMapSearchResults();
  if(geocodeResultIsExact(raw)){
-   els.mapSearchStatus.textContent=t('mapSearchExactFound');
+   els.mapSearchStatus.textContent=t(automatic&&keepResults?'mapSearchAutoExact':'mapSearchExactFound');
    beginLocationConfirmation({lat:result.lat,lng:result.lng,source:'search',address:label});
+   revealSearchedMap();
    return;
  }
  clearPendingLocation();
  map.setDraft(null,null);map.setView(result.lat,result.lng,geocodeResultZoom(raw));map.render();
- els.mapSearchStatus.textContent=t('mapSearchAreaFound');
+ els.mapSearchStatus.textContent=t(automatic&&keepResults?'mapSearchAutoArea':'mapSearchAreaFound');
  toast(t('mapSearchTapExact'));
+ revealSearchedMap();
 }
 function selectMapMode(mode){
  mapMovedByUser=true;mapMode=mode;syncMapModeButtons();
@@ -1064,7 +1073,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.6',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.7',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();
