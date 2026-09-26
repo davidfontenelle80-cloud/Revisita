@@ -9,7 +9,7 @@ import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,sync
 import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.2';
 import{locationFromPosition,betterLocation,accuracyLevel,formatAccuracy}from'./location-utils.js?v=1.5.5';
 import{normalizeGeocodeResult,geocodeResultIsExact,geocodeResultZoom}from'./geocode-utils.js?v=1.5.6';
-import{buildAddressSearch,hasAddressSearchInput}from'./address-search.js?v=1.5.8';
+import{buildAddressSearch,hasAddressSearchInput}from'./address-search.js?v=1.5.9';
 import{countryOptions,countryName,filterCountries,isCountryCode}from'./countries.js?v=1.5.9';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer,locationPermissionState='unknown',locationHelpVisible=false,locationLastError='',mapSearchMatches=[],mapSearchToken=0;
