@@ -2,7 +2,17 @@
 
 ## Estado
 
-**Publicada: v1.5.5. v1.5.6: READY FOR REVIEW — búsqueda por dirección/código postal.**
+**Publicada: v1.5.6. v1.5.7: READY FOR REVIEW — búsqueda mueve el mapa automáticamente.**
+
+## Búsqueda mueve el mapa automáticamente v1.5.7
+
+- Al tocar **Buscar**, Revisita aplica inmediatamente la mejor coincidencia; ya no espera un segundo toque.
+- En teléfono, cierra el teclado y lleva el mapa a la vista.
+- Dirección exacta: crea pin provisional para confirmar.
+- ZIP/código postal/ciudad/área: centra el mapa allí y pide tocar la casa exacta.
+- Si hay varias coincidencias, deja visibles las alternativas para corregir la selección automática.
+- Versión **1.5.7** · shell cache **revisita-shell-v29-auto-search-map**.
+- GitHub Actions **Check #284 PASS**: `npm run check` + bundle seco del Worker.
 
 ## Buscar dirección / código postal v1.5.6
 
