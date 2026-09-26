@@ -1,5 +1,22 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.8 — Búsqueda por país + formato de dirección
+
+Worker: ChatGPT / GPT-5.6 Sol · Status: **IN PROGRESS** (2026-09-25).
+
+Supervisor request: choose a country first, then show the address fields appropriate to that country and move the map from that structured entry.
+
+Scope:
+- Add a country selector to map search.
+- United States: Street address, City, State, ZIP.
+- Dominican Republic: Calle/número, Sector/Barrio, Municipio/Ciudad, Provincia, Código postal (optional).
+- Other country: Country + flexible address/location entry.
+- Build the search query from only the visible country fields and constrain known countries by country code.
+- One tap on Buscar must dismiss the keyboard and automatically move the map to the best result.
+- Fix the current search-token bug that can leave Buscar disabled after a single-result search.
+- Add a browser-safe fallback for the public geocoder if cross-origin fetch fails.
+- Keep alternate results available when useful, add tests, and bump the PWA build/cache.
+
 ## v1.5.7 — Búsqueda mueve el mapa automáticamente
 
 Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
