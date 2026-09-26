@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/favicon.png?v=1.5.2" type="image/png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.5.2">
-  <link rel="stylesheet" href="css/main.css?v=1.5.8">
+  <link rel="stylesheet" href="css/main.css?v=1.5.9">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -54,13 +54,13 @@
       <div class="view-heading map-heading"><div><h2 id="mapTitle" data-i18n="map">Mapa</h2></div><button id="saveZoneBtn" class="btn btn-secondary btn-small zone-btn" type="button"><span aria-hidden="true">⤓</span> <span data-i18n="saveZone">Guardar zona</span></button></div>
       <form id="mapSearchForm" class="map-search card" role="search">
         <div class="map-search-top">
-          <label class="field map-search-country"><span data-i18n="mapSearchCountry">País</span>
-            <select id="mapSearchCountry">
-              <option value="us" data-i18n="countryUS">Estados Unidos</option>
-              <option value="do" data-i18n="countryDO">República Dominicana</option>
-              <option value="other" data-i18n="countryOther">Otro país</option>
-            </select>
-          </label>
+          <div class="field map-search-country">
+            <span data-i18n="mapSearchCountry">País</span>
+            <button id="countryPickerBtn" class="country-picker-trigger" type="button" aria-haspopup="dialog" aria-controls="countryPickerDialog">
+              <span id="countryPickerName">Estados Unidos</span><span class="country-picker-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <input id="mapSearchCountry" type="hidden" value="us">
+          </div>
         </div>
         <div id="mapSearchFieldsUS" class="map-search-fields" data-search-country="us">
           <label class="field map-search-wide"><span data-i18n="streetAddress">Dirección</span><input id="mapSearchUSStreet" type="text" autocomplete="street-address" enterkeyhint="next" data-i18n-placeholder="streetAddressPlaceholder" placeholder="Ej.: 123 Main St"></label>
@@ -76,7 +76,6 @@
           <label class="field"><span data-i18n="postalCodeOptional">Código postal (opcional)</span><input id="mapSearchDOPostal" type="text" autocomplete="postal-code" inputmode="numeric" enterkeyhint="search"></label>
         </div>
         <div id="mapSearchFieldsOther" class="map-search-fields" data-search-country="other" hidden>
-          <label class="field"><span data-i18n="countryName">País</span><input id="mapSearchOtherCountry" type="text" autocomplete="country-name" enterkeyhint="next"></label>
           <label class="field map-search-wide"><span data-i18n="addressOrPlace">Dirección o lugar</span><input id="mapSearchOtherAddress" type="text" autocomplete="street-address" enterkeyhint="search" data-i18n-placeholder="addressOrPlacePlaceholder" placeholder="Dirección, ciudad, código postal…"></label>
         </div>
         <button id="mapSearchBtn" class="btn btn-primary" type="submit" data-i18n="searchMap">Buscar en el mapa</button>
@@ -184,7 +183,7 @@
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p id="privacyText" data-i18n="privacyText">Las revisitas y notas se guardan en este dispositivo (y en tu cuenta solo si activas la sincronización). El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.5.8</p>
+        <p class="app-version">Revisita v1.5.9</p>
       </div>
     </section>
   </main>
@@ -263,6 +262,22 @@
   </dialog>
 
 
+
+  <dialog id="countryPickerDialog" class="sheet-dialog country-picker-dialog">
+    <div class="sheet">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-header">
+        <div><h2 data-i18n="selectCountryTitle">Seleccionar país</h2><p data-i18n="selectCountryHint">Escribe para buscar o desplázate por la lista.</p></div>
+        <button id="closeCountryPickerBtn" class="icon-btn" type="button" aria-label="Cerrar" data-i18n-aria="close">×</button>
+      </div>
+      <label class="field country-search-field">
+        <span class="sr-only" data-i18n="searchCountry">Buscar país</span>
+        <input id="countrySearchInput" type="search" autocomplete="off" enterkeyhint="search" data-i18n-placeholder="countrySearchPlaceholder" placeholder="Buscar país…">
+      </label>
+      <div id="countryPickerList" class="country-picker-list" role="listbox" aria-label="Países" data-i18n-aria="countriesList"></div>
+      <p id="countryPickerEmpty" class="muted country-picker-empty" hidden data-i18n="countrySearchEmpty">No se encontró ese país.</p>
+    </div>
+  </dialog>
 
   <dialog id="onboardingDialog" class="sheet-dialog onboarding-dialog">
     <div class="sheet">
@@ -386,6 +401,6 @@
   </dialog>
 
   <div id="toastRegion" class="toast-region" popover="manual" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.5.8"></script>
+  <script type="module" src="js/app.js?v=1.5.9"></script>
 </body>
 </html>

@@ -22,10 +22,10 @@ test('postal code alone is valid for country-scoped area search',()=>{
   assert.equal(hasAddressSearchInput('do',{postal:'10101'}),true);
 });
 
-test('other-country search stays flexible',()=>{
+test('other selected countries stay flexible but remain country-scoped',()=>{
   assert.deepEqual(
-    buildAddressSearch('other',{address:'10 Downing Street, London',countryName:'United Kingdom'}),
-    {query:'10 Downing Street, London, United Kingdom',countryCode:''}
+    buildAddressSearch('gb',{address:'10 Downing Street, London',countryName:'United Kingdom'}),
+    {query:'10 Downing Street, London, United Kingdom',countryCode:'gb'}
   );
-  assert.equal(hasAddressSearchInput('other',{countryName:'Spain',address:''}),false);
+  assert.equal(hasAddressSearchInput('es',{countryName:'Spain',address:''}),false);
 });
