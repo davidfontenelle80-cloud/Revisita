@@ -2,7 +2,7 @@
 
 ## v1.5.10 — Entrada simple por pin / ubicación
 
-Worker: ChatGPT / GPT-5.6 Sol · Status: **IN PROGRESS** (2026-09-26).
+Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-26).
 
 Supervisor request: remove the country/city/address lookup workflow because Buscar/lookup is unreliable. Keep only the direct map workflow.
 
@@ -14,6 +14,14 @@ Scope:
 - Keep the approximate address field directly editable so the user can correct/type it manually.
 - Preserve offline saved-map zones and existing visit data.
 - Add regression coverage and bump the PWA build/cache.
+- Removed country picker, city/ZIP/address search, search results, and forward-geocoding helper modules.
+- Removed the visit-editor **Buscar** lookup button.
+- Kept map tap, **Usar mi ubicación**, provisional pin confirmation, **Ajustar ubicación**, and move-pin editing.
+- Kept automatic reverse-geocoding after pin placement when online.
+- Kept **Dirección aproximada** as a normal editable text field for manual correction/entry.
+- Offline saved zones and existing visit storage are unchanged.
+- App build **1.5.10** · shell cache **revisita-shell-v32-simple-map-entry**.
+
 
 ## v1.5.9 — Selector compacto y buscable de países
 
