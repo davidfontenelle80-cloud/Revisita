@@ -2,7 +2,17 @@
 
 ## Estado
 
-**Publicada: v1.5.8. v1.5.9: READY FOR REVIEW — selector compacto y buscable de países.**
+**Publicada: v1.5.9. v1.5.10: READY FOR REVIEW — entrada simple por pin/ubicación.**
+
+## Entrada simple por pin / ubicación v1.5.10
+
+- Se eliminó la búsqueda por país, ciudad, ZIP/código postal y dirección del mapa.
+- Se eliminó el botón manual **Buscar** junto a Dirección aproximada.
+- El flujo queda en **tocar el mapa** o **Usar mi ubicación**, confirmar y **Ajustar ubicación** si hace falta.
+- Después de colocar el pin, Revisita todavía intenta completar una dirección aproximada automáticamente cuando hay conexión.
+- **Dirección aproximada** sigue siendo editable para corregirla o escribirla manualmente.
+- Las zonas guardadas para uso sin conexión y los datos existentes no cambian.
+- Versión **1.5.10** · shell cache **revisita-shell-v32-simple-map-entry**.
 
 ## Selector compacto y buscable de países v1.5.9
 
