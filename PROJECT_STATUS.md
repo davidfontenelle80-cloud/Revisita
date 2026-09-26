@@ -2,7 +2,18 @@
 
 ## Estado
 
-**Publicada: v1.5.3. v1.5.4: READY FOR REVIEW — ajustes de ubicación / GPS.**
+**Publicada: v1.5.4. v1.5.5: READY FOR REVIEW — mejor precisión GPS.**
+
+## Mejor precisión GPS v1.5.5
+
+- **Usar mi ubicación** ya no toma la primera lectura inmediatamente: observa lecturas de alta precisión hasta ~8 segundos y conserva la mejor.
+- Se detiene antes si alcanza **≤80 m** de precisión.
+- Antes de confirmar, muestra **GPS preciso** (≤80 m), **GPS aproximado** (81–250 m) o **GPS poco preciso** (>250 m).
+- Las precisiones grandes se muestran en km para que una ubicación muy aproximada sea evidente.
+- **Ajustar ubicación** sigue disponible cuando el dispositivo no consigue una lectura confiable.
+- **Más → Ubicación / GPS** usa la misma lógica de mejor lectura.
+- Versión **1.5.5** · shell cache **revisita-shell-v27-gps-accuracy**.
+- GitHub Actions **Check #254 PASS**: `npm run check` + bundle seco del Worker.
 
 ## Ajustes de ubicación / GPS v1.5.4
 
