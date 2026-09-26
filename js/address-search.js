@@ -2,13 +2,11 @@ const clean=value=>String(value||'').trim();
 
 export function buildAddressSearch(country, values={}){
   const code=clean(country).toLowerCase();
-  let parts=[],countryCode='';
+  let parts=[],countryCode=/^[a-z]{2}$/.test(code)?code:'';
   if(code==='us'){
-    parts=[values.street,values.city,values.region,values.postal,'United States'];
-    countryCode='us';
+    parts=[values.street,values.city,values.region,values.postal,values.countryName||'United States'];
   }else if(code==='do'){
-    parts=[values.street,values.neighborhood,values.city,values.region,values.postal,'República Dominicana'];
-    countryCode='do';
+    parts=[values.street,values.neighborhood,values.city,values.region,values.postal,values.countryName||'República Dominicana'];
   }else{
     parts=[values.address,values.countryName];
   }
