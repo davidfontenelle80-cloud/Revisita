@@ -5,9 +5,13 @@ import { readFileSync } from 'node:fs';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const app=readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
 
-test('map exposes country-specific address search controls',()=>{
+test('map exposes compact searchable country-specific address controls',()=>{
   assert.match(html,/id="mapSearchForm"/);
-  assert.match(html,/id="mapSearchCountry"/);
+  assert.match(html,/id="countryPickerBtn"/);
+  assert.match(html,/id="countryPickerDialog"/);
+  assert.match(html,/id="countrySearchInput"/);
+  assert.match(html,/id="countryPickerList"/);
+  assert.match(html,/id="mapSearchCountry" type="hidden"/);
   assert.match(html,/id="mapSearchFieldsUS"/);
   assert.match(html,/id="mapSearchFieldsDO"/);
   assert.match(html,/id="mapSearchFieldsOther"/);
@@ -17,9 +21,13 @@ test('map exposes country-specific address search controls',()=>{
   assert.match(html,/id="mapSearchResults"/);
 });
 
-test('country selector swaps visible address field groups',()=>{
+test('country picker swaps address fields and supports search/filter selection',()=>{
   assert.match(app,/function renderMapSearchCountry\(\)/);
-  assert.match(app,/group\.hidden=group\.dataset\.searchCountry!==country/);
+  assert.match(app,/const group=country==='us'\|\|country==='do'\?country:'other'/);
+  assert.match(app,/box\.hidden=box\.dataset\.searchCountry!==group/);
+  assert.match(app,/function renderCountryPicker\(\)/);
+  assert.match(app,/filterCountries\(countryOptions\(getLanguage\(\)\)/);
+  assert.match(app,/data-country-code/);
   assert.match(app,/MAP_SEARCH_COUNTRY_KEY/);
 });
 
