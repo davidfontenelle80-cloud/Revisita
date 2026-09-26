@@ -2,7 +2,17 @@
 
 ## Estado
 
-**Publicada: v1.5.7. v1.5.8: READY FOR REVIEW — búsqueda por país y formato de dirección.**
+**Publicada: v1.5.8. v1.5.9: READY FOR REVIEW — selector compacto y buscable de países.**
+
+## Selector compacto y buscable de países v1.5.9
+
+- **País** ocupa una sola fila compacta; al tocarla se abre un selector.
+- El selector contiene **249 países/territorios ISO** disponibles para búsquedas mundiales.
+- Se puede **escribir para filtrar** o **desplazarse y tocar** un país.
+- Los nombres se muestran en español/inglés según el idioma de Revisita y la búsqueda tolera acentos.
+- La selección se recuerda en el dispositivo.
+- EE. UU. y República Dominicana conservan formularios de dirección especializados; los demás países usan un campo flexible pero la búsqueda queda limitada al país seleccionado.
+- Versión **1.5.9** · shell cache **revisita-shell-v31-country-picker**.
 
 ## Búsqueda por país + formato de dirección v1.5.8
 
