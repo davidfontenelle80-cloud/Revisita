@@ -1,5 +1,20 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.9 — Selector compacto y buscable de países
+
+Worker: ChatGPT / GPT-5.6 Sol · Status: **IN PROGRESS** (2026-09-26).
+
+Supervisor request: make Country a compact first step that does not consume map space; tapping it should open the full country list, with both typing-to-filter and scrolling/tapping.
+
+Scope:
+- Replace the permanent three-option selector with a one-line country button.
+- Open a searchable picker containing the full ISO country/territory list used for worldwide map search.
+- Let the user type a country name or scroll/tap the list.
+- Localize country names to Spanish/English and remember the selected country.
+- Keep specialized U.S. and Dominican Republic address forms; all other selected countries use the flexible address/location field and country-code constrained search.
+- Preserve the one-tap map search behavior and offline-zone workflow.
+- Add regression/unit coverage and bump the PWA build/cache.
+
 ## v1.5.8 — Búsqueda por país + formato de dirección
 
 Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
