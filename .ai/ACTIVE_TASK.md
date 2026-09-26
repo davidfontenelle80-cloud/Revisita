@@ -1,5 +1,19 @@
 # ACTIVE_TASK — Revisita
 
+## v1.5.6 — Buscar dirección / código postal en el mapa
+
+Worker: ChatGPT / GPT-5.6 Sol · Status: **IN PROGRESS** (2026-09-25).
+
+Supervisor request: allow a Wi‑Fi-only tablet to find a location by typing an address or ZIP/postal code instead of relying on GPS.
+
+Scope:
+- Add a map search for address, sector/neighborhood, town, or ZIP/postal code.
+- Show multiple geocoding matches when the search is ambiguous.
+- A result with a house number can create a provisional pin for confirmation.
+- Area/postal-code results center the map but do not pretend to be the exact house; the user taps/adjusts the exact point.
+- Reuse the existing OpenStreetMap/Nominatim address service and existing confirmation workflow.
+- Add bilingual copy, offline/error handling, tests, and a PWA version/cache bump.
+
 ## v1.5.5 — Mejor precisión GPS antes de confirmar
 
 Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
