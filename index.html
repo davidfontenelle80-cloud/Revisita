@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/favicon.png?v=1.5.2" type="image/png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1.5.2">
-  <link rel="stylesheet" href="css/main.css?v=1.5.5">
+  <link rel="stylesheet" href="css/main.css?v=1.5.6">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">Ir al contenido</a>
@@ -52,6 +52,15 @@
 
     <section id="view-map" class="view" data-view="map" aria-labelledby="mapTitle" hidden>
       <div class="view-heading map-heading"><div><h2 id="mapTitle" data-i18n="map">Mapa</h2></div><button id="saveZoneBtn" class="btn btn-secondary btn-small zone-btn" type="button"><span aria-hidden="true">⤓</span> <span data-i18n="saveZone">Guardar zona</span></button></div>
+      <form id="mapSearchForm" class="map-search card" role="search">
+        <label class="map-search-field">
+          <span class="sr-only" data-i18n="mapSearchLabel">Buscar dirección o código postal</span>
+          <input id="mapSearchInput" type="search" autocomplete="street-address" enterkeyhint="search" data-i18n-placeholder="mapSearchPlaceholder" placeholder="Dirección, sector o código postal">
+        </label>
+        <button id="mapSearchBtn" class="btn btn-primary btn-small" type="submit" data-i18n="search">Buscar</button>
+      </form>
+      <p id="mapSearchStatus" class="map-search-status muted" role="status" aria-live="polite"></p>
+      <div id="mapSearchResults" class="map-search-results" hidden></div>
       <div class="horizontal-options">
         <div id="mapModeRow" class="filter-row map-mode-row" role="group" aria-label="Modo del mapa" data-i18n-aria="mapModes">
           <button class="filter-chip" type="button" data-map-mode="today" data-i18n="today">Hoy</button>
@@ -153,7 +162,7 @@
         <section class="card settings-card"><h3 data-i18n="backup">Copia de seguridad</h3><p data-i18n="backupText">Exporta tus revisitas para guardarlas o pasarlas a otro teléfono.</p><div class="button-stack"><button id="exportBtn" class="btn btn-secondary" type="button" data-i18n="exportBackup">Exportar copia</button><button id="importBtn" class="btn btn-secondary" type="button" data-i18n="importBackup">Importar copia</button><input id="importFileInput" type="file" accept="application/json,.json" hidden><button id="restoreSnapshotBtn" class="btn btn-secondary" type="button" hidden data-i18n="restorePrevious">Restaurar copia anterior</button></div></section>
         <section class="card settings-card privacy-card"><h3 data-i18n="privacy">Privacidad</h3><p id="privacyText" data-i18n="privacyText">Las revisitas y notas se guardan en este dispositivo (y en tu cuenta solo si activas la sincronización). El mapa y la búsqueda de dirección usan servicios públicos de OpenStreetMap cuando hay conexión.</p><p class="muted" data-i18n="privacyTip">Guarda únicamente la información necesaria para la revisita.</p></section>
         <section class="card settings-card danger-zone"><h3 data-i18n="data">Datos</h3><button id="deleteAllBtn" class="btn btn-danger" type="button" data-i18n="deleteAll">Borrar todas las revisitas</button></section>
-        <p class="app-version">Revisita v1.5.5</p>
+        <p class="app-version">Revisita v1.5.6</p>
       </div>
     </section>
   </main>
@@ -355,6 +364,6 @@
   </dialog>
 
   <div id="toastRegion" class="toast-region" popover="manual" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="js/app.js?v=1.5.5"></script>
+  <script type="module" src="js/app.js?v=1.5.6"></script>
 </body>
 </html>
