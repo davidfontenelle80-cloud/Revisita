@@ -1,6 +1,6 @@
-const APP_BUILD = '1.5.7';
+const APP_BUILD = '1.5.8';
 const CACHE_PREFIX = 'revisita-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v29-auto-search-map`;
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v30-country-address-search`;
 const TILE_CACHE = 'revisita-tiles-v1';
 // Areas the user saved on purpose with "Guardar zona"; never trimmed, survives shell updates.
 const ZONE_CACHE = 'revisita-zones-v1';
@@ -9,19 +9,20 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.json',
-  './css/main.css?v=1.5.7',
-  './js/app.js?v=1.5.7',
+  './css/main.css?v=1.5.8',
+  './js/app.js?v=1.5.8',
   './js/map.js?v=1.5.2',
   './js/map-utils.js?v=1.5.2',
   './js/storage.js?v=1.5.2',
   './js/schedule-utils.js?v=1.5.2',
-  './js/i18n.js?v=1.5.7',
+  './js/i18n.js?v=1.5.8',
   './js/visit-tools.js?v=1.5.2',
   './js/cloud-sync.js?v=1.5.2',
   './js/push.js?v=1.5.2',
   './js/visit-time.js?v=1.5.2',
   './js/location-utils.js?v=1.5.5',
   './js/geocode-utils.js?v=1.5.6',
+  './js/address-search.js?v=1.5.8',
   './icons/icon-72.png?v=1.5.2',
   './icons/icon-192.png?v=1.5.2',
   './icons/icon-512.png?v=1.5.2',

@@ -1,7 +1,7 @@
 import{SimpleMap}from'./map.js?v=1.5.2';
 import{haversineKm,formatDistance}from'./map-utils.js?v=1.5.2';
 import{dateKey,visitBucket,compareSchedule,formatTime,selectNextVisit,reminderLead}from'./schedule-utils.js?v=1.5.2';
-import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.7';
+import{initLanguage,setLanguage,getLanguage,locale,t,applyTranslations}from'./i18n.js?v=1.5.8';
 import{loadState,saveState,exportPayload,validateImportPayload,previewImport,applyImport,hasRecoverySnapshot,restoreRecoverySnapshot,normalizeVisit}from'./storage.js?v=1.5.2';
 import{compactAddress,placeLine,nextDatePresets,directionsUrl,mapLink,whatsappUrl,telUrl,buildICS,googleCalendarUrl,zoneTileUrls,calendarSlot,staleCalendarSlot,addDays}from'./visit-tools.js?v=1.5.2';
 import{createCloudSync}from'./cloud-sync.js?v=1.5.2';
@@ -9,13 +9,14 @@ import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,sync
 import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.2';
 import{locationFromPosition,betterLocation,accuracyLevel,formatAccuracy}from'./location-utils.js?v=1.5.5';
 import{normalizeGeocodeResult,geocodeResultIsExact,geocodeResultZoom}from'./geocode-utils.js?v=1.5.6';
+import{buildAddressSearch,hasAddressSearchInput}from'./address-search.js?v=1.5.8';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer,locationPermissionState='unknown',locationHelpVisible=false,locationLastError='',mapSearchMatches=[],mapSearchToken=0;
-const ONBOARDING_KEY='revisita.onboarding.v1';
+const ONBOARDING_KEY='revisita.onboarding.v1',MAP_SEARCH_COUNTRY_KEY='revisita.mapSearch.country';
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 const $=id=>document.getElementById(id);
 const els={
- status:$('saveStatus'),mapEl:$('map'),mapShell:$('mapShell'),locate:$('locateBtn'),confirmPanel:$('locationConfirmPanel'),pendingAddress:$('pendingAddress'),pendingCoords:$('pendingCoords'),pendingAccuracy:$('pendingAccuracy'),mapModeSummary:$('mapModeSummary'),mapSearchForm:$('mapSearchForm'),mapSearchInput:$('mapSearchInput'),mapSearchStatus:$('mapSearchStatus'),mapSearchResults:$('mapSearchResults'),
+ status:$('saveStatus'),mapEl:$('map'),mapShell:$('mapShell'),locate:$('locateBtn'),confirmPanel:$('locationConfirmPanel'),pendingAddress:$('pendingAddress'),pendingCoords:$('pendingCoords'),pendingAccuracy:$('pendingAccuracy'),mapModeSummary:$('mapModeSummary'),mapSearchForm:$('mapSearchForm'),mapSearchCountry:$('mapSearchCountry'),mapSearchStatus:$('mapSearchStatus'),mapSearchResults:$('mapSearchResults'),
  dialog:$('visitDialog'),form:$('visitForm'),id:$('visitId'),lat:$('visitLat'),lng:$('visitLng'),visitStatus:$('visitStatus'),name:$('visitName'),reference:$('visitReference'),phone:$('visitPhone'),leftWith:$('visitLeftWith'),nextTopic:$('visitNextTopic'),address:$('visitAddress'),notes:$('visitNotes'),due:$('visitDueDate'),dueTime:$('visitDueTime'),title:$('dialogTitle'),coords:$('dialogCoords'),movePinBtn:$('movePinBtn'),deleteVisit:$('deleteVisitBtn'),cancelEdit:$('cancelEditBtn'),saveVisitBtn:$('saveVisitBtn'),detailMapSection:$('detailMapSection'),historyPanel:$('historyPanel'),historyList:$('historyList'),historyMore:$('historyMoreBtn'),visitView:$('visitView'),editFields:$('editFields'),viewPlace:$('viewPlace'),viewSchedule:$('viewSchedule'),viewDetails:$('viewDetails'),viewLog:$('viewLogBtn'),viewContact:$('viewContactActions'),viewCall:$('viewCallBtn'),viewWhatsapp:$('viewWhatsappBtn'),calendarHint:$('calendarHint'),
  logDialog:$('logDialog'),logForm:$('logForm'),logName:$('logVisitName'),logNote:$('logNote'),logLeftWith:$('logLeftWith'),logNextTopic:$('logNextTopic'),logDue:$('logDueDate'),logTime:$('logDueTime'),logEnd:$('logEnd'),directionsDialog:$('directionsDialog'),mapTip:$('mapTip'),zoneBtn:$('saveZoneBtn'),
  list:$('visitList'),empty:$('emptyList'),summary:$('listSummary'),search:$('searchInput'),
@@ -107,6 +108,8 @@ function resetPageScroll(reassert=false){
 }
 
 function bindMap(){
+ initMapSearchCountry();
+ els.mapSearchCountry?.addEventListener('change',()=>{mapSearchToken++;saveMapSearchCountry(els.mapSearchCountry.value);renderMapSearchCountry();clearMapSearchResults();els.mapSearchStatus.textContent='';const btn=$('mapSearchBtn');if(btn)btn.disabled=false;});
  els.mapSearchForm?.addEventListener('submit',searchMapLocation);
  els.mapSearchResults?.addEventListener('click',e=>{const b=e.target.closest('[data-map-search-index]');if(b)selectMapSearchResult(Number(b.dataset.mapSearchIndex));});
  els.mapEl.addEventListener('pointerdown',()=>{mapMovedByUser=true;});
@@ -134,29 +137,75 @@ function applyMovedPin(visitId,p){
  toast(t('pinMoved'));
 }
 }
+function savedMapSearchCountry(){
+ try{const value=localStorage.getItem(MAP_SEARCH_COUNTRY_KEY);return ['us','do','other'].includes(value)?value:'us';}catch{return'us';}
+}
+function saveMapSearchCountry(value){try{localStorage.setItem(MAP_SEARCH_COUNTRY_KEY,value);}catch{}}
+function initMapSearchCountry(){
+ if(!els.mapSearchCountry)return;
+ els.mapSearchCountry.value=savedMapSearchCountry();
+ renderMapSearchCountry();
+}
+function renderMapSearchCountry(){
+ const country=els.mapSearchCountry?.value||'us';
+ document.querySelectorAll('[data-search-country]').forEach(group=>{group.hidden=group.dataset.searchCountry!==country;});
+}
+function mapSearchValues(country){
+ if(country==='us')return{street:$('mapSearchUSStreet')?.value,city:$('mapSearchUSCity')?.value,region:$('mapSearchUSState')?.value,postal:$('mapSearchUSZip')?.value};
+ if(country==='do')return{street:$('mapSearchDOStreet')?.value,neighborhood:$('mapSearchDOSector')?.value,city:$('mapSearchDOCity')?.value,region:$('mapSearchDOProvince')?.value,postal:$('mapSearchDOPostal')?.value};
+ return{countryName:$('mapSearchOtherCountry')?.value,address:$('mapSearchOtherAddress')?.value};
+}
+function focusFirstMapSearchField(country){
+ const id=country==='us'?'mapSearchUSStreet':country==='do'?'mapSearchDOStreet':'mapSearchOtherAddress';
+ $(id)?.focus();
+}
 function clearMapSearchResults(){
- mapSearchMatches=[];mapSearchToken++;
+ mapSearchMatches=[];
  if(els.mapSearchResults){els.mapSearchResults.hidden=true;els.mapSearchResults.replaceChildren();}
+}
+function geocodeJsonp(params){
+ return new Promise((resolve,reject)=>{
+   const callback='__revisitaGeocode_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+   const script=document.createElement('script');
+   const copy=new URLSearchParams(params);copy.set('json_callback',callback);
+   let timer=null;
+   const cleanup=()=>{if(timer)clearTimeout(timer);script.remove();try{delete window[callback];}catch{window[callback]=undefined;}};
+   window[callback]=data=>{cleanup();resolve(Array.isArray(data)?data:[]);};
+   script.onerror=()=>{cleanup();reject(new Error('Geocoder script failed.'));};
+   timer=setTimeout(()=>{cleanup();reject(new Error('Geocoder timeout.'));},12000);
+   script.src=`https://nominatim.openstreetmap.org/search?${copy}`;
+   document.head.append(script);
+ });
+}
+async function fetchGeocodeRows(params){
+ try{
+   const r=await fetch(`https://nominatim.openstreetmap.org/search?${params}`,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(12000)});
+   if(!r.ok)throw new Error(`HTTP ${r.status}`);
+   return await r.json();
+ }catch(error){
+   console.warn('[Revisita] direct geocoder fetch failed; retrying browser fallback.',error);
+   return geocodeJsonp(params);
+ }
 }
 async function searchMapLocation(e){
  e?.preventDefault();
- const query=els.mapSearchInput?.value.trim();
- if(!query){els.mapSearchInput?.focus();return;}
+ const country=els.mapSearchCountry?.value||'us',values=mapSearchValues(country);
+ if(!hasAddressSearchInput(country,values)){els.mapSearchStatus.textContent=t('mapSearchNeedInput');focusFirstMapSearchField(country);return;}
  if(!navigator.onLine){els.mapSearchStatus.textContent=t('mapSearchOffline');return;}
+ const {query,countryCode}=buildAddressSearch(country,values);
  const token=++mapSearchToken;
  const btn=$('mapSearchBtn');if(btn)btn.disabled=true;
  els.mapSearchStatus.textContent=t('mapSearchSearching');
  if(els.mapSearchResults){els.mapSearchResults.hidden=true;els.mapSearchResults.replaceChildren();}
  try{
    const q=new URLSearchParams({format:'jsonv2',addressdetails:'1',q,limit:'5','accept-language':getLanguage()});
-   const r=await fetch(`https://nominatim.openstreetmap.org/search?${q}`,{headers:{Accept:'application/json'}});
-   if(!r.ok)throw new Error(`HTTP ${r.status}`);
-   const rows=(await r.json()).filter(x=>normalizeGeocodeResult(x));
+   if(countryCode)q.set('countrycodes',countryCode);
+   const rows=(await fetchGeocodeRows(q)).filter(x=>normalizeGeocodeResult(x));
    if(token!==mapSearchToken)return;
    mapSearchMatches=rows;
    renderMapSearchResults();
    if(rows.length){
-     els.mapSearchInput?.blur();
+     document.activeElement instanceof HTMLElement&&document.activeElement.blur();
      selectMapSearchResult(0,{keepResults:rows.length>1,automatic:true});
    }
  }catch(error){
@@ -1073,7 +1122,7 @@ async function registerSW(){
  if(!('serviceWorker'in navigator))return;
  const initiallyControlled=Boolean(navigator.serviceWorker.controller);
  try{
-   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.7',{scope:'./',updateViaCache:'none'});
+   swRegistration=await navigator.serviceWorker.register('./sw.js?v=1.5.8',{scope:'./',updateViaCache:'none'});
    if(swRegistration.waiting&&navigator.serviceWorker.controller){
      if(isSafeForServiceWorkerReload())swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
      else showServiceWorkerUpdate();

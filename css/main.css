@@ -294,17 +294,24 @@ button, .btn, .nav-item, .filter-chip { transition: transform var(--transition-s
 .agenda-card p{margin:4px 0 0;color:var(--color-text-muted);font-size:.86rem}
 .agenda-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
 .agenda-actions .btn{min-height:40px;padding:7px 8px;font-size:.8rem}
-.map-search{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px;margin-bottom:8px;box-shadow:none}
-.map-search-field{min-width:0}
-.map-search-field input{width:100%;min-height:42px;border:1px solid var(--color-border);border-radius:var(--radius-md);padding:8px 11px;color:var(--color-text);background:var(--color-surface-2)}
+.map-search{display:grid;gap:10px;padding:12px;margin-bottom:8px;box-shadow:none}
+.map-search-top{display:grid;grid-template-columns:minmax(0,260px);gap:8px}
+.map-search-country{margin:0}
+.map-search-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.map-search-fields[hidden]{display:none!important}
+.map-search-wide{grid-column:1/-1}
+.map-search .field{margin:0;min-width:0}
+.map-search input,.map-search select{width:100%;min-height:42px}
+.map-search .btn{justify-self:start;min-width:150px}
 .map-search-status{min-height:1.1em;margin:0 2px 8px;font-size:.78rem}
 .map-search-results{display:grid;gap:7px;margin:0 0 10px}
 .map-search-result{width:100%;padding:10px 12px;text-align:left;color:var(--color-text);background:var(--color-surface);border:1px solid var(--color-border)}
 .map-search-result strong{display:block;font-size:.88rem}
 .map-search-result span{display:block;margin-top:2px;color:var(--color-text-muted);font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:520px){
-  .map-search{grid-template-columns:1fr}
-  .map-search .btn{width:100%}
+  .map-search-top,.map-search-fields{grid-template-columns:1fr}
+  .map-search-wide{grid-column:auto}
+  .map-search .btn{width:100%;justify-self:stretch}
 }
 .map-mode-row{margin-bottom:3px}
 .map-mode-summary{margin:0 0 9px;font-size:.82rem}

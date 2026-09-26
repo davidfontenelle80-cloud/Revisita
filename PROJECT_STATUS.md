@@ -2,7 +2,20 @@
 
 ## Estado
 
-**Publicada: v1.5.6. v1.5.7: READY FOR REVIEW — búsqueda mueve el mapa automáticamente.**
+**Publicada: v1.5.7. v1.5.8: READY FOR REVIEW — búsqueda por país y formato de dirección.**
+
+## Búsqueda por país + formato de dirección v1.5.8
+
+- La búsqueda del mapa empieza con **País** y cambia los campos según el formato de dirección.
+- **Estados Unidos:** Dirección, Ciudad, Estado, ZIP.
+- **República Dominicana:** Calle/número, Sector/Barrio, Municipio/Ciudad, Provincia y Código postal opcional.
+- **Otro país:** País + Dirección o lugar flexible.
+- Para EE. UU. y RD la búsqueda queda limitada al país elegido para evitar coincidencias en otro país.
+- Un solo toque en **Buscar en el mapa** aplica la mejor coincidencia y lleva el mapa allí.
+- Corrige el fallo donde una búsqueda de un solo resultado podía dejar **Buscar** deshabilitado.
+- Si falla la consulta directa al geocodificador, se reintenta con un fallback compatible con navegador.
+- Versión **1.5.8** · shell cache **revisita-shell-v30-country-address-search**.
+- GitHub Actions **Check #301 PASS** y PR **Check #302 PASS**.
 
 ## Búsqueda mueve el mapa automáticamente v1.5.7
 
