@@ -2,7 +2,17 @@
 
 ## Estado
 
-**Publicada: v1.5.4. v1.5.5: READY FOR REVIEW — mejor precisión GPS.**
+**Publicada: v1.5.5. v1.5.6: READY FOR REVIEW — búsqueda por dirección/código postal.**
+
+## Buscar dirección / código postal v1.5.6
+
+- El mapa incluye **Buscar dirección o código postal** (también sirve para sector/barrio/municipio).
+- Muestra hasta cinco resultados cuando hay varias coincidencias.
+- Un resultado con número de casa crea un pin provisional para confirmar.
+- Un ZIP/código postal o resultado de área solo centra el mapa; el usuario toca el punto exacto de la casa para evitar falsa precisión.
+- Reutiliza OpenStreetMap/Nominatim y conserva el flujo existente de confirmar/ajustar ubicación.
+- Versión **1.5.6** · shell cache **revisita-shell-v28-address-search**.
+- GitHub Actions **Check #271 PASS**: `npm run check` + bundle seco del Worker.
 
 ## Mejor precisión GPS v1.5.5
 
