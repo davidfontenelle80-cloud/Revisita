@@ -109,7 +109,7 @@ function resetPageScroll(reassert=false){
 
 function bindMap(){
  initMapSearchCountry();
- els.mapSearchCountry?.addEventListener('change',()=>{saveMapSearchCountry(els.mapSearchCountry.value);renderMapSearchCountry();clearMapSearchResults();els.mapSearchStatus.textContent='';});
+ els.mapSearchCountry?.addEventListener('change',()=>{mapSearchToken++;saveMapSearchCountry(els.mapSearchCountry.value);renderMapSearchCountry();clearMapSearchResults();els.mapSearchStatus.textContent='';const btn=$('mapSearchBtn');if(btn)btn.disabled=false;});
  els.mapSearchForm?.addEventListener('submit',searchMapLocation);
  els.mapSearchResults?.addEventListener('click',e=>{const b=e.target.closest('[data-map-search-index]');if(b)selectMapSearchResult(Number(b.dataset.mapSearchIndex));});
  els.mapEl.addEventListener('pointerdown',()=>{mapMovedByUser=true;});
