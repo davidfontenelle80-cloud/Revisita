@@ -8,7 +8,7 @@ import{createCloudSync}from'./cloud-sync.js?v=1.5.2';
 import{pushSupported,pushEnabled,pushNeedsHomeScreen,enablePush,disablePush,syncPushReminders,testPush,reminderWindow,pushSetupState,pushSetupNeeded,snoozePushPrompt,pushPromptSnoozed}from'./push.js?v=1.5.2';
 import{deviceTimeZone,visitInstant}from'./visit-time.js?v=1.5.2';
 import{locationFromPosition,betterLocation,accuracyLevel,formatAccuracy}from'./location-utils.js?v=1.5.5';
-import{normalizeGeocodeResult,geocodeResultIsExact,geocodeResultZoom}from'./geocode-utils.js?v=1.5.6;
+import{normalizeGeocodeResult,geocodeResultIsExact,geocodeResultZoom}from'./geocode-utils.js?v=1.5.6';
 
 let state=loadState(),logVisitId=null,directionsVisitId=null,zoneSaving=false,cloud=null,currentLocation=null,filter='active',mapMode='active',installPrompt=null,pendingImport=null,pendingLocation=null,movePinVisitId=null,swRegistration=null,swReloading=false,swLastUpdateCheck=0,lookupToken=0,nextVisitId=null,mapHasOpened=false,mapMovedByUser=state.map?.manual===true,historyExpanded=false,pushSyncTimer,locationPermissionState='unknown',locationHelpVisible=false,locationLastError='',mapSearchMatches=[],mapSearchToken=0;
 const ONBOARDING_KEY='revisita.onboarding.v1';
