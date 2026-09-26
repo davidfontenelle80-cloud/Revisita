@@ -2,7 +2,7 @@
 
 ## v1.5.8 — Búsqueda por país + formato de dirección
 
-Worker: ChatGPT / GPT-5.6 Sol · Status: **IN PROGRESS** (2026-09-25).
+Worker: ChatGPT / GPT-5.6 Sol · Status: **READY FOR REVIEW** (2026-09-25).
 
 Supervisor request: choose a country first, then show the address fields appropriate to that country and move the map from that structured entry.
 
@@ -16,6 +16,18 @@ Scope:
 - Fix the current search-token bug that can leave Buscar disabled after a single-result search.
 - Add a browser-safe fallback for the public geocoder if cross-origin fetch fails.
 - Keep alternate results available when useful, add tests, and bump the PWA build/cache.
+- Country selector now drives the visible search fields.
+- **United States:** Street address, City, State, ZIP.
+- **Dominican Republic:** Calle/número, Sector/Barrio, Municipio/Ciudad, Provincia, optional Código postal.
+- **Other country:** Country + flexible address/location field.
+- Known countries add a `countrycodes` filter to the geocoder, reducing cross-country false matches.
+- One tap on **Buscar en el mapa** applies the best result, dismisses the keyboard, and reveals the map.
+- Fixed the single-result token bug that could leave Buscar disabled.
+- If direct geocoder `fetch` fails, Revisita retries with Nominatim's JSON callback/browser fallback.
+- Added pure query-builder tests plus UI/source regression coverage.
+- App build **1.5.8** · shell cache **revisita-shell-v30-country-address-search**.
+- GitHub Actions **Check #301 PASS** and PR **Check #302 PASS**.
+
 
 ## v1.5.7 — Búsqueda mueve el mapa automáticamente
 
